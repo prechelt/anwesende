@@ -71,6 +71,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "anwesende.room",
     "anwesende.users.apps.UsersConfig",
     # Your stuff: custom apps go here
 ]
