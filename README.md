@@ -1,30 +1,38 @@
-# anwesende: Ein Dienst für Anwesenheitslisten für Hochschulen
+# a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
+
+Lutz Prechelt, 2020-10-08
 
 Simple attendance registration for universities having pandemics.
+"anwesende" is German for "people that are being present".
 
-Lutz Prechelt, 2020-10-05
 
 **DE**: Eine sehr einfache Lösung für die Verfolgung von Infektionsketten,
 die stark auf menschliche Urteilskraft und manuelle Schritte baut, 
 um die Software einfach und den Gebrauch flexibel zu halten.
 
-**EN**: A very simple application to help tracing infection chains 
+**EN**: A very simple web application to help tracing infection chains 
 at universities.
 Makes heavy use of human judgment and manual operations 
 to keep the software simple and its use flexible.  
 Alas, the remainder of the documentation is available in German only (so far).
 
 
-# 1. Anforderungsbeschreibung
+# 1. Abläufe
 
 ## 1.1. Überblick
 
 Rollen: 
-Dienst `anwesende`, 
-Teilnehmende Hochschule,
-Besucher/in,
-Datenverwalter/in
+- Dienst `a.nwesen.de` (kurz: Dienst): 
+  Die hier web-basierte Funktionalität,
+  die die hier beschriebene Software entfaltet, wenn man sie betreibt. 
+- Teilnehmende Hochschule (kurz: Hochschule): 
+  Eine Hochschule, die den Dienst betreibt oder mit nutzt.
+- Besucher/in: Eine Person, deren Anwesenheit in einem Raum der Hochschule
+  erfasst werden soll. 
+- Datenverwalter/in: Die Person, die Lesezugriff auf die erfassten
+  Anwesenheitsdaten hat und anderen Berechtigten selektiv Zugang verschafft.
 
+Schritte des Gesamtablaufs:
 1. Eine teilnehmende Hochschule übermittelt der Datenverwalter/in 
    eine Liste von Räumen und Sitzplätzen, 
    siehe `Räume übermitteln`.
@@ -44,15 +52,16 @@ Datenverwalter/in
 ## 1.2 Besucher/innen/sicht
 
 Rollen: 
-Dienst `anwesende`, 
-Besucher/in ('ich') einer teilnehmenden Hochschule.
+- Dienst `a.nwesen.de`, 
+- Besucher/in ('ich') einer teilnehmenden Hochschule.
 
 1. Ich komme in einen offenen Raum der teilnehmenden Hochschule.
    An meinem Sitzplatz klebt ein QR-Code. Ich scanne ihn mit meinem
    Smartphone und lande in meinem Webbrowser auf einer Seite mit
-   ungefähr so einem Namen: https://a.nwesen.de/1234567890.
+   ungefähr so einem Namen: `https://a.nwesen.de/1234567890`.
 2. Der Dienst zeigt mir Datenschutzhinweise.
-3. Ich gebe ein Vorname, Name, Mobilfunknummer, Email
+3. Ich gebe meine Daten ein (Vorname, Name, Mobilfunknummer, Email,
+   Straße/Hausnummer, PLZ, Ort)
    und sende das Formular ab.  
    Ab dem zweiten Aufruf ist das Formular wegen eines Cookies
    sogar schon vor-ausgefüllt und ich muss es nur absenden.
@@ -173,4 +182,71 @@ Datenverwalter/in
    Gesundheitsamt.
    
 
+# 2. Vor- und Nachteile
 
+im Vergleich zu papierbasierter Erfassung der Anwesenheit
+
+Vorteile:
+- Zeitersparnis: 
+  Die Erfassung geschieht mit viel weniger Zeitaufwand.
+- Ressourcenersparnis: 
+  Spart erhebliche Mengen an Papier ein.
+- Hygiene: 
+  Es müssen keine Papiere von Hand zu Hand weitergegeben werden.
+- Datenschutz 1: 
+  Nur eine Person hat anlasslos Zugang zu den erfassten Daten.
+  Im Papierfall sind dies viele und es ist schwierig zu überschauen, welche.
+- Datenschutz 2:
+  Die Daten können am Ende der Aufbewahrungsfrist vollautomatisch und
+  somit verlässlich gelöscht werden.
+
+Risiken:
+- Datenschutz:
+  Ein Einbruch in die Datenbank des Servers kann aus der Ferne
+  erfolgen und betrifft mehr Daten als ein Diebstahl papierner
+  Erfassungsbögen.
+- Vollständigkeit:
+  Der Erfassungsvorgang ist für die anderen Anwesenden weniger anschaulich
+  und kann deshalb möglicherweise leichter vergessen werden. 
+- Richtigkeit:
+  Unsinnige Eingaben von Besuchern ("Donald Duck") sind kaum mehr 
+  an Ort und Stelle zu entdecken.
+
+
+# 3. Der/Die Datenverwalter/in
+
+- Muss Englisch können (denn die Dialoge in diesem technischeren Bereich
+  der Anwendung sind auf Englisch gehalten).
+- Darf keine Angst vor der Arbeit mit der Kommandozeile haben.
+- Benötigt eine Einweisung (ca. 1 Stunde).
+- Muss Mitglied einer teilnehmenden Hochschule sein.
+  Alle anderen teilnehmenden Hochschulen müssen mit dieser Hochschule
+  einen Auftragsdatenverarbeitungsvertrag schließen.
+- Muss bei jeder Meldung von Räumen aus einer Hochschuleinheit klären,
+  wer für diese Einheit berechtigt ist, Anwesenheitsdaten abzurufen,
+  und dann den Datenzugang auf diesen Personenkreis beschränken.
+   
+
+# 4. Configuration
+
+This is technical information, therefore in English.
+
+The application is meant to be deployed in many places
+(to simplify the situation regarding privacy protection)
+and allows some configuration to adopt to local needs.
+
+Environment variables:
+- `DATA_CONTACT_EMAIL`: Email address of the Datenverwalter/in
+- `DATA_RETENTION_DAYS`: Number of days after which an 
+   attendance event record will be deleted.
+- `IMPRINT_URL`: Web address of the Imprint/Impressum page
+  that legally identifies the service's operator.
+- `TECH_CONTACT_EMAIL`: Email address of the server operator.
+
+
+# 5. Technical details
+
+- The application is written in Python using the Django framework.
+- It uses a PostgreSQL database.
+- The code is open-source (with an MIT license) in order to
+  provide maximal transparency.
