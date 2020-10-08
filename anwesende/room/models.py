@@ -5,6 +5,7 @@ FIELDLENGTH = 80
 class Importstep(djdm.Model):
     """Each Importstep corresponds to one set of QR-Codes created."""
     when = djdm.DateTimeField(auto_now_add=True)  # creation timestamp
+    randomkey = djdm.CharField(null=False, max_length=FIELDLENGTH)
     
 
 class Room(djdm.Model):
@@ -37,7 +38,13 @@ class Room(djdm.Model):
     importstep = djdm.ForeignKey(   # set on create or overwrite
         to=Importstep,
         on_delete=djdm.PROTECT)
+    
+    def __str__(self):
+        return f"{self.organization}|{self.department}|{self.building}|{self.room}"
 
+    def __repr__(self):
+        return self.__str__()
+    
 
 class Seat(djdm.Model):
     #----- Fields:
@@ -52,3 +59,9 @@ class Seat(djdm.Model):
     room = djdm.ForeignKey(
         to=Room,
         on_delete=djdm.PROTECT)
+
+    def __str__(self):
+        return f"{self.room.room}|{self.number}|{self.hash}"
+
+    def __repr__(self):
+        return self.__str__()

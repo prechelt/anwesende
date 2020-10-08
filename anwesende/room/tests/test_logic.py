@@ -73,19 +73,21 @@ def test_create_seats_from_excel():
     assert arm.Importstep.objects.all().count() == 1
     importstep = arm.Importstep.objects.first()
     #----- check rooms:
-    assert arm.Room.objects.filter(organization="fu-berlin.de").count() == 2
+    all_rooms = arm.Room.objects.filter(organization="fu-berlin.de")
+    assert all_rooms.count() == 2
+    print(list(all_rooms))
     qs_room055 = arm.Room.objects.filter(room="055")
     assert qs_room055.count() == 1
     room055: arm.Room = qs_room055.first()
     assert room055.importstep == importstep
     #----- check seats:
-    print(list((s.room.room, s.number) for s in arm.Seat.objects.all()))
+    print(list(str(s) for s in arm.Seat.objects.all()))
     assert arm.Seat.objects.count() == 20
     qs_room055_seats = arm.Seat.objects.filter(room=room055)
-    assert qs_room055.count() == 14
-    assert set(s.number for s in qs_room055) == set(range(1, 14+1))
-    myroom2 = qs_room055[2]
-    myroom5 = qs_room055[5]
-    assert myroom2.number != myroom5.number
-    assert myroom2.hash != myroom5.hash
-    assert re.fullmatch(r"[0-9a-f]{12}", myroom2.hash)
+    assert qs_room055_seats.count() == 14
+    assert set(s.number for s in qs_room055_seats) == set(range(1, 14+1))
+    myseat2 = qs_room055_seats[2]
+    myseat5 = qs_room055_seats[5]
+    assert myseat2.number != myseat5.number
+    assert myseat2.hash != myseat5.hash
+    assert re.fullmatch(r"[0-9a-f]{10}", myseat2.hash)

@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import hashlib
+import random
 import typing as tg
 
 from django.conf import settings
@@ -113,7 +114,7 @@ def _validate_seatrange(columndict: aue.Columnsdict):
 
 
 def _create_importstep() -> arm.Importstep:
-    result = arm.Importstep()
+    result = arm.Importstep(randomkey=str(random.randrange(100000,999999)))
     result.save()
     return result
 
@@ -136,13 +137,13 @@ def _find_or_create_rooms(
                               seat_max=col('seat_max'),
                               importstep=importstep)
         )
-    result.append(room)
-    if created:
-        newN += 1
-    else:
-        existingN += 1
-        room.importstep = importstep
-        room.save()
+        result.append(room)
+        if created:
+            newN += 1
+        else:
+            existingN += 1
+            room.importstep = importstep
+            room.save()
     return (result, newN, existingN)
 
 
@@ -156,10 +157,10 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]):
                     room=room,
                     defaults=dict(hash=seathash(room, seatnum))
             )
-    result.append(seat)
-    if created:
-        newN += 1
-    else:
-        existingN += 1
+            result.append(seat)
+            if created:
+                newN += 1
+            else:
+                existingN += 1
     return (result, newN, existingN)
 
