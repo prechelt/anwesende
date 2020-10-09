@@ -189,8 +189,12 @@ Datenverwalter/in
 im Vergleich zu papierbasierter Erfassung der Anwesenheit
 
 Vorteile:
-- Zeitersparnis: 
+- Zeitersparnis Erfassung: 
   Die Erfassung geschieht mit viel weniger Zeitaufwand.
+- Zeitersparnis Kontaktverfolgung:
+  Im Infektionsfall kann dem Gesundheitsamt innerhalb von
+  Minuten eine vollständige _elektronische_ Liste der möglichen
+  Kontaktpersonen übermittelt werden.
 - Ressourcenersparnis: 
   Spart erhebliche Mengen an Papier ein.
 - Hygiene: 
@@ -204,9 +208,8 @@ Vorteile:
 
 Risiken:
 - Datenschutz:
-  Ein Einbruch in die Datenbank des Servers kann aus der Ferne
-  erfolgen und betrifft mehr Daten als ein Diebstahl papierner
-  Erfassungsbögen.
+  Ein Einbruch in die Datenbank des Servers beträfe mehr Daten als
+  ein Diebstahl papierner Erfassungsbögen.
 - Vollständigkeit:
   Der Erfassungsvorgang ist für die anderen Anwesenden weniger anschaulich
   und kann deshalb möglicherweise leichter vergessen werden. 
