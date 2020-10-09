@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% url 'room:qrcodes' object.pk object.randomkey %}
+  <hr>
+  <table> <!-- only a table makes Adobe PDF printer behave OK -->
+    {% for seat in seats %}
+      <tr>
+        <td>
+          <img class="qrcode" src="{% url 'room:qrcode' seat.hash %}">
+        </td>
+        <td class="qrblock">
+          <span class="qrb-label">organization: </span>
+          <span class="qrb-item">{{seat.room.organization}}</span>
+          <br>
+          <span class="qrb-label">department: </span>
+          <span class="qrb-item">{{seat.room.department}}</span>
+          <br>
+          <span class="qrb-label">building: </span>
+          <span class="qrb-item">{{seat.room.building}}</span>
+          <br>
+          <span class="qrb-label">room: </span>
+          <span class="qrb-markeditem">{{seat.room.room}}</span>
+          <br>
+          <span class="qrb-label"> </span>
+          <span class="qrb-largeitem">{{seat.number}}</span>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock content %}

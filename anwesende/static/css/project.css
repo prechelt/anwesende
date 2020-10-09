@@ -6,8 +6,46 @@
   border-color: #d6e9c6;
 }
 
+.endfloat {
+  clear: both;
+}
+
 .alert-error {
   color: #b94a48;
   background-color: #f2dede;
   border-color: #eed3d7;
 }
+
+.qrb-label {
+  color: #222222;
+  font-size: 100%;
+}
+
+.qrb-item {
+  color: black;
+  font-size: 120%;
+
+}
+
+.qrb-markeditem {
+  color: black;
+  font-size: 120%;
+  font-weight: bold;
+}
+
+.qrb-largeitem {
+  color: black;
+  font-size: 300%;
+  font-weight: bold;
+
+}
+
+.qrblock {
+  padding-top: 2ex;
+  width: 300mm;
+}
+
+.qrcode {
+  width: 100mm;
+}
+

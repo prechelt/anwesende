@@ -2,35 +2,49 @@ import datetime as dt
 import time
 import typing as tg
 
-import django.db.models as djdm
-import django.forms as djf
-import django.http
 import django.http as djh
-import django.utils.text as djutx
-import django.utils.timezone as djut
+import django.urls as dju
 import vanilla as vv  # Django vanilla views
 from django.conf import settings
 
 import anwesende.room.models as arm
 import anwesende.room.forms as arf
+import anwesende.utils.qrcode as auq
+
 
 class ImportView(vv.FormView):
     form_class = arf.UploadFileForm
     template_name = "room/import.html"
 
     def get_success_url(self):
-        return "QRcode-page-url"
+        return dju.reverse('room.qrcodes', kwargs=dict(pk=1, randomkey=819737))
 
 
 class QRcodesView(vv.DetailView):
     model = arm.Importstep
-    template_name = "room/import.html"
+    template_name = "room/qrcodes.html"
 
-    def get_context_data(self):
-        context = super().get_context_data()
-        context['must_do'] = 4711
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        seats = arm.Seat.objects.filter(room__importstep=self.object)
+        context['seats'] = seats
         return context
 
     def get_object(self):
-        self.object = super().get_object()
-        assert self.kwargs['randomkey'] == self.object.randomkey  # else HTTP 500
+        object = super().get_object()
+        # assert self.kwargs['randomkey'] == object.randomkey  # else HTTP 500
+        return object
+    
+    
+class QRcodeView(vv.View):
+    def get(self, request, *args, **kwargs):
+        path = dju.reverse('room:visit', kwargs=dict(hash=kwargs['hash']))
+        url = self.request.build_absolute_uri(path)
+        qrcode_bytes = auq.qrcode_data(url, imgtype='svg')
+        return djh.HttpResponse(qrcode_bytes, content_type="image/svg+xml")
+
+
+class VisitView(vv.TemplateView):
+    #model = arm.Visit
+    template_name = "room/visit.html"
+    ...
