@@ -81,7 +81,7 @@ Mitarbeiter/in einer teilnehmenden Hochschule,
 Datenverwalter/in.
 
 1. Die Mitarbeiter/in lädt sich die 
-   [Excel-Vorlage zur Raumübermittlung](!!!)
+   [Excel-Vorlage zur Raumübermittlung](anwesende/room/tests/data/room1.xlsx)
    und füllt sie aus:
    - Die Überschriftzeile und die Zellenformate keinesfalls ändern!
    - Jeder Raum bekommt eine Zeile.
@@ -137,13 +137,16 @@ und klärt andernfalls die Korrekturen mit der Mitarbeiter/in.
 
 ## 1.4 Anwesenheitsdaten abrufen
 
+
 Rollen:
 Infiziertes Mitglied der Hochschule,
 Mitarbeiter/in der Hochschuleinheit,
 Datenverwalter/in
 
+**Folgender Ablauf wird noch drastisch vereinfacht werden (nur Hochschule, Name und Tage nötig)**
+
 1. Ist ein Mitglied einer teilnehmenden Hochschule infiziert,
-   so informiert er seine Hochschuleinheit(en) darüber,
+   so informiert es seine Hochschuleinheit(en) darüber,
    zu welchen Zeiten ersie sich in welchen Räumen aufgehalten hat
    oder beschreibt ersatzweise, in welchen Lehrveranstaltungen bei
    welchen Lehrpersonen an welchen Tagen.
@@ -241,7 +244,7 @@ and allows some configuration to adopt to local needs.
 - `IMPRINT_URL`: Web address of the Imprint/Impressum page
   that legally identifies the service's operator.
 - `TECH_CONTACT_EMAIL`: Email address of the server operator.
-- !!!
+- (and several more)!!!
 
 ## 4.2 Deployment
 
@@ -263,7 +266,7 @@ provide maximal transparency.
 
 - DONE 2020-10-06: Use case descriptions (will need update later)
 - DONE 2020-10-08: Reading Excel files and creating master data
-- TODO: Generating QR codes 
+- DONE 2020-10-09: Generating QR codes 
 - TODO: Visitor input form and writing visit data
 - TODO: Login for Datenverwalter/in
 - TODO: Retrieving visit data
