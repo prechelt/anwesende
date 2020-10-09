@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-10-08
+Lutz Prechelt, 2020-10-09  (see "Implementation status" at the bottom)
 
 Simple attendance registration for universities having pandemics.
 "anwesende" is German for "people that are being present".
@@ -83,9 +83,9 @@ Datenverwalter/in.
 1. Die Mitarbeiter/in lädt sich die 
    [Excel-Vorlage zur Raumübermittlung](!!!)
    und füllt sie aus:
-   - Die Überschriftzeile keinesfalls ändern!
+   - Die Überschriftzeile und die Zellenformate keinesfalls ändern!
    - Jeder Raum bekommt eine Zeile.
-   - Für alle Einträge genau die nachfolgenden Hinweise beachten:
+   - Für alle Einträge bitte genau die nachfolgenden Hinweise beachten:
    - `organization`: Domainname der teilnehmenden Hochschule, z.B.
      `fu-berlin.de` für die Freie Universität Berlin.  
      Dieser Wert ist in allen Zeilen der Datei gleich.
@@ -117,13 +117,12 @@ Datenverwalter/in.
    die Datenverwalter/in.
 3. Die Datenverwalter/in prüft die Daten auf Plausibilität,
    liest die Datei in den Dienst ein
-   und erhält eine Webadresse!!! zurück.
+   und erhält einen Link zurück.
 4. Die Datenverwalter/in öffnet diese Webseite.
-   Sie enthält einen QR-Code (mit beschreibender Beschriftung)
-   für jeden Sitzplatz, der in der Excel-Datei deklariert war.
+   Sie enthält für jeden Sitzplatz einen QR-Code mit beschreibender Beschriftung
+   wie es in der Excel-Datei deklariert war.
 5. Die Datenverwalter/in druckt diese Webseite in eine PDF-Datei
    und schickt sie der Mitarbeiter/in per Email.  
-   (Ggf. könnte sie statt dessen auch die Webadresse schicken).
 6. Die Mitarbeiter/in druckt die QR-Codes aus und klebt jeden davon
    auf den entsprechenden Sitzplatz im entsprechenden Raum.  
    Der QR-Code muss vollständig mit mattem transparentem Klebeband
@@ -217,7 +216,6 @@ Risiken:
 
 - Muss Englisch können (denn die Dialoge in diesem technischeren Bereich
   der Anwendung sind auf Englisch gehalten).
-- Darf keine Angst vor der Arbeit mit der Kommandozeile haben.
 - Benötigt eine Einweisung (ca. 1 Stunde).
 - Muss Mitglied einer teilnehmenden Hochschule sein.
   Alle anderen teilnehmenden Hochschulen müssen mit dieser Hochschule
@@ -227,7 +225,7 @@ Risiken:
   und dann den Datenzugang auf diesen Personenkreis beschränken.
    
 
-# 4. Configuration
+# 4. Deployment and operation
 
 This is technical information, therefore in English.
 
@@ -235,18 +233,42 @@ The application is meant to be deployed in many places
 (to simplify the situation regarding privacy protection)
 and allows some configuration to adopt to local needs.
 
-Environment variables:
+## 4.1 Environment variables
+
 - `DATA_CONTACT_EMAIL`: Email address of the Datenverwalter/in
 - `DATA_RETENTION_DAYS`: Number of days after which an 
    attendance event record will be deleted.
 - `IMPRINT_URL`: Web address of the Imprint/Impressum page
   that legally identifies the service's operator.
 - `TECH_CONTACT_EMAIL`: Email address of the server operator.
+- !!!
+
+## 4.2 Deployment
+
+t.b.d. !!!
+
+## 4.3 Initiating operation
+
+- Determine Datenverwalter/in and create account
 
 
-# 5. Technical details
+# 5. Implementation status
 
-- The application is written in Python using the Django framework.
-- It uses a PostgreSQL database.
-- The code is open-source (with an MIT license) in order to
-  provide maximal transparency.
+The application is **not complete and not ready for use!**
+
+The application is written in Python using the Django framework
+and a PostgreSQL database. 
+It is open-source (with an MIT license) in order to
+provide maximal transparency.
+
+- DONE 2020-10-06: Use case descriptions (will need update later)
+- DONE 2020-10-08: Reading Excel files and creating master data
+- TODO: Generating QR codes 
+- TODO: Visitor input form and writing visit data
+- TODO: Login for Datenverwalter/in
+- TODO: Retrieving visit data
+- TODO: Writing Excel file
+- TODO: Automatic purging of visit data after retention time
+- TODO: Pilot deployment
+- TODO: Pilot testing
+- TODO: Deployment
