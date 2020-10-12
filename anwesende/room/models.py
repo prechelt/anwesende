@@ -1,4 +1,10 @@
+import datetime as dt
+import re
+
+import django.core.exceptions as djce
+import django.core.validators as djcv
 import django.db.models as djdm
+import django.utils.timezone as djut
 
 FIELDLENGTH = 80
 
@@ -65,3 +71,83 @@ class Seat(djdm.Model):
 
     def __repr__(self):
         return self.__str__()
+
+
+class Visit(djdm.Model):
+    # ----- Fields:
+    givenname = djdm.CharField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+        verbose_name="Vorname / Given name",
+        help_text="Rufname / the firstname by which you are commonly known",
+    )
+    familyname = djdm.CharField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+        verbose_name = "Familienname / Family name",
+        help_text = "Wie im Ausweis angegeben / as shown in your passport",
+    )
+    street_and_number = djdm.CharField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+        verbose_name = "Straße und Hausnummer / Street and number",
+        help_text = "",
+    )
+    zipcode = djdm.CharField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+        verbose_name = "Postleitzahl / Postal code",
+        help_text = "",
+        validators = [djcv.RegexValidator(regex=r"^\d{5}$",
+                message="5 Ziffern bitte / 5 digits, please")]
+    )
+    town = djdm.CharField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+        verbose_name = "Ort / Town",
+        help_text = "",
+    )
+    phone = djdm.CharField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+        verbose_name = "Mobilfunknummer / Mobile phone number",
+        help_text = "Mit Ländervorwahl, z.B. +49 151 ... in Deutschland / " +
+                       "With country code, starting with '+'",
+        validators=[djcv.RegexValidator(regex=r"^\+\d\d[\d /-]+$",
+                message= "Falsches Format für eine Telefonnummer" +
+                         "Wrong format as a phone number")],
+    )
+    email = djdm.EmailField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+        verbose_name = "Emailadresse / Email address",
+        help_text = "Bitte immer die gleiche benutzen! / Please use the same one each time",
+    )
+    submission_dt = djdm.DateTimeField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+        verbose_name = "Anmeldungszeit / Submission time",
+        help_text = "",
+    )
+    present_from_dt = djdm.DateTimeField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+    )
+    present_to_dt = djdm.DateTimeField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+    )
+    submission_dt = djdm.DateTimeField(auto_now_add=True)
+    # ----- References:
+    seat = djdm.ForeignKey(
+        to=Seat,
+        on_delete=djdm.PROTECT)
+
+    def __str__(self):
+        return f"{self.email}|{self.submission_dt}|{self.cookievalue}"
+
+    def __repr__(self):
+        return self.__str__()
+
+
+

@@ -12,4 +12,8 @@ urlpatterns = [
          view=arv.QRcodeView.as_view(), name="qrcode"),
     path("v<hash>",
          view=arv.VisitView.as_view(), name="visit"),
+    path("thankyou",
+         view=arv.ThankyouView.as_view(), name="thankyou"),
+    path("uncookie",
+         view=arv.UncookieView.as_view(), name="uncookie"),
 ]

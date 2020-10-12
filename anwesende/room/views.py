@@ -1,5 +1,4 @@
-import datetime as dt
-import time
+import json
 import typing as tg
 
 import django.http as djh
@@ -10,6 +9,8 @@ from django.conf import settings
 import anwesende.room.models as arm
 import anwesende.room.forms as arf
 import anwesende.utils.qrcode as auq
+
+COOKIENAME = 'anwesende'
 
 
 class ImportView(vv.FormView):
@@ -44,7 +45,42 @@ class QRcodeView(vv.View):
         return djh.HttpResponse(qrcode_bytes, content_type="image/svg+xml")
 
 
-class VisitView(vv.TemplateView):
-    #model = arm.Visit
+class VisitView(vv.CreateView):
+    model = arm.Visit
+    form_class = arf.VisitForm
     template_name = "room/visit.html"
-    ...
+    success_url = dju.reverse_lazy('room:thankyou')
+    
+    def get_form(self, data=None, files=None, **kwargs):
+        #return super().get_form(data, files, **kwargs)
+        if data:
+            data = {k:v for k,v, in data.items()}  # extract ordinary dict
+            print("########data", data)
+        if not data and COOKIENAME in self.request.COOKIES:
+            data = json.loads(self.request.COOKIES[COOKIENAME])
+            print("########cookie", data)
+        form = arf.VisitForm(data=data, files=files, **kwargs)
+        return form
+        
+    def form_valid(self, form: arf.VisitForm):
+        response = djh.HttpResponseRedirect(self.get_success_url())
+        cookiedict = {k:v for k,v, in form.data.items()}  # extract ordinary dict
+        del cookiedict['csrfmiddlewaretoken']
+        del cookiedict['submit']
+        cookiejson = json.dumps(cookiedict)
+        print("########", cookiejson)
+        response.set_cookie(key=COOKIENAME, value=cookiejson, 
+                            max_age=3600*24*90)
+        # self.object = form.save()
+        return response
+
+
+class ThankyouView(vv.TemplateView):
+    template_name = "room/thankyou.html"
+
+
+class UncookieView(vv.GenericView):
+    def get(self, request, *args, **kwargs):
+        response = djh.HttpResponse("Cookie expired")
+        response.set_cookie(COOKIENAME, None, max_age=0)  # expire now
+        return response
