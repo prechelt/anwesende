@@ -1,4 +1,5 @@
 import json
+import os
 import typing as tg
 
 import django.http as djh
@@ -8,6 +9,8 @@ from django.conf import settings
 
 import anwesende.room.models as arm
 import anwesende.room.forms as arf
+import anwesende.room.logic as arl
+import anwesende.utils.lookup as aul  # registers lookup
 import anwesende.utils.qrcode as auq
 
 COOKIENAME = 'anwesende'
@@ -51,14 +54,20 @@ class VisitView(vv.CreateView):
     template_name = "room/visit.html"
     success_url = dju.reverse_lazy('room:thankyou')
     
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        if self._no_such_seat(self.kwargs['hash']):
+            raise djh.Http404()
+        return ctx
+
+    def _no_such_seat(self, hash):
+        return arm.Seat.objects.filter(hash=hash).count() == 0
+    
     def get_form(self, data=None, files=None, **kwargs):
-        #return super().get_form(data, files, **kwargs)
         if data:
             data = {k:v for k,v, in data.items()}  # extract ordinary dict
-            print("########data", data)
         if not data and COOKIENAME in self.request.COOKIES:
             data = json.loads(self.request.COOKIES[COOKIENAME])
-            print("########cookie", data)
         form = arf.VisitForm(data=data, files=files, **kwargs)
         return form
         
@@ -71,7 +80,9 @@ class VisitView(vv.CreateView):
         print("########", cookiejson)
         response.set_cookie(key=COOKIENAME, value=cookiejson, 
                             max_age=3600*24*90)
-        # self.object = form.save()
+        self.object = form.save(commit=False)
+        self.object.seat = arm.Seat.by_hash(self.kwargs['hash'])
+        self.object.save()
         return response
 
 
@@ -84,3 +95,69 @@ class UncookieView(vv.GenericView):
         response = djh.HttpResponse("Cookie expired")
         response.set_cookie(COOKIENAME, None, max_age=0)  # expire now
         return response
+    
+
+class SearchView(vv.ListView):  # same view for valid and invalid form
+    form_class = arf.SearchForm
+    template_name="room/search.html"
+
+    def get_context_data(self, **ctx):
+        def _key(postdata_key):  # key or None
+            return self.form.data.get(postdata_key, None)  
+        
+        ctx = super().get_context_data(
+            environ=os.environ,
+            form=self.form,
+            **ctx)
+        valid = ctx['valid'] = ctx['is_post'] and self.form.is_valid()
+        print(self.form.data)
+        print(self.form.cleaned_data)
+        mode = _key('visit') or _key('visitgroup') or _key('xlsx')
+        ctx['display switch'] = mode
+        if not valid:
+            ctx['display switch'] = 'invalid'
+            return ctx
+        elif mode == 'visit':
+            ctx['queryset'] = self.get_queryset()
+            ctx['LIMIT'] = 100
+            ctx['NUMRESULTS'] = ctx['queryset'].count()
+            if ctx['NUMRESULTS'] > ctx['LIMIT']:
+                ctx['display_switch'] = 'too_many_results'
+        elif mode == 'visitgroup' or mode == 'xlsx':
+            ctx['visits'] = arl.collect_visitgroups(self.get_queryset())
+            ctx['LIMIT'] = 1000
+            ctx['NUMRESULTS'] = len(ctx['visits'])
+            if ctx['NUMRESULTS'] > ctx['LIMIT']:
+                ctx['display_switch'] = 'too_many_results'
+        else:
+            assert False, f"SearchView: unexpected mode '{mode}'"
+        return ctx
+
+    def get_queryset(self):
+        f = self.form.cleaned_data
+        return (arm.Visit.objects
+                .filter(seat__room__organization__like=f['organization'])
+                .filter(seat__room__department__like=f['department'])
+                .filter(seat__room__building__like=f['building'])
+                .filter(seat__room__room__like=f['room'])
+                .filter(givenname__like=f['givenname'])
+                .filter(familyname__like=f['familyname'])
+                .filter(phone__like=f['phone'])
+                .filter(email__like=f['email'])
+                .filter(present_to_dt__gt=f['from_date'])  # left after from
+                .filter(present_from_dt__lt=f['to_date'])  # came before to
+                )
+
+    def get(self, request, *args, **kwargs):
+        self.form = self.get_form()
+        context = self.get_context_data(is_post=False)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        self.form = self.get_form(data=request.POST)
+        context = self.get_context_data(is_post=True)
+        return self.render_to_response(context)
+
+
+class DownloadView(vv.ListView):
+    pass

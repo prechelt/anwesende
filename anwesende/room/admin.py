@@ -14,3 +14,7 @@ class RoomAdmin(djca.ModelAdmin):
 @djca.register(arm.Seat)
 class SeatAdmin(djca.ModelAdmin):
     pass
+
+@djca.register(arm.Visit)
+class VisitAdmin(djca.ModelAdmin):
+    pass

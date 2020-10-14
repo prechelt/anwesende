@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-10-09  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-10-13  (see "Implementation status" at the bottom)
 
 Simple attendance registration for universities having pandemics.
 "anwesende" is German for "people that are being present".
@@ -147,39 +147,18 @@ Datenverwalter/in
 
 1. Ist ein Mitglied einer teilnehmenden Hochschule infiziert,
    so informiert es seine Hochschuleinheit(en) darüber,
-   zu welchen Zeiten ersie sich in welchen Räumen aufgehalten hat
-   oder beschreibt ersatzweise, in welchen Lehrveranstaltungen bei
-   welchen Lehrpersonen an welchen Tagen.
+   an welchen Tagen eine Infektiösität bestanden haben kann.
 2. Die Mitarbeiter/in der Hochschuleinheit, die bei der Datenverwalter/in
-   als abrufberechtigt bekannt ist, übermittelt die Rauminformationen per
-   Email an die Datenverwalterin und gibt dabei jeweils genau
-   den gewünschten Zeitraum für den Abruf an, der sich aus den örtlichen
-   Gegebenheiten der Raumnutzung ergibt.  
-   Beispiel: 
-   - Jemand infiziertes war in einer Lehrveranstaltung im Raum `X`, 
-     die von "12-14 Uhr" stattfindet, 
-     was an dieser Hochschule bedeutet: 12:15 Uhr bis 13:45 Uhr.
-   - Ersie hatte sich um 12:11 Uhr registriert.
-   - Die Mitarbeiter/in weiß aber, dass erstens der betreffende Raum `X`
-     davor seit 9:45 leer war und zweitens schon ab 13:45 die Teilnehmenden der 
-     nachfolgenden Lehrveranstaltung sich in dem Raum angemeldet haben
-     könnten.
-   - Sie bittet deshalb um einen Datenabruf für Raum `X`
-     für den Zeitraum 9:40 Uhr bis 13:40 Uhr.
-3. Die Datenverwalter/in ruft diese Daten ab und übermittelt
+   als abrufberechtigt bekannt ist, übermittelt diesen Zeitraum und
+   die Personendaten (Name, Telefon, Email) der infizierten Person per
+   Email an die Datenverwalterin.  
+3. Die Datenverwalter/in ruft die zugehörigen Kontaktpersonen ab und übermittelt
    sie an die Mitarbeiter/in.
-4. Die Mitarbeiterin bereinigt ggf. die Daten wie folgt
-   (Fortsetzung des Beispiels von oben):
-   - Von den Personen in diesem Abruf, die sich vor der infizierten Person
-     und vor 12:15 Uhr angemeldet hatten, haben plausiblerweise manche
-     die infizierte Person gar nicht getroffen, weil sie den Raum vor
-     Beginn der Lehrveranstaltung wieder verlassen haben.
-   - Die Mitarbeiter/in zieht deshalb falls verfügbar eine allgemeine
-     Teilnehmendenliste der Lehrveranstaltung heran und entfernt
-     Personen, die im Datenabrauf auftauchen, aber nicht in der
-     Lehrveranstaltung sind.
-   - Oder sie fragt die vor 12:00 Uhr registrierten einzeln an,
-     ob sie in dieser Lehrveranstaltung gewesen sind.
+   Als Kontaktpersonen gelten alle, die Einträge im selben Raum haben,
+   die sich zeitlich mindestens 10 Minuten mit der Anwesenheit der
+   infizierten Person überlappen.
+4. Die Mitarbeiter/in bereinigt die Daten per Augenschein und entfernt
+   ggf. überzählige Einträge.
 5. Die Mitarbeiter/in übermittelt die bereinigten Daten dem
    Gesundheitsamt.
    
@@ -190,7 +169,7 @@ im Vergleich zu papierbasierter Erfassung der Anwesenheit
 
 Vorteile:
 - Zeitersparnis Erfassung: 
-  Die Erfassung geschieht mit viel weniger Zeitaufwand.
+  Die Erfassung geschieht mit viel weniger Zeit- und Arbeitsaufwand.
 - Zeitersparnis Kontaktverfolgung:
   Im Infektionsfall kann dem Gesundheitsamt innerhalb von
   Minuten eine vollständige _elektronische_ Liste der möglichen
@@ -208,8 +187,11 @@ Vorteile:
 
 Risiken:
 - Datenschutz:
-  Ein Einbruch in die Datenbank des Servers beträfe mehr Daten als
-  ein Diebstahl papierner Erfassungsbögen.
+  Ein gegebenenfalls erfolgreicher Einbruch in die Datenbank des Servers
+  beträfe mehr Daten als
+  ein Diebstahl papierner Erfassungsbögen.  
+  (Das Risiko ist klein, denn die Datenbank ist für Angreifer nicht attraktiv,
+   weil sie keine wertvollen Daten wie Bankdaten oder Passwörter enthält.)
 - Vollständigkeit:
   Der Erfassungsvorgang ist für die anderen Anwesenden weniger anschaulich
   und kann deshalb möglicherweise leichter vergessen werden. 
@@ -247,6 +229,7 @@ and allows some configuration to adopt to local needs.
 - `IMPRINT_URL`: Web address of the Imprint/Impressum page
   that legally identifies the service's operator.
 - `TECH_CONTACT_EMAIL`: Email address of the server operator.
+- `TIME_ZONE`: 
 - (and several more)!!!
 
 ## 4.2 Deployment
@@ -270,9 +253,10 @@ provide maximal transparency.
 - DONE 2020-10-06: Use case descriptions (will need update later)
 - DONE 2020-10-08: Reading Excel files and creating master data
 - DONE 2020-10-09: Generating QR codes 
-- TODO: Visitor input form and writing visit data
+- DONE 2020-10-12: Visitor input form and writing visit data
+- DONE 2020-10-13: Retrieving visit data by person
+- TODO: Retrieving visit groups (contact groups)
 - TODO: Login for Datenverwalter/in
-- TODO: Retrieving visit data
 - TODO: Writing Excel file
 - TODO: Automatic purging of visit data after retention time
 - TODO: Pilot deployment

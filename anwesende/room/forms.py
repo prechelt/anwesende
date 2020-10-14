@@ -11,6 +11,7 @@ import django.utils.timezone as djut
 
 import anwesende.room.logic as arl
 import anwesende.room.models as arm
+import anwesende.utils.date as aud
 
 class UploadFileForm(djf.Form):
     file = djf.FileField()
@@ -85,3 +86,48 @@ class VisitForm(djf.ModelForm):
             self.add_error('present_to_dt', 
                            "'von'-Zeit muss vor 'bis'-Zeit liegen / " +
                                "'from' must be before 'until'")
+
+
+class SearchForm(djf.Form):
+    organization = djf.CharField(label="Organization",
+            initial="%", required=True, )
+    department = djf.CharField(label="Department",
+            initial="%", required=True, )
+    building = djf.CharField(label="Building",
+            initial="%", required=True, )
+    room = djf.CharField(label="Room",
+            initial="%", required=True, )
+    givenname = djf.CharField(label="Given name",
+            initial="%", required=True, )
+    familyname = djf.CharField(label="Family name (try % for uncertain letters)",
+            initial="%", required=True, )
+    phone = djf.CharField(label="Phone number (no blank, slash, dash!)",
+            initial="+491%", required=True, )
+    email = djf.CharField(label="Email address",
+            initial="%@%", required=True, )
+    from_date = djf.DateField(label="From date (yyyy-mm-dd)",
+            initial="", required=True, )
+    to_date = djf.DateField(label="To date (yyyy-mm-dd)",
+            initial=aud.nowstring(time=False), required=True, )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = cfh.FormHelper()
+        self.helper.form_id = 'SearchForm'
+        self.helper.form_method = 'post'
+        self.helper.add_input(cfl.Submit('visit', 
+                                         '1. Find visits'))
+        self.helper.add_input(cfl.Submit('visitgroup', 
+                                         '2. Find contact groups'))
+        self.helper.add_input(cfl.Submit('xlsx', 
+                                         '3. Download contact groups Excel'))
+
+    def clean(self):
+        self.cleaned_data = super().clean()
+        cd = self.cleaned_data  # short alias
+        if ('from_date' in cd and 'to_date' in cd and
+                cd['from_date'] > cd['to_date']):
+            self.add_error('to_date', 
+                           "'from' date must not be later than 'to' date")
+        cd['to_date'] += dt.timedelta(hours=24)  # is time 0:00, should be 24:00
+        return cd

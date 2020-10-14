@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <h1>Search for visits</h1>
+  <ol>
+    <li>
+      Describe the person you are looking for in the form below
+      and indicate a time range.
+    </li>
+    <li>
+      Check the search result: Have you found more people than intended?
+      Then refine the search criteria.
+    </li>
+    <li>
+      When done, download the contact list with the link at the bottom.
+    </li>
+  </ol>
+  <p>
+    In the form, use the percent sign % to represent any part you are
+    not sure of or do not care about.
+  </p>
+  {% crispy form %}
+  
+  {% if valid %}
+    {% if too_many_results %}
+      <h2>More than {{ LIMIT }} results</h2>
+      <p>Please use more specific search criteria.</p>
+    {% else %}
+      <p>Found {{ queryset.count }} results</p>
+      <ol>
+        {% for v in queryset %}
+          <li>
+              {{ v.familyname }}, {{ v.givenname }},
+                {{ v.phone }}/{{ v.email }} 
+                ({{ v.zipcode }} {{ v.town }})<br>
+              {{ v.seat.room.organization }}, {{ v.seat.room.department }}
+                ({{ v.seat.room.building }}, {{ v.seat.room.room }})
+          </li>     
+        {% endfor %}
+      </ol>
+    {% endif %}
+  {% endif %}
+{% endblock content %}
