@@ -66,7 +66,7 @@ class VisitForm(djf.ModelForm):
             'givenname', 'familyname', 
             'street_and_number', 'zipcode', 'town',
             'phone', 'email',
-            'present_from_dt', 'present_to_dt',
+            'present_from_dt', 'present_to_dt', 'cookie',
         )
         widgets = {
             'givenname':mytxt(25), 'familyname':mytxt(25),
@@ -74,6 +74,7 @@ class VisitForm(djf.ModelForm):
             'zipcode':mytxt(6), 'town':mytxt(20),
             'phone':mytxt(15), 'email':mytxt(25),
             'present_from_dt':mytxt(6), 'present_to_dt':mytxt(6),
+            'cookie':djfw.HiddenInput()
         }
     
     present_from_dt = TimeOnlyDateTimeField(

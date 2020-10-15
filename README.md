@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-10-13  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-10-15  (see "Implementation status" at the bottom)
 
 Simple attendance registration for universities having pandemics.
 "anwesende" is German for "people that are being present".
@@ -223,14 +223,17 @@ and allows some configuration to adopt to local needs.
 
 ## 4.1 Environment variables
 
-- `DATA_CONTACT_EMAIL`: Email address of the Datenverwalter/in
+- `DATA_CONTACT`: Email address of the Datenverwalter/in
 - `DATA_RETENTION_DAYS`: Number of days after which an 
-   attendance event record will be deleted.
+   attendance event record will be deleted (default: 28).
 - `IMPRINT_URL`: Web address of the Imprint/Impressum page
   that legally identifies the service's operator.
-- `TECH_CONTACT_EMAIL`: Email address of the server operator.
-- `TIME_ZONE`: 
-- (and several more)!!!
+- `MIN_OVERLAP_MINUTES`: How long two people need to have been 
+  in the same room to be considered in contact (default: 10)
+- `TECH_CONTACT`: Email address of the server operator.
+- `TIME_ZONE`: How to interpret times entered by visitors 
+  (default: Europe/Berlin)
+- (and more coming...)
 
 ## 4.2 Deployment
 
@@ -255,10 +258,13 @@ provide maximal transparency.
 - DONE 2020-10-09: Generating QR codes 
 - DONE 2020-10-12: Visitor input form and writing visit data
 - DONE 2020-10-13: Retrieving visit data by person
-- TODO: Retrieving visit groups (contact groups)
+- DONE 2020-10-15: Retrieving visit groups (contact groups)
+- DONE 2020-10-15: Writing Excel file
 - TODO: Login for Datenverwalter/in
-- TODO: Writing Excel file
 - TODO: Automatic purging of visit data after retention time
 - TODO: Pilot deployment
 - TODO: Pilot testing
+- TODO: Writing additional automated tests
+- TODO: Cleaning up code structure
+- TODO: Add logging
 - TODO: Deployment

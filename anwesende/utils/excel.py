@@ -30,23 +30,37 @@ def _cleansed(cell):
 RowsListsType = tg.Mapping[str, tg.List[tg.Optional[tg.NamedTuple]]]
 
 
-def write_excel_from_rowslists(filename: str, rowslists: RowsListsType) -> None:
+def write_excel_from_rowslists(filename: str, rowslists: RowsListsType,
+                               indexcolumn=False) -> None:
     workbook = openpyxl.Workbook()
     for sheetname, rows in rowslists.items():
         sheet = workbook.create_sheet(sheetname)
-        _write_column_headings(sheet, rows[0], rownum=1)
+        indexdigits = len(str(len(rows))) if indexcolumn else None
+        _write_column_headings(sheet, rows[0], 1, indexdigits)
         for rownum, row in enumerate(rows, start=2):
-            _write_row(sheet, row, rownum)
+            _write_row(sheet, row, rownum, indexdigits)
     del workbook["Sheet"]  # get rid of initial default sheet
     workbook.save(filename)
 
  
-def _write_column_headings(sheet, tupl: tg.NamedTuple, rownum: int):
+def _write_column_headings(sheet, tupl: tg.NamedTuple, 
+                           rownum: int, indexdigits: tg.Optional[int]):
     # use the tuple's element names as headings
-    for colnum, colname in enumerate(tupl._fields, start=1):
+    font = openpyxl.styles.Font(bold=True)
+    if indexdigits:
+        sheet.cell(column=1, row=1, value="index")
+        sheet.cell(column=1, row=1).font = font
+    for colnum, colname in enumerate(tupl._fields, start=1+(indexdigits!=0)):
         sheet.cell(column=colnum, row=rownum, value=colname)
+        sheet.cell(column=colnum, row=rownum).font = font
 
 
-def _write_row(sheet, tupl: tg.NamedTuple, rownum: int):
-    for colnum, value in enumerate(tupl, start=1):
+def _write_row(sheet, tupl: tg.Optional[tg.NamedTuple], 
+               rownum: int, indexdigits: tg.Optional[int]):
+    if indexdigits:
+        index = str(rownum-1).zfill(indexdigits)
+        sheet.cell(column=1, row=rownum, value=index)
+    if tupl is None: 
+        return  # nothing else to do
+    for colnum, value in enumerate(tupl, start=1+(indexdigits!=0)):
         sheet.cell(column=colnum, row=rownum, value=value)

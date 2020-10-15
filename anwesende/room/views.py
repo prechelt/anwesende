@@ -10,6 +10,7 @@ from django.conf import settings
 import anwesende.room.models as arm
 import anwesende.room.forms as arf
 import anwesende.room.logic as arl
+import anwesende.utils.date as aud
 import anwesende.utils.lookup as aul  # registers lookup
 import anwesende.utils.qrcode as auq
 
@@ -161,8 +162,22 @@ class SearchView(vv.ListView):  # same view for valid and invalid form
     def post(self, request, *args, **kwargs):
         self.form = self.get_form(data=request.POST)
         context = self.get_context_data(is_post=True)
-        return self.render_to_response(context)
+        if context['display_switch'] == 'xlsx':
+            return self.excel_download_response(context['visits'])
+        else:
+            return self.render_to_response(context)
 
-
-class DownloadView(vv.ListView):
-    pass
+    def excel_download_response(self, visits):
+        # https://stackoverflow.com/questions/4212861
+        excel_contenttype_excel = \
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        excelbytes = arl.get_excel_download(visits)
+        response = djh.HttpResponse(excelbytes,
+                                    content_type=excel_contenttype_excel)
+        timestamp = aud.nowstring(date=True, time=True)
+        # make name nice for Linux (no blanks) and for Windows (no colons):
+        timestamp = timestamp.replace(' ', '_').replace(':', ".")
+        filename = f"anwesende-{timestamp}.xlsx"
+        response['Content-Disposition'] = (
+                'attachment; filename="%s"' % (filename,))
+        return response

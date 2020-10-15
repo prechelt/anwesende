@@ -1,6 +1,7 @@
 import datetime as dt
 import re
 
+from django.conf import settings
 import django.core.exceptions as djce
 import django.core.validators as djcv
 import django.db.models as djdm
@@ -154,12 +155,6 @@ class Visit(djdm.Model):
         verbose_name = "Emailadresse / Email address",
         help_text = "Bitte immer die gleiche benutzen! / Please use the same one each time",
     )
-    submission_dt = djdm.DateTimeField(
-        blank=False, null=False,
-        max_length=FIELDLENGTH,
-        verbose_name = "Anmeldungszeit / Submission time",
-        help_text = "",
-    )
     present_from_dt = djdm.DateTimeField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
@@ -171,6 +166,9 @@ class Visit(djdm.Model):
         db_index=True,
     )
     submission_dt = djdm.DateTimeField(auto_now_add=True)
+    cookie = djdm.TextField(blank=False, null=False, max_length=15,
+        verbose_name = "random string, used as pseudo-id",
+    )
     # ----- References:
     seat = djdm.ForeignKey(
         to=Seat,
@@ -189,8 +187,7 @@ class Visit(djdm.Model):
         A visit overlaps itself if it is long enough;
         result is empty otherwise.
         """
-        MIN_OVERLAP_MINUTES = 10
-        delta = dt.timedelta(minutes=MIN_OVERLAP_MINUTES)
+        delta = dt.timedelta(minutes=settings.MIN_OVERLAP_MINUTES)
         # There are four non-disjoint cases:
         # 1) other visit is long enough and included in self
         # 2) other includes self that is long enough 

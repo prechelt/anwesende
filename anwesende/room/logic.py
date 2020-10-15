@@ -1,12 +1,15 @@
 import collections
 import hashlib
+import os
 import random
+import tempfile
 import typing as tg
 
 import django.db.models.query as djdmq
 from django.conf import settings
 
 import anwesende.room.models as arm
+import anwesende.utils.date as aud
 import anwesende.utils.excel as aue
 
 class InvalidExcelError(ValueError):
@@ -171,15 +174,46 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]):
 ############################################################
 
 VGroupRow = collections.namedtuple('VGroupRow',
-        'index '
         'familyname givenname email phone street_and_nr zipcode town '
-        'date when from_time to_time '
-        'pseudo_id '
-        ''
+        'cookie '
+        'when from_time to_time '
+        'organization department building room seat '
 )
 
+Visits = tg.List[tg.Optional[arm.Visit]]
+
+Expl = collections.namedtuple('Expl', ("Erklaerung", ))
+
+explanations = [
+    Expl("Jede Zeile im Tabellenblatt 'Daten' ist ein Besuch einer Person."),
+    Expl("Die Spalten beschreiben die Person, dann die Zeit, dann den Ort."),
+    Expl("Leere Zeilen trennen Gruppen von Personen, die sich "
+         "laut ihren Angaben mindestens "
+         f"{settings.MIN_OVERLAP_MINUTES} Minuten lang begegnet sind."),
+    Expl(""),
+    Expl("**cookie**: Die Daten enthalten meist viele Personen mehrfach."),
+    Expl("Um diese Duplikate zu überblicken, kann man nach Spalte "
+         "'cookie' sortieren."),
+    Expl("Das selbe Cookie steht meist für die selbe Person."),
+    Expl("Eine Person hat mehrere verschiedene Cookies, wenn sie "
+         "das Cookie gelöscht oder mehrere Geräte oder Browser benutzt hat."),
+    Expl("Zwei Personen können das selbe Cookie haben, wenn eine Person "
+         "ihr Gerät verleiht."),
+    Expl("Wenn viele Personen mit fragwürdigen Angaben das selbe Cookie "
+         "haben, sind die Daten vielleicht Fantasie-Angaben."),
+    Expl(""),
+    Expl("**when**: Spalte 'when' enthält den Zeitpunkt der Meldung und "),
+    Expl("'from' und 'to' die vom Besucher manuell eingegebenen Werte "
+         "für den Zeitraum."),
+    Expl(""),
+    Expl(""),
+    Expl(""),
+    Expl(""),
+]
+
+
 def collect_visitgroups(primary_visits: djdmq.QuerySet
-                        ) -> tg.List[tg.Optional[VGroupRow]]:
+                        ) -> Visits:
     result = []
     visit_pks_seen = set()  # all contacts of primary visits
     primary_visit_pks_seen = set()  # only primary visits
@@ -195,3 +229,43 @@ def collect_visitgroups(primary_visits: djdmq.QuerySet
         result.append(None)  # empty row as separator
     del result[-1]  # remove trailing empty row
     return result
+
+
+def get_excel_download(visits: Visits) -> bytes:
+    rows = _as_vgrouprows(visits)
+    rowslists = dict(Daten=rows, Erklaerungen=explanations)
+    with tempfile.NamedTemporaryFile(prefix="export_", suffix=".xlsx",
+                                     delete=False) as fh:
+        filename = fh.name  # file is deleted in 'finally' clause
+    try:
+        aue.write_excel_from_rowslists(filename, rowslists, indexcolumn=True)
+        with open(filename, 'rb') as file:
+            excelbytes = file.read()  # slurp. Won't be very large.
+    finally:
+        os.unlink(filename)
+    return excelbytes
+
+def _as_vgrouprows(visits) -> aue.RowsListsType:
+    vgrouprow = VGroupRow("Müller", "Sabine", "s.mue@example.com",
+            "+491231234567", "Hausstr. 9", "12345", "Kleinstadt", "meiqjcsspe",
+            "2020-10-15 12:19", "12:15", "13:45",
+            "fu-berlin.de", "MathInf", "Takustr. 9", "K40", "3") #!!!
+    vgrouprows = []
+    idxdigits = len(str(len(visits)))  # how many digits we need
+    for idx, v in enumerate(visits):
+        v: arm.Visit
+        if v is None:
+            row = None
+        else:
+            row = VGroupRow(
+                    v.familyname, v.givenname, v.email, v.phone,
+                    v.street_and_number, v.zipcode, v.town, v.cookie,
+                    aud.dtstring(v.submission_dt, time=True), 
+                    aud.dtstring(v.present_from_dt, date=False, time=True),
+                    aud.dtstring(v.present_to_dt, date=False, time=True),
+                    v.seat.room.organization, v.seat.room.department, 
+                    v.seat.room.building, v.seat.room.room,
+                    v.seat.number
+                )
+        vgrouprows.append(row)
+    return vgrouprows

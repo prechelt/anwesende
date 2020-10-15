@@ -18,6 +18,4 @@ urlpatterns = [
          view=arv.UncookieView.as_view(), name="uncookie"),
     path("search",
          view=arv.SearchView.as_view(), name="search"),
-    path("download",
-         view=arv.DownloadView.as_view(), name="download"),
 ]
