@@ -7,11 +7,17 @@ import crispy_forms.helper as cfh
 import crispy_forms.layout as cfl
 import django.core.exceptions as djce
 import django.forms as djf
+import django.forms.widgets as djfw
 import django.utils.timezone as djut
 
 import anwesende.room.logic as arl
 import anwesende.room.models as arm
 import anwesende.utils.date as aud
+
+
+def mytxt(width: int) -> djfw.TextInput:
+    return djfw.TextInput(attrs={'size': str(width)})
+
 
 class UploadFileForm(djf.Form):
     file = djf.FileField()
@@ -49,6 +55,7 @@ class TimeOnlyDateTimeField(djf.CharField):
             raise djce.ValidationError(error_msg)
         dt_string = djut.now().strftime(f"%Y-%m-%d {value}")
         dt_obj = dt.datetime.strptime(dt_string, "%Y-%m-%d %H:%M")
+        dt_obj.tzinfo = djut.get_current_timezone()
         return dt_obj
 
 
@@ -59,8 +66,15 @@ class VisitForm(djf.ModelForm):
             'givenname', 'familyname', 
             'street_and_number', 'zipcode', 'town',
             'phone', 'email',
-            'present_from_dt', 'present_to_dt'
+            'present_from_dt', 'present_to_dt',
         )
+        widgets = {
+            'givenname':mytxt(25), 'familyname':mytxt(25),
+            'street_and_number':mytxt(25), 
+            'zipcode':mytxt(6), 'town':mytxt(20),
+            'phone':mytxt(15), 'email':mytxt(25),
+            'present_from_dt':mytxt(6), 'present_to_dt':mytxt(6),
+        }
     
     present_from_dt = TimeOnlyDateTimeField(
         label = "Anwesenheit von / Present from",
@@ -73,6 +87,7 @@ class VisitForm(djf.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.data['present_from_dt'] = aud.nowstring(date=False, time=True)
         self.helper = cfh.FormHelper()
         self.helper.form_id = 'VisitForm'
         self.helper.form_method = 'post'

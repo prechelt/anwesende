@@ -73,17 +73,22 @@ class VisitView(vv.CreateView):
         
     def form_valid(self, form: arf.VisitForm):
         response = djh.HttpResponseRedirect(self.get_success_url())
-        cookiedict = {k:v for k,v, in form.data.items()}  # extract ordinary dict
-        del cookiedict['csrfmiddlewaretoken']
-        del cookiedict['submit']
-        cookiejson = json.dumps(cookiedict)
-        print("########", cookiejson)
-        response.set_cookie(key=COOKIENAME, value=cookiejson, 
+        response.set_cookie(key=COOKIENAME, value=self.get_cookiejson(form), 
                             max_age=3600*24*90)
         self.object = form.save(commit=False)
         self.object.seat = arm.Seat.by_hash(self.kwargs['hash'])
         self.object.save()
         return response
+
+    def get_cookiejson(self, form):
+        cookiedict = {k: v for k, v, in
+                      form.data.items()}  # extract ordinary dict
+        del cookiedict['csrfmiddlewaretoken']
+        del cookiedict['submit']
+        del cookiedict['present_from_dt']
+        del cookiedict['present_to_dt']
+        cookiejson = json.dumps(cookiedict)
+        return cookiejson
 
 
 class ThankyouView(vv.TemplateView):
@@ -103,24 +108,24 @@ class SearchView(vv.ListView):  # same view for valid and invalid form
 
     def get_context_data(self, **ctx):
         def _key(postdata_key):  # key or None
-            return self.form.data.get(postdata_key, None)  
-        
+            return postdata_key if postdata_key in self.form.data else None
+    
         ctx = super().get_context_data(
             environ=os.environ,
             form=self.form,
             **ctx)
         valid = ctx['valid'] = ctx['is_post'] and self.form.is_valid()
         print(self.form.data)
-        print(self.form.cleaned_data)
+        if valid: print(self.form.cleaned_data)
         mode = _key('visit') or _key('visitgroup') or _key('xlsx')
-        ctx['display switch'] = mode
+        ctx['display_switch'] = mode
         if not valid:
-            ctx['display switch'] = 'invalid'
+            ctx['display_switch'] = 'invalid'
             return ctx
         elif mode == 'visit':
-            ctx['queryset'] = self.get_queryset()
+            ctx['visits'] = self.get_queryset()
             ctx['LIMIT'] = 100
-            ctx['NUMRESULTS'] = ctx['queryset'].count()
+            ctx['NUMRESULTS'] = ctx['visits'].count()
             if ctx['NUMRESULTS'] > ctx['LIMIT']:
                 ctx['display_switch'] = 'too_many_results'
         elif mode == 'visitgroup' or mode == 'xlsx':

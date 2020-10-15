@@ -22,23 +22,32 @@
   </p>
   {% crispy form %}
   
-  {% if valid %}
-    {% if too_many_results %}
-      <h2>More than {{ LIMIT }} results</h2>
-      <p>Please use more specific search criteria.</p>
-    {% else %}
-      <p>Found {{ queryset.count }} results</p>
+  {% if display_switch == 'invalid' %}
+    <!-- form is invalid, no results to be shown -->
+  {% elif display_switch == 'too_many_results' %}
+      <h2>{{ NUMRESULTS }} results</h2>
+      <p>
+        Will show at most {{ LIMIT }} results. 
+        Please use more specific search criteria.
+      </p>
+  {% elif display_switch == 'visit' or display_switch == 'visitgroup' %}
+      <p>Found {{ visits.count }} results</p>
       <ol>
-        {% for v in queryset %}
-          <li>
-              {{ v.familyname }}, {{ v.givenname }},
-                {{ v.phone }}/{{ v.email }} 
+        {% for v in visits %}
+          {% if v is None %}
+            <li>-- next group: --</li>      
+          {% else %}
+            <li>
+              <b>{{ v.familyname }}</b>, {{ v.givenname }},
+              {{ v.phone }}/<b>{{ v.email }}</b> 
                 ({{ v.zipcode }} {{ v.town }})<br>
               {{ v.seat.room.organization }}, {{ v.seat.room.department }}
                 ({{ v.seat.room.building }}, {{ v.seat.room.room }})
-          </li>     
+            </li>  
+          {% endif %}
         {% endfor %}
       </ol>
-    {% endif %}
+  {% else %}
+    <p>Something is wrong! (display_switch {{ display_switch }})</p>
   {% endif %}
 {% endblock content %}

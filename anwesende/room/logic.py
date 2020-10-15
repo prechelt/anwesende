@@ -1,8 +1,9 @@
-from collections import OrderedDict
+import collections
 import hashlib
 import random
 import typing as tg
 
+import django.db.models.query as djdmq
 from django.conf import settings
 
 import anwesende.room.models as arm
@@ -12,9 +13,9 @@ class InvalidExcelError(ValueError):
     pass  # no additional logic is needed
 
 
-def excelerror(row:int=None, column:str=None, 
-               expected:str=None, found:str=None
-               ) -> str:
+def _excelerror(row:int=None, column:str=None,
+                expected:str=None, found:str=None
+                ) -> str:
     assert found  # the core part, must not be left empty
     result = "Excel error: "
     if row:
@@ -31,24 +32,27 @@ def excelerror(row:int=None, column:str=None,
     raise InvalidExcelError(result)
 
 
-def seathash(room: arm.Room, seatnumber: int):
+def _seathash(room: arm.Room, seatnumber: int):
     seat_id = (f"{room.organization}|{room.department}|{room.building}|" +
                f"{room.room}|{seatnumber}|{settings.SECRET_KEY}")
     return hashlib.sha256(seat_id.encode()).hexdigest()[:10]
 
-    
-def create_seats_from_excel(filename) -> OrderedDict:
+
+############################################################
+
+def create_seats_from_excel(filename) -> collections.OrderedDict:
     columnsdict = aue.read_excel_as_columnsdict(filename)
     _validate_room_declarations(columnsdict)
     importstep = _create_importstep()
     rooms, new_roomsN, existing_roomsN = \
             _find_or_create_rooms(columnsdict, importstep)
     seats, new_seatsN, existing_seatsN = _find_or_create_seats(rooms)
-    return OrderedDict(number_of_new_rooms=new_roomsN,
-                       number_of_existing_rooms=existing_roomsN,
-                       number_of_new_seats=new_seatsN,
-                       number_of_existing_seats=existing_seatsN,
-                       importstep=importstep)
+    return collections.OrderedDict(
+            number_of_new_rooms=new_roomsN,
+            number_of_existing_rooms=existing_roomsN,
+            number_of_new_seats=new_seatsN,
+            number_of_existing_seats=existing_seatsN,
+            importstep=importstep)
 
 
 def _validate_room_declarations(columndict: aue.Columnsdict):
@@ -64,25 +68,25 @@ def _validate_columnlist(columndict: aue.Columnsdict):
     found = columndict.keys()
     missing = set(expected) - set(found)
     if missing:
-        excelerror(row=1, expected=f"columns {expected}",
-                   found=f"some columns are missing: {missing}")
+        _excelerror(row=1, expected=f"columns {expected}",
+                    found=f"some columns are missing: {missing}")
     surprises = set(found) - set(expected)
     if surprises:
-        excelerror(row=1, expected=f"columns {expected}",
-                   found=f"there are additional columns: {surprises}")
+        _excelerror(row=1, expected=f"columns {expected}",
+                    found=f"there are additional columns: {surprises}")
 
 
 def _validate_single_department(columndict: aue.Columnsdict):
     organizations = set(columndict['organization'])
     departments = set(columndict['department'])
     if len(organizations) > 1:
-        excelerror(column='organization', 
-                   expected="all values are the same",
-                   found=f"multiple different values: {organizations}")
+        _excelerror(column='organization',
+                    expected="all values are the same",
+                    found=f"multiple different values: {organizations}")
     if len(departments) > 1:
-        excelerror(column='department', 
-                   expected="all values are the same",
-                   found=f"multiple different values: {departments}")
+        _excelerror(column='department',
+                    expected="all values are the same",
+                    found=f"multiple different values: {departments}")
 
 
 def _validate_seatrange(columndict: aue.Columnsdict):
@@ -93,24 +97,24 @@ def _validate_seatrange(columndict: aue.Columnsdict):
         try:
             _min = int(mins[index])
         except ValueError:
-            excelerror(row=excel_row_number, column='seat_min',
-                       found=f"Not an integer number: {mins[index]}")
+            _excelerror(row=excel_row_number, column='seat_min',
+                        found=f"Not an integer number: {mins[index]}")
         try:
             _max = int(maxs[index])
         except ValueError:
-            excelerror(row=excel_row_number, column='seat_max',
-                       found=f"Not an integer number: {maxs[index]}")
+            _excelerror(row=excel_row_number, column='seat_max',
+                        found=f"Not an integer number: {maxs[index]}")
         if _min > _max:
-            excelerror(row=excel_row_number, column="seat_min/seat_max",
-                       expected="seat_max is larger than seat_min",
-                       found=f"seat_min={_min}, seat_max={_max}")
+            _excelerror(row=excel_row_number, column="seat_min/seat_max",
+                        expected="seat_max is larger than seat_min",
+                        found=f"seat_min={_min}, seat_max={_max}")
         seatsN = _max - _min
         if seatsN > 200:
             remark = ("if you are serious, use several lines with " + 
                       "sub-rooms left/center/right or so")
-            excelerror(row=excel_row_number,
-                    expected="No room has more than 200 seats in pandemic times",
-                    found=f"{seatsN} seats, from {_min} to {_max} ({remark})")
+            _excelerror(row=excel_row_number,
+                        expected="No room has more than 200 seats in pandemic times",
+                        found=f"{seatsN} seats, from {_min} to {_max} ({remark})")
 
 
 def _create_importstep() -> arm.Importstep:
@@ -155,7 +159,7 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]):
             seat, created = arm.Seat.objects.get_or_create(
                     number=seatnum,
                     room=room,
-                    defaults=dict(hash=seathash(room, seatnum))
+                    defaults=dict(hash=_seathash(room, seatnum))
             )
             result.append(seat)
             if created:
@@ -164,3 +168,30 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]):
                 existingN += 1
     return (result, newN, existingN)
 
+############################################################
+
+VGroupRow = collections.namedtuple('VGroupRow',
+        'index '
+        'familyname givenname email phone street_and_nr zipcode town '
+        'date when from_time to_time '
+        'pseudo_id '
+        ''
+)
+
+def collect_visitgroups(primary_visits: djdmq.QuerySet
+                        ) -> tg.List[tg.Optional[VGroupRow]]:
+    result = []
+    visit_pks_seen = set()  # all contacts of primary visits
+    primary_visit_pks_seen = set()  # only primary visits
+    for pvisit in primary_visits:
+        primary_visit_pks_seen.add(pvisit.pk)
+        visit_pks_seen.add(pvisit.pk)
+        group = pvisit.get_overlapping_visits()
+        for visit in group:
+            must_not_be_suppressed = (visit.pk == pvisit.pk)
+            is_new = visit.pk not in visit_pks_seen
+            if is_new or must_not_be_suppressed:
+                result.append(visit)
+        result.append(None)  # empty row as separator
+    del result[-1]  # remove trailing empty row
+    return result

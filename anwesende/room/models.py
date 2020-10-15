@@ -4,7 +4,8 @@ import re
 import django.core.exceptions as djce
 import django.core.validators as djcv
 import django.db.models as djdm
-import django.utils.timezone as djut
+import django.db.models.query as djdmq
+from  django.db.models.query import F
 
 import anwesende.utils.date as aud
 
@@ -117,7 +118,7 @@ class Visit(djdm.Model):
         max_length=FIELDLENGTH,
         db_index=True,
         verbose_name = "Straße und Hausnummer / Street and number",
-        help_text = "",
+        help_text = "Wohnadresse für diese Woche / This week's living address",
     )
     zipcode = djdm.CharField(
         blank=False, null=False,
@@ -140,10 +141,10 @@ class Visit(djdm.Model):
         max_length=FIELDLENGTH,
         db_index=True,
         verbose_name = "Mobilfunknummer / Mobile phone number",
-        help_text = "Mit Ländervorwahl, z.B. +49 151 ... in Deutschland / " +
+        help_text = "Mit Ländervorwahl, z.B. +49 151... in Deutschland / " +
                        "With country code, starting with '+'",
         validators=[djcv.RegexValidator(regex=r"^\+\d\d[\d /-]+$",
-                message= "Falsches Format für eine Telefonnummer" +
+                message= "Falsches Format für eine Telefonnummer / " +
                          "Wrong format as a phone number")],
     )
     email = djdm.EmailField(
@@ -182,3 +183,40 @@ class Visit(djdm.Model):
     def __repr__(self):
         return self.__str__()
 
+    def get_overlapping_visits(self) -> djdmq.QuerySet:
+        """
+        All visits that overlap self by at least MIN_OVERLAP_MINUTES.
+        A visit overlaps itself if it is long enough;
+        result is empty otherwise.
+        """
+        MIN_OVERLAP_MINUTES = 10
+        delta = dt.timedelta(minutes=MIN_OVERLAP_MINUTES)
+        # There are four non-disjoint cases:
+        # 1) other visit is long enough and included in self
+        # 2) other includes self that is long enough 
+        # 3) other extends enough into self from before self
+        # 4) other begins early enough within self (and continues after self)
+        # We return other visits that belong to either of these cases.
+        # The filter param (not arg value!) represents the other visit.
+        self_long_enough = (self.present_to_dt - self.present_from_dt) >= delta
+        if not self_long_enough:
+            return self.objects.none()  # overlapping-enough visits impossible
+        # we now rely on self being long enough:
+        base_qs = self.__class__.objects.filter(seat__room=self.seat.room)
+        other_included_in_self = (base_qs
+                .filter(present_to_dt__gte=F('present_from_dt')+delta)
+                .filter(present_from_dt__gte=self.present_from_dt)
+                .filter(present_to_dt__lte=self.present_to_dt))
+        other_includes_self = (base_qs
+                .filter(present_from_dt__lte=self.present_from_dt)
+                .filter(present_to_dt__gte=self.present_to_dt))
+        other_extends_into_self = (base_qs
+                .filter(present_from_dt__lte=self.present_from_dt)
+                .filter(present_to_dt__gte=self.present_from_dt+delta))
+        other_begins_within_self = (base_qs
+                .filter(present_from_dt__gte=self.present_from_dt)
+                .filter(present_from_dt__lte=self.present_to_dt-delta)
+                .filter(present_to_dt__gte=self.present_to_dt))
+        all4cases = (other_included_in_self | other_includes_self |
+                     other_extends_into_self | other_begins_within_self)
+        return all4cases.distinct().order_by('submission_dt')
