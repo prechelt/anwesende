@@ -2,6 +2,7 @@ import datetime as dt
 import os
 import re
 import tempfile
+import time
 
 import crispy_forms.helper as cfh
 import crispy_forms.layout as cfl
@@ -51,11 +52,11 @@ class TimeOnlyDateTimeField(djf.CharField):
     def to_python(self, value: str) -> dt.datetime:
         time_regex = r"^([01][0-9]|2[0-3]):[0-5][0-9]$"
         error_msg = "Falsches Uhrzeitformat / Wrong time-of-day format"
-        if not re.match(time_regex, value):
+        if not re.match(time_regex, value or ""):
             raise djce.ValidationError(error_msg)
         dt_string = djut.now().strftime(f"%Y-%m-%d {value}")
-        dt_obj = dt.datetime.strptime(dt_string, "%Y-%m-%d %H:%M")
-        dt_obj.tzinfo = djut.get_current_timezone()
+        dt_tuple = time.strptime(dt_string, "%Y-%m-%d %H:%M")[0:5]
+        dt_obj = dt.datetime(*dt_tuple, tzinfo=djut.get_current_timezone())
         return dt_obj
 
 
