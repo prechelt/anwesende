@@ -32,6 +32,8 @@ def test_write_excel_from_rowslists():
         print(filename)
     try:
         aue.write_excel_from_rowslists(filename, testdata)
+        # import time
+        # time.sleep(60)
         columns = aue.read_excel_as_columnsdict(filename)
         print(columns)
         assert list(columns.keys()) == ['a', 'b', 'c', 'dee']

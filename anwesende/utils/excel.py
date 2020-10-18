@@ -16,7 +16,7 @@ def read_excel_as_columnsdict(filename: str) -> Columnsdict:
     result = collections.OrderedDict()
     for col in sheet.iter_cols(values_only=True):
         colname = col[0]
-        assert isinstance(colname, str)
+        assert isinstance(colname, str), f"type(colname) = {type(colname)}"
         result[colname] = [_cleansed(cell) for cell in col[1:]]
     return result
     
@@ -35,7 +35,7 @@ def write_excel_from_rowslists(filename: str, rowslists: RowsListsType,
     workbook = openpyxl.Workbook()
     for sheetname, rows in rowslists.items():
         sheet = workbook.create_sheet(sheetname)
-        indexdigits = len(str(len(rows))) if indexcolumn else None
+        indexdigits = len(str(len(rows))) if indexcolumn else 0
         _write_column_headings(sheet, rows[0], 1, indexdigits)
         for rownum, row in enumerate(rows, start=2):
             _write_row(sheet, row, rownum, indexdigits)
@@ -44,7 +44,7 @@ def write_excel_from_rowslists(filename: str, rowslists: RowsListsType,
 
  
 def _write_column_headings(sheet, tupl: tg.NamedTuple, 
-                           rownum: int, indexdigits: tg.Optional[int]):
+                           rownum: int, indexdigits: int):
     # use the tuple's element names as headings
     font = openpyxl.styles.Font(bold=True)
     if indexdigits:
