@@ -1,8 +1,7 @@
 import datetime as dt
-import re
+import hashlib
 
 from django.conf import settings
-import django.core.exceptions as djce
 import django.core.validators as djcv
 import django.db.models as djdm
 import django.db.models.query as djdmq
@@ -84,6 +83,12 @@ class Seat(djdm.Model):
     @classmethod
     def by_hash(cls, hash:str):
         return cls.objects.get(hash=hash)
+    
+    @classmethod
+    def seathash(cls, room: Room, seatnumber: int):
+        seat_id = (f"{room.organization}|{room.department}|{room.building}|" +
+                   f"{room.room}|{seatnumber}|{settings.SECRET_KEY}")
+        return hashlib.sha256(seat_id.encode()).hexdigest()[:10]
 
     def __str__(self):
         return f"{self.room.room}|{self.number}|{self.hash}"
@@ -176,7 +181,9 @@ class Visit(djdm.Model):
 
     def __str__(self):
         return (f"{self.familyname}|{self.email}|"
-                f"{aud.dtstring(self.submission_dt, time=True)}")
+                f"{aud.dtstring(self.submission_dt, time=True)}|"
+                f"{aud.dtstring(self.present_from_dt, date=False, time=True)}-"
+                f"{aud.dtstring(self.present_to_dt, date=False, time=True)}")
 
     def __repr__(self):
         return self.__str__()

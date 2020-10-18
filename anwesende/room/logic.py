@@ -1,5 +1,4 @@
 import collections
-import hashlib
 import os
 import random
 import tempfile
@@ -18,7 +17,7 @@ class InvalidExcelError(ValueError):
 
 def _excelerror(row:int=None, column:str=None,
                 expected:str=None, found:str=None
-                ) -> str:
+                ):
     assert found  # the core part, must not be left empty
     result = "Excel error: "
     if row:
@@ -33,13 +32,6 @@ def _excelerror(row:int=None, column:str=None,
         result += "FOUND: "
     result += found
     raise InvalidExcelError(result)
-
-
-def _seathash(room: arm.Room, seatnumber: int):
-    seat_id = (f"{room.organization}|{room.department}|{room.building}|" +
-               f"{room.room}|{seatnumber}|{settings.SECRET_KEY}")
-    return hashlib.sha256(seat_id.encode()).hexdigest()[:10]
-
 
 ############################################################
 
@@ -59,7 +51,8 @@ def create_seats_from_excel(filename) -> collections.OrderedDict:
 
 
 def _validate_room_declarations(columndict: aue.Columnsdict):
-    if getattr(columndict, 'has_been_validated', False): return
+    if getattr(columndict, 'has_been_validated', False): 
+        return
     _validate_columnlist(columndict)
     _validate_single_department(columndict)
     _validate_seatrange(columndict)
@@ -162,7 +155,7 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]):
             seat, created = arm.Seat.objects.get_or_create(
                     number=seatnum,
                     room=room,
-                    defaults=dict(hash=_seathash(room, seatnum))
+                    defaults=dict(hash=arm.Seat.seathash(room, seatnum))
             )
             result.append(seat)
             if created:
