@@ -328,4 +328,3 @@ anwesende/media/
 .ipython/
 .env
 .envs/*
-!.envs/.local/
