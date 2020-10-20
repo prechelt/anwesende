@@ -1,4 +1,5 @@
 import re
+import typing as tg
 
 import pytest
 
@@ -86,8 +87,8 @@ def test_create_seats_from_excel():
     print(list(all_rooms))
     qs_room055 = arm.Room.objects.filter(room="055")
     assert qs_room055.count() == 1
-    room055: arm.Room = qs_room055.first()
-    assert room055.importstep == importstep
+    room055: tg.Optional[arm.Room] = qs_room055.first()
+    assert room055 and room055.importstep == importstep
     # ----- check seats:
     print(list(str(s) for s in arm.Seat.objects.all()))
     assert arm.Seat.objects.count() == 20

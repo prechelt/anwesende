@@ -97,7 +97,7 @@ class ThankyouView(vv.TemplateView):
 class UncookieView(vv.GenericView):
     def get(self, request, *args, **kwargs):
         response = djh.HttpResponse("Cookie expired")
-        response.set_cookie(COOKIENAME, None, max_age=0)  # expire now
+        response.set_cookie(COOKIENAME, "", max_age=0)  # expire now
         return response
     
 

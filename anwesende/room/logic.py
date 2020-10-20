@@ -56,7 +56,7 @@ def _validate_room_declarations(columndict: aue.Columnsdict):
     _validate_columnlist(columndict)
     _validate_single_department(columndict)
     _validate_seatrange(columndict)
-    columndict.has_been_validated = True
+    columndict.has_been_validated = True  # type: ignore
 
 
 def _validate_columnlist(columndict: aue.Columnsdict):
@@ -122,7 +122,7 @@ def _create_importstep() -> arm.Importstep:
 
 def _find_or_create_rooms(
         columnsdict: aue.Columnsdict,
-        importstep: arm.Importstep) -> tg.Sequence[arm.Room]:
+        importstep: arm.Importstep) -> tg.Tuple[tg.Sequence[arm.Room], int, int]:
     _validate_room_declarations(columnsdict)
     result = []
     newN = existingN = 0
@@ -233,7 +233,8 @@ def get_excel_download(visits: Visits) -> bytes:
                                      delete=False) as fh:
         filename = fh.name  # file is deleted in 'finally' clause
     try:
-        aue.write_excel_from_rowslists(filename, rowslists, indexcolumn=True)
+        aue.write_excel_from_rowslists(filename, rowslists,  # type: ignore
+                                       indexcolumn=True)
         with open(filename, 'rb') as file:
             excelbytes = file.read()  # slurp. Won't be very large.
     finally:
@@ -241,10 +242,10 @@ def get_excel_download(visits: Visits) -> bytes:
     return excelbytes
 
 
-def _as_vgrouprows(visits) -> aue.RowsListsType:
-    vgrouprows = []
+def _as_vgrouprows(visits) -> tg.List[tg.Optional[VGroupRow]]:
+    vgrouprows: tg.List[tg.Optional[VGroupRow]] = []
+    v: arm.Visit
     for idx, v in enumerate(visits):
-        v: arm.Visit
         if v is None:
             row = None
         else:

@@ -45,9 +45,10 @@ def write_excel_from_rowslists(filename: str, rowslists: RowsListsType,
     workbook.save(filename)
 
  
-def _write_column_headings(sheet, tupl: tg.NamedTuple, 
+def _write_column_headings(sheet, tupl: tg.Optional[tg.NamedTuple], 
                            rownum: int, indexdigits: int):
     # use the tuple's element names as headings
+    assert tupl  # None does not occur here
     font = openpyxl.styles.Font(bold=True)
     if indexdigits:
         sheet.cell(column=1, row=1, value="index")

@@ -37,7 +37,7 @@ class UploadFileForm(djf.Form):
         try:
             arl.create_seats_from_excel(excelfile)  # stores models iff valid
         except arl.InvalidExcelError as err:
-            raise djce.ValidationError(err.value)
+            raise djce.ValidationError(err)
         
     def _store_excelfile(self, uploadedfile):
         fh, filename = tempfile.mkstemp(prefix="rooms", suffix=".xlsx")
@@ -49,7 +49,7 @@ class UploadFileForm(djf.Form):
 
 
 class TimeOnlyDateTimeField(djf.CharField):
-    def to_python(self, value: str) -> dt.datetime:
+    def to_python(self, value) -> dt.datetime:
         time_regex = r"^([01][0-9]|2[0-3]):[0-5][0-9]$"
         error_msg = "Falsches Uhrzeitformat / Wrong time-of-day format"
         if not re.match(time_regex, value or ""):
