@@ -1,10 +1,9 @@
 import datetime as dt
 import re
 
-import pytz
-
-from django.conf import settings
 import django.utils.timezone as djut
+import pytz
+from django.conf import settings
 
 
 def dtstring(dtobj, date=True, time=False) -> str:

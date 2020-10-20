@@ -10,8 +10,8 @@ import anwesende.utils.date as aud
 
 @pytest.mark.django_db
 def test_get_overlapping_visits():
-    def _make_seats(importstep: arm.Importstep, roomname: str, numseats: int
-                   ) -> tg.Tuple[arm.Seat]:
+    def _make_seats(importstep: arm.Importstep, roomname: str, 
+                    numseats: int) -> tg.Tuple[arm.Seat, ...]:
         results = []
         room = arm.Room(organization="org", department="dep", building="bldg",
                         room=roomname, seat_min=1, seat_max=numseats, 
@@ -43,7 +43,7 @@ def test_get_overlapping_visits():
     r2s1, = _make_seats(importstep, "room2", 1)
     targetvisit = _make_visit(r1s1, "03:00", "04:00")
     shorttargetvisit = _make_visit(r1s1, "03:00", "03:01")
-    #--- the following other visits have _y if they are to be found, _n if not:
+    # --- the following other visits have _y if they are to be found, _n if not:
     otherroom_n = _make_visit(r2s1, "03:00", "04:00")
     before_n = _make_visit(r1s2, "02:00", "03:00")
     within_y = _make_visit(r1s2, "03:15", "03:45")
@@ -53,7 +53,7 @@ def test_get_overlapping_visits():
     halfafter_y = _make_visit(r1s2, "03:30", "04:30")
     nearlybefore_n = _make_visit(r1s2, "02:00", "03:01")
     nearlyafter_n = _make_visit(r1s2, "03:59", "05:00")
-    #--- now look which ones appear:
+    # --- now look which ones appear for targetvisit:
     results = set(targetvisit.get_overlapping_visits())
     result_pks = set(el.pk for el in results)
     expected = set(el.pk for el in (targetvisit, within_y, across_y, halfbefore_y, halfafter_y))
@@ -63,3 +63,5 @@ def test_get_overlapping_visits():
     print("not_expected", not_expected)
     assert result_pks.isdisjoint(not_expected)
     assert result_pks == expected
+    # --- now look which ones appear for shorttargetvisit:
+    assert shorttargetvisit.get_overlapping_visits().count() == 0

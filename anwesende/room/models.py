@@ -1,15 +1,16 @@
 import datetime as dt
 import hashlib
 
-from django.conf import settings
 import django.core.validators as djcv
 import django.db.models as djdm
 import django.db.models.query as djdmq
-from  django.db.models.query import F
+from django.conf import settings
+from django.db.models.query import F
 
 import anwesende.utils.date as aud
 
 FIELDLENGTH = 80
+
 
 class Importstep(djdm.Model):
     """Each Importstep corresponds to one set of QR-Codes created."""
@@ -22,13 +23,12 @@ class Room(djdm.Model):
     One room (that has seats) in one building of one department 
     of one organization.
     """
-    #----- Options:
+    # ----- Options:
     class Meta:
-        constraints = [
-            djdm.UniqueConstraint(name='orgdeptbldgroomunique_room',
-                                  fields=
-                ['organization', 'department', 'building', 'room'])]
-    #----- Fields:
+        constraints = [djdm.UniqueConstraint(
+            name='orgdeptbldgroomunique_room',
+            fields=['organization', 'department', 'building', 'room'])]
+    # ----- Fields:
     organization = djdm.CharField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
@@ -51,7 +51,7 @@ class Room(djdm.Model):
     )
     seat_min = djdm.IntegerField(null=False)
     seat_max = djdm.IntegerField(null=False)
-    #----- References:
+    # ----- References:
     importstep = djdm.ForeignKey(   # set on create or overwrite
         to=Importstep,
         on_delete=djdm.PROTECT)
@@ -67,7 +67,7 @@ class Seat(djdm.Model):
     """
     One seat in a Room. Each QR code refers to one Seat.
     """
-    #----- Fields:
+    # ----- Fields:
     number = djdm.IntegerField(null=False)
     hash = djdm.CharField(
         blank=False, null=False,
@@ -75,18 +75,18 @@ class Seat(djdm.Model):
         db_index=True,  # to map a QR code to a Room
         unique=True
     )
-    #----- References:
+    #   ----- References:
     room = djdm.ForeignKey(
         to=Room,
         on_delete=djdm.PROTECT)
 
     @classmethod
-    def by_hash(cls, hash:str):
+    def by_hash(cls, hash: str):
         return cls.objects.get(hash=hash)
     
     @classmethod
     def seathash(cls, room: Room, seatnumber: int):
-        seat_id = (f"{room.organization}|{room.department}|{room.building}|" +
+        seat_id = (f"{room.organization}|{room.department}|{room.building}|"
                    f"{room.room}|{seatnumber}|{settings.SECRET_KEY}")
         return hashlib.sha256(seat_id.encode()).hexdigest()[:10]
 
@@ -116,49 +116,47 @@ class Visit(djdm.Model):
         blank=False, null=False,
         max_length=FIELDLENGTH,
         db_index=True,
-        verbose_name = "Familienname / Family name",
-        help_text = "Wie im Ausweis angegeben / as shown in your passport",
+        verbose_name="Familienname / Family name",
+        help_text="Wie im Ausweis angegeben / as shown in your passport",
     )
     street_and_number = djdm.CharField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
         db_index=True,
-        verbose_name = "Straße und Hausnummer / Street and number",
-        help_text = "Wohnadresse für diese Woche / This week's living address",
+        verbose_name="Straße und Hausnummer / Street and number",
+        help_text="Wohnadresse für diese Woche / This week's living address",
     )
     zipcode = djdm.CharField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
-        verbose_name = "Postleitzahl / Postal code",
+        verbose_name="Postleitzahl / Postal code",
         db_index=True,
-        help_text = "",
-        validators = [djcv.RegexValidator(regex=r"^\d{5}$",
+        validators=[djcv.RegexValidator(regex=r"^\d{5}$",  # noqa
                 message="5 Ziffern bitte / 5 digits, please")]
     )
     town = djdm.CharField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
         db_index=True,
-        verbose_name = "Ort / Town",
-        help_text = "",
+        verbose_name="Ort / Town",
     )
     phone = djdm.CharField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
         db_index=True,
-        verbose_name = "Mobilfunknummer / Mobile phone number",
-        help_text = "Mit Ländervorwahl, z.B. +49 151... in Deutschland / " +
-                       "With country code, starting with '+'",
+        verbose_name="Mobilfunknummer / Mobile phone number",
+        help_text="Mit Ländervorwahl, z.B. +49 151... in Deutschland / "
+                  "With country code, starting with '+'",
         validators=[djcv.RegexValidator(regex=r"^\+\d\d[\d /-]+$",
-                message= "Falsches Format für eine Telefonnummer / " +
-                         "Wrong format as a phone number")],
+                message="Falsches Format für eine Telefonnummer / "
+                        "Wrong format as a phone number")],
     )
     email = djdm.EmailField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
         db_index=True,
-        verbose_name = "Emailadresse / Email address",
-        help_text = "Bitte immer die gleiche benutzen! / Please use the same one each time",
+        verbose_name="Emailadresse / Email address",
+        help_text="Bitte immer die gleiche benutzen! / Please use the same one each time",
     )
     present_from_dt = djdm.DateTimeField(
         blank=False, null=False,
@@ -171,9 +169,8 @@ class Visit(djdm.Model):
         db_index=True,
     )
     submission_dt = djdm.DateTimeField(auto_now_add=True)
-    cookie = djdm.TextField(blank=False, null=False, max_length=15,
-        verbose_name = "random string, used as pseudo-id",
-    )
+    cookie = djdm.TextField(blank=False, null=False, max_length=15,  # noqa
+        verbose_name="random string, used as pseudo-id",)
     # ----- References:
     seat = djdm.ForeignKey(
         to=Seat,
@@ -208,7 +205,7 @@ class Visit(djdm.Model):
         # we now rely on self being long enough:
         base_qs = self.__class__.objects.filter(seat__room=self.seat.room)
         other_included_in_self = (base_qs
-                .filter(present_to_dt__gte=F('present_from_dt')+delta)
+                .filter(present_to_dt__gte=F('present_from_dt') + delta)
                 .filter(present_from_dt__gte=self.present_from_dt)
                 .filter(present_to_dt__lte=self.present_to_dt))
         other_includes_self = (base_qs
@@ -216,11 +213,11 @@ class Visit(djdm.Model):
                 .filter(present_to_dt__gte=self.present_to_dt))
         other_extends_into_self = (base_qs
                 .filter(present_from_dt__lte=self.present_from_dt)
-                .filter(present_to_dt__gte=self.present_from_dt+delta))
+                .filter(present_to_dt__gte=self.present_from_dt + delta))
         other_begins_within_self = (base_qs
                 .filter(present_from_dt__gte=self.present_from_dt)
-                .filter(present_from_dt__lte=self.present_to_dt-delta)
+                .filter(present_from_dt__lte=self.present_to_dt - delta)
                 .filter(present_to_dt__gte=self.present_to_dt))
-        all4cases = (other_included_in_self | other_includes_self |
-                     other_extends_into_self | other_begins_within_self)
+        all4cases = (other_included_in_self | other_includes_self
+                     | other_extends_into_self | other_begins_within_self)
         return all4cases.distinct().order_by('submission_dt')

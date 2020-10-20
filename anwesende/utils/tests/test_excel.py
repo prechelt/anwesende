@@ -2,11 +2,12 @@ import collections
 import os
 import tempfile
 
-import pytest
+import pytest  # noqa
 
 import anwesende.utils.excel as aue
 
 the_3by3_file = "anwesende/utils/tests/data/3by3.xlsx"
+
 
 def test_read_excel_as_columnsdict():
     cd = aue.read_excel_as_columnsdict(the_3by3_file)

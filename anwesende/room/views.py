@@ -1,17 +1,15 @@
 import json
 import os
-import typing as tg
 
 import django.http as djh
 import django.urls as dju
 import vanilla as vv  # Django vanilla views
-from django.conf import settings
 
-import anwesende.room.models as arm
 import anwesende.room.forms as arf
 import anwesende.room.logic as arl
+import anwesende.room.models as arm
 import anwesende.utils.date as aud
-import anwesende.utils.lookup as aul  # registers lookup
+import anwesende.utils.lookup as aul  # noqa,  registers lookup
 import anwesende.utils.qrcode as auq
 
 COOKIENAME = 'anwesende'
@@ -22,7 +20,7 @@ class ImportView(vv.FormView):
     template_name = "room/import.html"
 
     def get_success_url(self):
-        return dju.reverse('room.qrcodes', kwargs=dict(pk=1, randomkey=819737))
+        return dju.reverse('room:qrcodes', kwargs=dict(pk=1, randomkey=819737))
 
 
 class QRcodesView(vv.DetailView):
@@ -66,7 +64,7 @@ class VisitView(vv.CreateView):
     
     def get_form(self, data=None, files=None, **kwargs):
         if data:
-            data = {k:v for k,v, in data.items()}  # extract ordinary dict
+            data = {k: v for k, v in data.items()}  # extract ordinary dict
         if not data and COOKIENAME in self.request.COOKIES:
             data = json.loads(self.request.COOKIES[COOKIENAME])
         form = arf.VisitForm(data=data, files=files, **kwargs)
@@ -75,7 +73,7 @@ class VisitView(vv.CreateView):
     def form_valid(self, form: arf.VisitForm):
         response = djh.HttpResponseRedirect(self.get_success_url())
         response.set_cookie(key=COOKIENAME, value=self.get_cookiejson(form), 
-                            max_age=3600*24*90)
+                            max_age=3600 * 24 * 90)
         self.object = form.save(commit=False)
         self.object.seat = arm.Seat.by_hash(self.kwargs['hash'])
         self.object.save()
@@ -105,7 +103,7 @@ class UncookieView(vv.GenericView):
 
 class SearchView(vv.ListView):  # same view for valid and invalid form
     form_class = arf.SearchForm
-    template_name="room/search.html"
+    template_name = "room/search.html"
 
     def get_context_data(self, **ctx):
         def _key(postdata_key):  # key or None
@@ -116,8 +114,9 @@ class SearchView(vv.ListView):  # same view for valid and invalid form
             form=self.form,
             **ctx)
         valid = ctx['valid'] = ctx['is_post'] and self.form.is_valid()
-        print(self.form.data)
-        if valid: print(self.form.cleaned_data)
+        # print(self.form.data)
+        # if valid: 
+        #     print(self.form.cleaned_data)
         mode = _key('visit') or _key('visitgroup') or _key('xlsx')
         ctx['display_switch'] = mode
         if not valid:
@@ -179,5 +178,5 @@ class SearchView(vv.ListView):  # same view for valid and invalid form
         timestamp = timestamp.replace(' ', '_').replace(':', ".")
         filename = f"anwesende-{timestamp}.xlsx"
         response['Content-Disposition'] = (
-                'attachment; filename="%s"' % (filename,))
+            'attachment; filename="%s"' % (filename,))
         return response

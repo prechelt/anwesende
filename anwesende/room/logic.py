@@ -11,12 +11,13 @@ import anwesende.room.models as arm
 import anwesende.utils.date as aud
 import anwesende.utils.excel as aue
 
+
 class InvalidExcelError(ValueError):
     pass  # no additional logic is needed
 
 
-def _excelerror(row:int=None, column:str=None,
-                expected:str=None, found:str=None
+def _excelerror(row: int = None, column: str = None,
+                expected: str = None, found: str = None
                 ):
     assert found  # the core part, must not be left empty
     result = "Excel error: "
@@ -33,21 +34,20 @@ def _excelerror(row:int=None, column:str=None,
     result += found
     raise InvalidExcelError(result)
 
-############################################################
 
 def create_seats_from_excel(filename) -> collections.OrderedDict:
     columnsdict = aue.read_excel_as_columnsdict(filename)
     _validate_room_declarations(columnsdict)
     importstep = _create_importstep()
     rooms, new_roomsN, existing_roomsN = \
-            _find_or_create_rooms(columnsdict, importstep)
+        _find_or_create_rooms(columnsdict, importstep)
     seats, new_seatsN, existing_seatsN = _find_or_create_seats(rooms)
     return collections.OrderedDict(
-            number_of_new_rooms=new_roomsN,
-            number_of_existing_rooms=existing_roomsN,
-            number_of_new_seats=new_seatsN,
-            number_of_existing_seats=existing_seatsN,
-            importstep=importstep)
+        number_of_new_rooms=new_roomsN,
+        number_of_existing_rooms=existing_roomsN,
+        number_of_new_seats=new_seatsN,
+        number_of_existing_seats=existing_seatsN,
+        importstep=importstep)
 
 
 def _validate_room_declarations(columndict: aue.Columnsdict):
@@ -57,6 +57,7 @@ def _validate_room_declarations(columndict: aue.Columnsdict):
     _validate_single_department(columndict)
     _validate_seatrange(columndict)
     columndict.has_been_validated = True
+
 
 def _validate_columnlist(columndict: aue.Columnsdict):
     expected = ('organization', 'department', 'building', 'room',
@@ -106,7 +107,7 @@ def _validate_seatrange(columndict: aue.Columnsdict):
                         found=f"seat_min={_min}, seat_max={_max}")
         seatsN = _max - _min
         if seatsN > 200:
-            remark = ("if you are serious, use several lines with " + 
+            remark = ("if you are serious, use several lines with "
                       "sub-rooms left/center/right or so")
             _excelerror(row=excel_row_number,
                         expected="No room has more than 200 seats in pandemic times",
@@ -114,28 +115,28 @@ def _validate_seatrange(columndict: aue.Columnsdict):
 
 
 def _create_importstep() -> arm.Importstep:
-    result = arm.Importstep(randomkey=str(random.randrange(100000,999999)))
+    result = arm.Importstep(randomkey=str(random.randrange(100000, 999999)))
     result.save()
     return result
 
 
 def _find_or_create_rooms(
         columnsdict: aue.Columnsdict,
-        importstep: arm.Importstep
-        ) -> tg.Sequence[arm.Room]:
+        importstep: arm.Importstep) -> tg.Sequence[arm.Room]:
     _validate_room_declarations(columnsdict)
     result = []
     newN = existingN = 0
     for idx in range(len(columnsdict['room'])):
-        col = lambda name: columnsdict[name][idx] 
+        def col(name): 
+            return columnsdict[name][idx] 
         room, created = arm.Room.objects.get_or_create(
-                organization=col('organization'),
-                department=col('department'),
-                building=col('building'),
-                room=col('room'),
-                defaults=dict(seat_min=col('seat_min'),
-                              seat_max=col('seat_max'),
-                              importstep=importstep)
+            organization=col('organization'),
+            department=col('department'),
+            building=col('building'),
+            room=col('room'),
+            defaults=dict(seat_min=col('seat_min'),
+                          seat_max=col('seat_max'),
+                          importstep=importstep)
         )
         result.append(room)
         if created:
@@ -151,11 +152,11 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]):
     result = []
     newN = existingN = 0
     for room in rooms:
-        for seatnum in range(room.seat_min, room.seat_max+1):
+        for seatnum in range(room.seat_min, room.seat_max + 1):
             seat, created = arm.Seat.objects.get_or_create(
-                    number=seatnum,
-                    room=room,
-                    defaults=dict(hash=arm.Seat.seathash(room, seatnum))
+                number=seatnum,
+                room=room,
+                defaults=dict(hash=arm.Seat.seathash(room, seatnum))
             )
             result.append(seat)
             if created:
@@ -164,18 +165,19 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]):
                 existingN += 1
     return (result, newN, existingN)
 
-############################################################
 
-VGroupRow = collections.namedtuple('VGroupRow',
-        'familyname givenname email phone street_and_nr zipcode town '
-        'cookie '
-        'when from_time to_time '
-        'organization department building room seat '
-)
+VGroupRow = collections.namedtuple('VGroupRow',  # noqa
+    'familyname givenname email phone street_and_nr zipcode town '
+    'cookie '
+    'when from_time to_time '
+    'organization department building room seat ')
+
 
 Visits = tg.List[tg.Optional[arm.Visit]]
 
+
 Expl = collections.namedtuple('Expl', ("Erklaerung", ))
+
 
 explanations = [
     Expl("Jede Zeile im Tabellenblatt 'Daten' ist ein Besuch einer Person."),
@@ -238,27 +240,22 @@ def get_excel_download(visits: Visits) -> bytes:
         os.unlink(filename)
     return excelbytes
 
+
 def _as_vgrouprows(visits) -> aue.RowsListsType:
-    vgrouprow = VGroupRow("Müller", "Sabine", "s.mue@example.com",
-            "+491231234567", "Hausstr. 9", "12345", "Kleinstadt", "meiqjcsspe",
-            "2020-10-15 12:19", "12:15", "13:45",
-            "fu-berlin.de", "MathInf", "Takustr. 9", "K40", "3") #!!!
     vgrouprows = []
-    idxdigits = len(str(len(visits)))  # how many digits we need
     for idx, v in enumerate(visits):
         v: arm.Visit
         if v is None:
             row = None
         else:
             row = VGroupRow(
-                    v.familyname, v.givenname, v.email, v.phone,
-                    v.street_and_number, v.zipcode, v.town, v.cookie,
-                    aud.dtstring(v.submission_dt, time=True), 
-                    aud.dtstring(v.present_from_dt, date=False, time=True),
-                    aud.dtstring(v.present_to_dt, date=False, time=True),
-                    v.seat.room.organization, v.seat.room.department, 
-                    v.seat.room.building, v.seat.room.room,
-                    v.seat.number
-                )
-        vgrouprows.append(row)
+                v.familyname, v.givenname, v.email, v.phone,
+                v.street_and_number, v.zipcode, v.town, v.cookie,
+                aud.dtstring(v.submission_dt, time=True), 
+                aud.dtstring(v.present_from_dt, date=False, time=True),
+                aud.dtstring(v.present_to_dt, date=False, time=True),
+                v.seat.room.organization, v.seat.room.department, 
+                v.seat.room.building, v.seat.room.room,
+                v.seat.number)
+    vgrouprows.append(row)
     return vgrouprows

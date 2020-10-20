@@ -1,10 +1,10 @@
 import datetime as dt
 import re
 
-from django.conf import settings
 import django.utils.timezone as djut
 import pytest
 import pytz
+from django.conf import settings
 
 import anwesende.utils.date as aud
 
@@ -12,7 +12,7 @@ import anwesende.utils.date as aud
 def test_nowstring():
     d_only = aud.nowstring()
     t_only = aud.nowstring(date=False, time=True)
-    both  = aud.nowstring(date=True, time=True)
+    both = aud.nowstring(date=True, time=True)
     assert re.match(r"^\d\d\d\d-\d\d-\d\d$", d_only),\
            f"wrong d_only nowstring '{d_only}'"
     assert re.match(r"^\d\d:\d\d$", t_only),\
@@ -35,7 +35,7 @@ def test_make_dt_with_tz():
 
 
 def test_make_dt_naive():
-    with pytest.raises(AssertionError) as ex:
+    with pytest.raises(AssertionError):
         aud.make_dt(dt.datetime.now(), "01:23")
 
 
@@ -43,4 +43,3 @@ def test_make_dt_illformed():
     with pytest.raises(AssertionError) as ex:
         aud.make_dt(djut.now(), "23.45")
     assert "hh:mm" in str(ex.value)
-

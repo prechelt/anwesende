@@ -17,6 +17,5 @@ def test_TimeOnlyDateTimeField_to_python_OK():
 
 def test_TimeOnlyDateTimeField_to_python_wrong():
     with pytest.raises(djce.ValidationError) as ex:
-        dt_val = arm.TimeOnlyDateTimeField().to_python("37:27")
+        dt_val = arm.TimeOnlyDateTimeField().to_python("37:27")  # noqa
     assert "Falsches Uhrzeitformat" in str(ex.value)
-

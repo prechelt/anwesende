@@ -70,21 +70,21 @@ class VisitForm(djf.ModelForm):
             'present_from_dt', 'present_to_dt', 'cookie',
         )
         widgets = {
-            'givenname':mytxt(25), 'familyname':mytxt(25),
-            'street_and_number':mytxt(25), 
-            'zipcode':mytxt(6), 'town':mytxt(20),
-            'phone':mytxt(15), 'email':mytxt(25),
-            'present_from_dt':mytxt(6), 'present_to_dt':mytxt(6),
-            'cookie':djfw.HiddenInput()
+            'givenname': mytxt(25), 'familyname': mytxt(25),
+            'street_and_number': mytxt(25), 
+            'zipcode': mytxt(6), 'town': mytxt(20),
+            'phone': mytxt(15), 'email': mytxt(25),
+            'present_from_dt': mytxt(6), 'present_to_dt': mytxt(6),
+            'cookie': djfw.HiddenInput()
         }
     
     present_from_dt = TimeOnlyDateTimeField(
-        label = "Anwesenheit von / Present from",
-        help_text = "Uhrzeit im Format hh:mm, z.B. 16:15 / time of day, e.g. 14:45",
+        label="Anwesenheit von / Present from",
+        help_text="Uhrzeit im Format hh:mm, z.B. 16:15 / time of day, e.g. 14:45",
     )
     present_to_dt = TimeOnlyDateTimeField(
-        label = "Anwesenheit geplant bis / Intend to be present until",
-        help_text = "Uhrzeit im Format hh:mm, z.B. 17:45 / time of day, e.g. 15:15",
+        label="Anwesenheit geplant bis / Intend to be present until",
+        help_text="Uhrzeit im Format hh:mm, z.B. 17:45 / time of day, e.g. 15:15",
     )
 
     def __init__(self, *args, **kwargs):
@@ -98,11 +98,11 @@ class VisitForm(djf.ModelForm):
     def clean(self):
         self.cleaned_data = super().clean()
         cd = self.cleaned_data  # short alias
-        if ('present_from_dt' in cd and 'present_to_dt' in cd and
-                cd['present_from_dt'] > cd['present_to_dt']):
+        if ('present_from_dt' in cd and 'present_to_dt' in cd 
+                and cd['present_from_dt'] > cd['present_to_dt']):
             self.add_error('present_to_dt', 
-                           "'von'-Zeit muss vor 'bis'-Zeit liegen / " +
-                               "'from' must be before 'until'")
+                           "'von'-Zeit muss vor 'bis'-Zeit liegen / "
+                           + "'from' must be before 'until'")
 
 
 class SearchForm(djf.Form):
@@ -142,8 +142,8 @@ class SearchForm(djf.Form):
     def clean(self):
         self.cleaned_data = super().clean()
         cd = self.cleaned_data  # short alias
-        if ('from_date' in cd and 'to_date' in cd and
-                cd['from_date'] > cd['to_date']):
+        if ('from_date' in cd and 'to_date' in cd 
+                and cd['from_date'] > cd['to_date']):
             self.add_error('to_date', 
                            "'from' date must not be later than 'to' date")
         cd['to_date'] += dt.timedelta(hours=24)  # is time 0:00, should be 24:00

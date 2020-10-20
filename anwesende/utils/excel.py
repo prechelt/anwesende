@@ -5,6 +5,7 @@ import openpyxl
 
 Columnsdict = tg.Mapping[str, tg.List]
 
+
 def read_excel_as_columnsdict(filename: str) -> Columnsdict:
     """
     Return raw data from Excel's active sheet, except strings
@@ -19,6 +20,7 @@ def read_excel_as_columnsdict(filename: str) -> Columnsdict:
         assert isinstance(colname, str), f"type(colname) = {type(colname)}"
         result[colname] = [_cleansed(cell) for cell in col[1:]]
     return result
+
     
 def _cleansed(cell):
     if isinstance(cell, str): 
@@ -50,7 +52,7 @@ def _write_column_headings(sheet, tupl: tg.NamedTuple,
     if indexdigits:
         sheet.cell(column=1, row=1, value="index")
         sheet.cell(column=1, row=1).font = font
-    for colnum, colname in enumerate(tupl._fields, start=1+(indexdigits!=0)):
+    for colnum, colname in enumerate(tupl._fields, start=1 + (indexdigits != 0)):
         sheet.cell(column=colnum, row=rownum, value=colname)
         sheet.cell(column=colnum, row=rownum).font = font
 
@@ -58,9 +60,9 @@ def _write_column_headings(sheet, tupl: tg.NamedTuple,
 def _write_row(sheet, tupl: tg.Optional[tg.NamedTuple], 
                rownum: int, indexdigits: tg.Optional[int]):
     if indexdigits:
-        index = str(rownum-1).zfill(indexdigits)
+        index = str(rownum - 1).zfill(indexdigits)
         sheet.cell(column=1, row=rownum, value=index)
     if tupl is None: 
         return  # nothing else to do
-    for colnum, value in enumerate(tupl, start=1+(indexdigits!=0)):
+    for colnum, value in enumerate(tupl, start=1 + (indexdigits != 0)):
         sheet.cell(column=colnum, row=rownum, value=value)
