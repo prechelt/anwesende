@@ -201,7 +201,7 @@ class Visit(djdm.Model):
         # The filter param (not arg value!) represents the other visit.
         self_long_enough = (self.present_to_dt - self.present_from_dt) >= delta
         if not self_long_enough:
-            return self.objects.none()  # overlapping-enough visits impossible
+            return self.__class__.objects.none()  # overlapping-enough visits impossible
         # we now rely on self being long enough:
         base_qs = self.__class__.objects.filter(seat__room=self.seat.room)
         other_included_in_self = (base_qs
