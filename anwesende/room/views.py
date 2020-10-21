@@ -71,8 +71,10 @@ class VisitView(vv.CreateView):
     def get_form(self, data=None, files=None, **kwargs):
         if data:
             data = {k: v for k, v in data.items()}  # extract ordinary dict
-        if not data and COOKIENAME in self.request.COOKIES:
+        elif COOKIENAME in self.request.COOKIES:
             data = json.loads(self.request.COOKIES[COOKIENAME])
+        else:
+            data = dict(cookie=arm.Visit.make_cookie())
         form = arf.VisitForm(data=data, files=files, **kwargs)
         return form
         

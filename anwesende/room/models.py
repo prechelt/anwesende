@@ -4,6 +4,7 @@ import hashlib
 import django.core.validators as djcv
 import django.db.models as djdm
 import django.db.models.query as djdmq
+import strgen
 from django.conf import settings
 from django.db.models.query import F
 
@@ -221,3 +222,7 @@ class Visit(djdm.Model):
         all4cases = (other_included_in_self | other_includes_self
                      | other_extends_into_self | other_begins_within_self)
         return all4cases.distinct().order_by('submission_dt')
+
+    @classmethod
+    def make_cookie(cls) -> str:
+        return strgen.StringGenerator('[a-z]{10}').render()
