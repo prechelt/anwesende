@@ -1,1 +1,38 @@
 {% extends "base.html" %}
+
+{% block content %}
+  <h1>a.nwesen.de</h1>
+  <p>
+    DE: Eine Open-Source-Webanwendung zur Anwesenheitserfassung.
+    Dient im Infektionsfall zur Kontaktverfolgung in Zeiten der Pandemie:
+    <ol>
+      <li>
+        Teilnehmende Hochschulen registrieren ihre Räume, erhalten für jeden
+        Sitzplatz einen QR-Code und kleben diese auf.
+      </li>
+      <li>
+        Besucher von Räumen scannen Ihren QR-Code, füllen ein Formular
+        mit Kontaktdaten aus und geben die Anwesenheitszeit an.
+        <br>
+        Diese Daten werden zentral gespeichert, geordnet
+        nach Räumen und Zeiten.
+      </li>
+      <li>
+        Im Infektionsfall meldet sich ein_e Infizierte_r bei der Hochschule.
+        <br>
+        Die Hochschule ruft für die fraglichen Tage die Daten dieser Person ab
+        und erhält für jeden besuchten Raum die ganze Kontaktgruppe von 
+        Personen, die überlappend im gleichen Raum gewesen sind.
+      </li>
+      <li>
+        Die Hochschule gibt diese Daten gemäß ihrer gesetzlichen Verpflichtung
+        an das Gesundheitsamt weiter.
+      </li>
+      <li></li>
+    </ol>
+  </p>
+  <p>
+    EN: An open source web application for people to register their presence.
+    Meant to help tracing contacts when someone got infected in pandemic times.
+  </p>
+{% endblock content %}
