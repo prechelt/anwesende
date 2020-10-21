@@ -2,6 +2,18 @@
 
 {% block content %}
   <h1>a.nwesen.de</h1>
+
+  {% if request.user.is_authenticated %}
+    <ul>
+      <li>
+        <a href="{% url 'room:import' %}">QR-Codes erzeugen</a>
+      </li>
+      <li>
+        <a href="{% url 'room:search' %}">Nach Personen suchen</a>
+      </li>
+    </ul>
+  {% endif %}
+
   <p>
     DE: Eine Open-Source-Webanwendung zur Anwesenheitserfassung.
     Dient im Infektionsfall zur Kontaktverfolgung in Zeiten der Pandemie:
@@ -35,4 +47,5 @@
     EN: An open source web application for people to register their presence.
     Meant to help tracing contacts when someone got infected in pandemic times.
   </p>
+  
 {% endblock content %}
