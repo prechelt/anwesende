@@ -4,6 +4,7 @@ import os
 import django.http as djh
 import django.urls as dju
 import vanilla as vv  # Django vanilla views
+from django.conf import settings
 
 import anwesende.room.forms as arf
 import anwesende.room.logic as arl
@@ -55,12 +56,17 @@ class VisitView(vv.CreateView):
     
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        if self._no_such_seat(self.kwargs['hash']):
+        hashvalue = self.kwargs['hash']
+        if self._no_such_seat(hashvalue):
             raise djh.Http404()
+        seat = arm.Seat.by_hash(hashvalue)
+        ctx['seat'] = seat
+        ctx['room'] = seat.room
+        ctx['settings'] = settings
         return ctx
 
-    def _no_such_seat(self, hash):
-        return arm.Seat.objects.filter(hash=hash).count() == 0
+    def _no_such_seat(self, hashvalue):
+        return arm.Seat.objects.filter(hash=hashvalue).count() == 0
     
     def get_form(self, data=None, files=None, **kwargs):
         if data:

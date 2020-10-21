@@ -82,7 +82,7 @@ class Seat(djdm.Model):
 
     @classmethod
     def by_hash(cls, hash: str):
-        return cls.objects.get(hash=hash)
+        return cls.objects.select_related('room').get(hash=hash)
     
     @classmethod
     def seathash(cls, room: Room, seatnumber: int):
