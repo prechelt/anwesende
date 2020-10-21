@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-10-15  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-10-21  (see "Implementation status" at the bottom)
 
 Simple attendance registration for universities having pandemics.
 "anwesende" is German for "people that are being present".
@@ -260,11 +260,13 @@ provide maximal transparency.
 - DONE 2020-10-13: Retrieving visit data by person
 - DONE 2020-10-15: Retrieving visit groups (contact groups)
 - DONE 2020-10-15: Writing Excel file
-- TODO: Login for Datenverwalter/in
+- DONE 2020-10-19: Cleaning up code structure
+- DONE 2020-10-21: homepage, privacy info
+- DONE 2020-10-21: login, datenverwalter group, authorization checks
 - TODO: Automatic purging of visit data after retention time
 - TODO: Pilot deployment
 - TODO: Pilot testing
 - TODO: Writing additional automated tests
-- TODO: Cleaning up code structure
+- TODO: Cleaning up code structure, part 2
 - TODO: Add logging
 - TODO: Deployment

@@ -14,7 +14,6 @@ FIELDLENGTH = 80
 STAFF_GROUP = "datenverwalter"
 
 
-
 class Importstep(djdm.Model):
     """Each Importstep corresponds to one set of QR-Codes created."""
     when = djdm.DateTimeField(auto_now_add=True)  # creation timestamp

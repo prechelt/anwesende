@@ -184,7 +184,7 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
         context = self.get_context_data(is_post=False)
         return self.render_to_response(context)
 
-
+    def post(self, request, *args, **kwargs):
         self.form = self.get_form(data=request.POST)
         context = self.get_context_data(is_post=True)
         if context['display_switch'] == 'xlsx':

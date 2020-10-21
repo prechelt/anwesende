@@ -21,6 +21,12 @@ def mytxt(width: int) -> djfw.TextInput:
 
 
 class UploadFileForm(djf.Form):
+    """
+    This form will also read the uploaded Excel file, validate it, and 
+    create the Rooms and Seats,
+    because validation is not considered complete until that is successful.
+    (This is a departure from normal Django application architecture.)
+    """
     file = djf.FileField()
 
     def __init__(self, *args, **kwargs):
