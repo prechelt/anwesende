@@ -1,6 +1,8 @@
 import json
 import os
 
+import django.contrib.auth.mixins as djcamx
+import django.contrib.auth.models as djcam
 import django.http as djh
 import django.urls as dju
 import vanilla as vv  # Django vanilla views
@@ -16,7 +18,23 @@ import anwesende.utils.qrcode as auq
 COOKIENAME = 'anwesende'
 
 
-class ImportView(vv.FormView):
+class IsDatenverwalterMixin(djcamx.LoginRequiredMixin):
+    """Ensures user is logged in and is member of arm.STAFF_GROUP."""
+    datenverwalter_group = None  # cache attribute
+
+    def dispatch(self, request: djh.HttpRequest, *args, **kwargs) -> djh.HttpResponse:
+        self._init_datenverwalter_group()
+        if not request.user.groups.filter(pk=self.datenverwalter_group.pk).exists():
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
+    def _init_datenverwalter_group(self):
+        if not self.datenverwalter_group:
+            self.datenverwalter_group = djcam.Group.objects.get_by_natural_key(
+                arm.STAFF_GROUP)
+
+
+class ImportView(IsDatenverwalterMixin, vv.FormView):
     form_class = arf.UploadFileForm
     template_name = "room/import.html"
 
@@ -24,7 +42,7 @@ class ImportView(vv.FormView):
         return dju.reverse('room:qrcodes', kwargs=dict(pk=1, randomkey=819737))
 
 
-class QRcodesView(vv.DetailView):
+class QRcodesView(IsDatenverwalterMixin, vv.DetailView):
     model = arm.Importstep
     template_name = "room/qrcodes.html"
 
@@ -40,7 +58,7 @@ class QRcodesView(vv.DetailView):
         return object
     
     
-class QRcodeView(vv.View):
+class QRcodeView(IsDatenverwalterMixin, vv.View):
     def get(self, request, *args, **kwargs):
         path = dju.reverse('room:visit', kwargs=dict(hash=kwargs['hash']))
         url = self.request.build_absolute_uri(path)
@@ -107,9 +125,9 @@ class UncookieView(vv.GenericView):
         response = djh.HttpResponse("Cookie expired")
         response.set_cookie(COOKIENAME, "", max_age=0)  # expire now
         return response
-    
 
-class SearchView(vv.ListView):  # same view for valid and invalid form
+
+class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and invalid form
     form_class = arf.SearchForm
     template_name = "room/search.html"
 
@@ -166,7 +184,7 @@ class SearchView(vv.ListView):  # same view for valid and invalid form
         context = self.get_context_data(is_post=False)
         return self.render_to_response(context)
 
-    def post(self, request, *args, **kwargs):
+
         self.form = self.get_form(data=request.POST)
         context = self.get_context_data(is_post=True)
         if context['display_switch'] == 'xlsx':

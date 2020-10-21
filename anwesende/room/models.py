@@ -11,6 +11,8 @@ from django.db.models.query import F
 import anwesende.utils.date as aud
 
 FIELDLENGTH = 80
+STAFF_GROUP = "datenverwalter"
+
 
 
 class Importstep(djdm.Model):
