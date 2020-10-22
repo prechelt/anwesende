@@ -39,7 +39,12 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
     template_name = "room/import.html"
 
     def get_success_url(self):
-        return dju.reverse('room:qrcodes', kwargs=dict(pk=1, randomkey=819737))
+        pk = self.result['importstep'].pk
+        return dju.reverse('room:qrcodes', kwargs=dict(pk=pk))
+    
+    def form_valid(self, form: arf.UploadFileForm):
+        filename = form.cleaned_data['excelfile']
+        self.result = arl.create_seats_from_excel(filename)
 
 
 class QRcodesView(IsDatenverwalterMixin, vv.DetailView):

@@ -41,9 +41,10 @@ class UploadFileForm(djf.Form):
         uploadedfile = self.cleaned_data['file']
         excelfile = self._store_excelfile(uploadedfile)
         try:
-            arl.create_seats_from_excel(excelfile)  # stores models iff valid
+            arl.validate_excel(excelfile)  # stores models iff valid
         except arl.InvalidExcelError as err:
             raise djce.ValidationError(err)
+        self.cleaned_data['excelfile'] = excelfile
         
     def _store_excelfile(self, uploadedfile):
         fh, filename = tempfile.mkstemp(prefix="rooms", suffix=".xlsx")

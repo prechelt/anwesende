@@ -16,23 +16,10 @@ class InvalidExcelError(ValueError):
     pass  # no additional logic is needed
 
 
-def _excelerror(row: int = None, column: str = None,
-                expected: str = None, found: str = None
-                ):
-    assert found  # the core part, must not be left empty
-    result = "Excel error: "
-    if row:
-        result += f"row {row}  "
-    if column:
-        result += f"column '{column}'"
-    if row or column:
-        result += '\n'
-    if expected:
-        result += f"EXPECTED: {expected}\n"
-    if expected:
-        result += "FOUND: "
-    result += found
-    raise InvalidExcelError(result)
+def validate_excel(filename) -> None:
+    # may raise InvalidExcelError
+    columnsdict = aue.read_excel_as_columnsdict(filename)
+    _validate_room_declarations(columnsdict)
 
 
 def create_seats_from_excel(filename) -> collections.OrderedDict:
@@ -164,6 +151,25 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]):
             else:
                 existingN += 1
     return (result, newN, existingN)
+
+
+def _excelerror(row: int = None, column: str = None,
+                expected: str = None, found: str = None
+                ):
+    assert found  # the core part, must not be left empty
+    result = "Excel error: "
+    if row:
+        result += f"row {row}  "
+    if column:
+        result += f"column '{column}'"
+    if row or column:
+        result += '\n'
+    if expected:
+        result += f"EXPECTED: {expected}\n"
+    if expected:
+        result += "FOUND: "
+    result += found
+    raise InvalidExcelError(result)
 
 
 VGroupRow = collections.namedtuple('VGroupRow',  # noqa
