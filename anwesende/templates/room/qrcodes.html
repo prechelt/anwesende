@@ -1,7 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-  {% url 'room:qrcodes' object.pk %}
+  <p>{% url 'room:qrcodes' object.pk %}</p>
+  <p>
+    Dieser Importschritt hat
+    {{ object.num_new_rooms }} neue Räume und
+    {{ object.num_new_seats }} neue Sitzplätze erzeugt.
+    {% if object.num_existing_seats %}
+      In der Liste der QR-Codes unten finden sich außerdem
+      {{ object.num_existing_rooms }} schon vorher vorhandene Räume und
+      {{ object.num_existing_seats }} schon vorher vorhandene Sitzplätze.
+    {% endif %}
+  </p>
   <hr>
   <table> <!-- only a table makes Adobe PDF printer behave OK -->
     {% for seat in seats %}

@@ -1,3 +1,4 @@
+import datetime as dt
 import json
 import os
 
@@ -5,8 +6,10 @@ import django.contrib.auth.mixins as djcamx
 import django.contrib.auth.models as djcam
 import django.http as djh
 import django.urls as dju
+import django.utils.timezone as djut
 import vanilla as vv  # Django vanilla views
 from django.conf import settings
+from django.db.models import Max
 
 import anwesende.room.forms as arf
 import anwesende.room.excel as are
@@ -38,13 +41,22 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
     form_class = arf.UploadFileForm
     template_name = "room/import.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        interval = dt.timedelta(hours=12)
+        imports = arm.Importstep.objects.filter(when__gt=djut.now()-interval) \
+            .annotate(organization=Max('room__organization')) \
+            .annotate(department=Max('room__department'))
+        context['imports'] = imports
+        return context
+
+    def form_valid(self, form: arf.UploadFileForm):
+        filename = form.cleaned_data['excelfile']
+        self.result = are.create_seats_from_excel(filename, self.request.user)
+
     def get_success_url(self):
         pk = self.result['importstep'].pk
         return dju.reverse('room:qrcodes', kwargs=dict(pk=pk))
-    
-    def form_valid(self, form: arf.UploadFileForm):
-        filename = form.cleaned_data['excelfile']
-        self.result = are.create_seats_from_excel(filename, request.user)
 
 
 class QRcodesView(IsDatenverwalterMixin, vv.DetailView):
