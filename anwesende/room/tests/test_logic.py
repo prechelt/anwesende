@@ -3,7 +3,7 @@ import typing as tg
 
 import pytest
 
-import anwesende.room.logic as arl
+import anwesende.room.excel as are
 import anwesende.room.models as arm
 import anwesende.users.models as aum
 import anwesende.utils.excel
@@ -21,8 +21,8 @@ def excel_example_columnsdict():
 def check_error_w_patched_example(patcher, msg_elements):
     example = excel_example_columnsdict()
     patcher(example)
-    with pytest.raises(arl.InvalidExcelError) as err:
-        arl._validate_room_declarations(example)
+    with pytest.raises(are.InvalidExcelError) as err:
+        are._validate_room_declarations(example)
     msg = str(err.value)
     for elem in msg_elements:
         assert elem in msg
@@ -32,7 +32,7 @@ def check_error_w_patched_example(patcher, msg_elements):
 
 def test_validate_rooms_OK():
     example = excel_example_columnsdict()
-    arl._validate_room_declarations(example)  # no exception means success
+    are._validate_room_declarations(example)  # no exception means success
 
 
 def test_validate_rooms_with_column_missing():
@@ -78,7 +78,7 @@ def test_validate_rooms_with_wrong_seats():
 @pytest.mark.django_db
 def test_create_seats_from_excel():
     user = aum.User.objects.create(name="x")
-    stuff = arl.create_seats_from_excel(excel_example_filename, user)
+    stuff = are.create_seats_from_excel(excel_example_filename, user)
     print(stuff)
     # ----- check importstep:
     assert arm.Importstep.objects.all().count() == 1

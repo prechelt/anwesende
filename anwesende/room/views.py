@@ -9,7 +9,7 @@ import vanilla as vv  # Django vanilla views
 from django.conf import settings
 
 import anwesende.room.forms as arf
-import anwesende.room.logic as arl
+import anwesende.room.excel as are
 import anwesende.room.models as arm
 import anwesende.utils.date as aud
 import anwesende.utils.lookup as aul  # noqa,  registers lookup
@@ -44,7 +44,7 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
     
     def form_valid(self, form: arf.UploadFileForm):
         filename = form.cleaned_data['excelfile']
-        self.result = arl.create_seats_from_excel(filename, request.user)
+        self.result = are.create_seats_from_excel(filename, request.user)
 
 
 class QRcodesView(IsDatenverwalterMixin, vv.DetailView):
@@ -159,7 +159,7 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
             if ctx['NUMRESULTS'] > ctx['LIMIT']:
                 ctx['display_switch'] = 'too_many_results'
         elif mode == 'visitgroup' or mode == 'xlsx':
-            ctx['visits'] = arl.collect_visitgroups(self.get_queryset())
+            ctx['visits'] = are.collect_visitgroups(self.get_queryset())
             ctx['LIMIT'] = 1000
             ctx['NUMRESULTS'] = len(ctx['visits'])
             if ctx['NUMRESULTS'] > ctx['LIMIT']:
@@ -200,7 +200,7 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
         # https://stackoverflow.com/questions/4212861
         excel_contenttype_excel = \
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        excelbytes = arl.get_excel_download(visits)
+        excelbytes = are.get_excel_download(visits)
         response = djh.HttpResponse(excelbytes,
                                     content_type=excel_contenttype_excel)
         timestamp = aud.nowstring(date=True, time=True)

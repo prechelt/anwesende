@@ -11,7 +11,7 @@ import django.forms as djf
 import django.forms.widgets as djfw
 import django.utils.timezone as djut
 
-import anwesende.room.logic as arl
+import anwesende.room.excel as are
 import anwesende.room.models as arm
 import anwesende.utils.date as aud
 
@@ -41,8 +41,8 @@ class UploadFileForm(djf.Form):
         uploadedfile = self.cleaned_data['file']
         excelfile = self._store_excelfile(uploadedfile)
         try:
-            arl.validate_excel(excelfile)  # stores models iff valid
-        except arl.InvalidExcelError as err:
+            are.validate_excel(excelfile)  # stores models iff valid
+        except are.InvalidExcelError as err:
             raise djce.ValidationError(err)
         self.cleaned_data['excelfile'] = excelfile
         
