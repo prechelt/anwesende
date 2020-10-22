@@ -34,7 +34,7 @@ class UploadFileForm(djf.Form):
         self.helper = cfh.FormHelper()
         self.helper.form_id = 'UploadForm'
         self.helper.form_method = 'post'
-        self.helper.add_input(cfl.Submit('submit', 'Submit'))
+        self.helper.add_input(cfl.Submit('submit', 'Hochladen'))
         
     def clean(self):
         self.cleaned_data = super().clean()
@@ -121,17 +121,17 @@ class SearchForm(djf.Form):
             initial="%", required=True, )
     room = djf.CharField(label="Room",
             initial="%", required=True, )
-    givenname = djf.CharField(label="Given name",
+    givenname = djf.CharField(label="Vorname / Given name",
             initial="%", required=True, )
-    familyname = djf.CharField(label="Family name (try % for uncertain letters)",
+    familyname = djf.CharField(label="Nachname / Family name",
             initial="%", required=True, )
-    phone = djf.CharField(label="Phone number (no blank, slash, dash!)",
+    phone = djf.CharField(label="Telefonnummer",
             initial="+491%", required=True, )
-    email = djf.CharField(label="Email address",
+    email = djf.CharField(label="Emailadresse",
             initial="%@%", required=True, )
-    from_date = djf.DateField(label="From date (yyyy-mm-dd)",
+    from_date = djf.DateField(label="von Datum (jjjj-mm-tt)",
             initial="", required=True, )
-    to_date = djf.DateField(label="To date (yyyy-mm-dd)",
+    to_date = djf.DateField(label="bis Datum (jjjj-mm-tt)",
             initial=aud.nowstring(time=False), required=True, )
 
     def __init__(self, *args, **kwargs):
@@ -140,11 +140,11 @@ class SearchForm(djf.Form):
         self.helper.form_id = 'SearchForm'
         self.helper.form_method = 'post'
         self.helper.add_input(cfl.Submit('visit', 
-                                         '1. Find visits'))
+                                         '1. Besuche finden'))
         self.helper.add_input(cfl.Submit('visitgroup', 
-                                         '2. Find contact groups'))
+                                         '2. Kontaktgruppen finden'))
         self.helper.add_input(cfl.Submit('xlsx', 
-                                         '3. Download contact groups Excel'))
+                                         '3. Kontaktgruppen-Excel herunterladen'))
 
     def clean(self):
         self.cleaned_data = super().clean()
@@ -152,6 +152,6 @@ class SearchForm(djf.Form):
         if ('from_date' in cd and 'to_date' in cd 
                 and cd['from_date'] > cd['to_date']):
             self.add_error('to_date', 
-                           "'from' date must not be later than 'to' date")
+                           "'von Datum' muss vor oder auf 'bis Datum' liegen")
         cd['to_date'] += dt.timedelta(hours=24)  # is time 0:00, should be 24:00
         return cd
