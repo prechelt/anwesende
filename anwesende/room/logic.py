@@ -8,6 +8,7 @@ import django.db.models.query as djdmq
 from django.conf import settings
 
 import anwesende.room.models as arm
+import anwesende.users.models as aum
 import anwesende.utils.date as aud
 import anwesende.utils.excel as aue
 
@@ -22,19 +23,16 @@ def validate_excel(filename) -> None:
     _validate_room_declarations(columnsdict)
 
 
-def create_seats_from_excel(filename) -> collections.OrderedDict:
+def create_seats_from_excel(filename: str, user: aum.User) -> arm.Importstep:
     columnsdict = aue.read_excel_as_columnsdict(filename)
     _validate_room_declarations(columnsdict)
-    importstep = _create_importstep()
-    rooms, new_roomsN, existing_roomsN = \
+    importstep = _create_importstep(user)
+    rooms, importstep.num_new_rooms, importstep.num_existing_rooms = \
         _find_or_create_rooms(columnsdict, importstep)
-    seats, new_seatsN, existing_seatsN = _find_or_create_seats(rooms)
-    return collections.OrderedDict(
-        number_of_new_rooms=new_roomsN,
-        number_of_existing_rooms=existing_roomsN,
-        number_of_new_seats=new_seatsN,
-        number_of_existing_seats=existing_seatsN,
-        importstep=importstep)
+    seats, importstep.num_new_seatsN, importstep.num_existing_seatsN = \
+        _find_or_create_seats(rooms)
+    importstep.save()
+    return importstep
 
 
 def _validate_room_declarations(columndict: aue.Columnsdict):
@@ -101,8 +99,8 @@ def _validate_seatrange(columndict: aue.Columnsdict):
                         found=f"{seatsN} seats, from {_min} to {_max} ({remark})")
 
 
-def _create_importstep() -> arm.Importstep:
-    result = arm.Importstep(randomkey=str(random.randrange(100000, 999999)))
+def _create_importstep(user: aum.User) -> arm.Importstep:
+    result = arm.Importstep(user=user)
     result.save()
     return result
 
@@ -135,7 +133,8 @@ def _find_or_create_rooms(
     return (result, newN, existingN)
 
 
-def _find_or_create_seats(rooms: tg.Sequence[arm.Room]):
+def _find_or_create_seats(rooms: tg.Sequence[arm.Room]) \
+        -> tg.Tuple[tg.Sequence[arm.Seat], int, int]:
     result = []
     newN = existingN = 0
     for room in rooms:

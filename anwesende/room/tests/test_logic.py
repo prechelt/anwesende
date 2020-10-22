@@ -5,6 +5,7 @@ import pytest
 
 import anwesende.room.logic as arl
 import anwesende.room.models as arm
+import anwesende.users.models as aum
 import anwesende.utils.excel
 
 # #### scaffolding:
@@ -76,7 +77,8 @@ def test_validate_rooms_with_wrong_seats():
 
 @pytest.mark.django_db
 def test_create_seats_from_excel():
-    stuff = arl.create_seats_from_excel(excel_example_filename)
+    user = aum.User.objects.create(name="x")
+    stuff = arl.create_seats_from_excel(excel_example_filename, user)
     print(stuff)
     # ----- check importstep:
     assert arm.Importstep.objects.all().count() == 1

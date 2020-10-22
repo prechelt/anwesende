@@ -44,7 +44,7 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
     
     def form_valid(self, form: arf.UploadFileForm):
         filename = form.cleaned_data['excelfile']
-        self.result = arl.create_seats_from_excel(filename)
+        self.result = arl.create_seats_from_excel(filename, request.user)
 
 
 class QRcodesView(IsDatenverwalterMixin, vv.DetailView):
@@ -59,7 +59,6 @@ class QRcodesView(IsDatenverwalterMixin, vv.DetailView):
 
     def get_object(self):
         object = super().get_object()
-        # assert self.kwargs['randomkey'] == object.randomkey  # else HTTP 500
         return object
     
     

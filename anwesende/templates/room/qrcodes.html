@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-  {% url 'room:qrcodes' object.pk object.randomkey %}
+  {% url 'room:qrcodes' object.pk %}
   <hr>
   <table> <!-- only a table makes Adobe PDF printer behave OK -->
     {% for seat in seats %}

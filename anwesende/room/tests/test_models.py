@@ -1,10 +1,10 @@
-import random
 import typing as tg
 
 import django.utils.timezone as djut
 import pytest
 
 import anwesende.room.models as arm
+import anwesende.users.models as aum
 import anwesende.utils.date as aud
 
 
@@ -37,7 +37,8 @@ def test_get_overlapping_visits():
         v.save()
         return v
 
-    importstep = arm.Importstep(randomkey=str(random.randrange(100000, 999999)))
+    user = aum.User.objects.create(name="x")
+    importstep = arm.Importstep(user=user)
     importstep.save()
     r1s1, r1s2 = _make_seats(importstep, "room1", 2)
     r2s1, = _make_seats(importstep, "room2", 1)

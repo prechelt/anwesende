@@ -8,6 +8,7 @@ import strgen
 from django.conf import settings
 from django.db.models.query import F
 
+import anwesende.users.models as aum
 import anwesende.utils.date as aud
 
 FIELDLENGTH = 80
@@ -17,8 +18,12 @@ STAFF_GROUP = "datenverwalter"
 class Importstep(djdm.Model):
     """Each Importstep corresponds to one set of QR-Codes created."""
     when = djdm.DateTimeField(auto_now_add=True)  # creation timestamp
-    randomkey = djdm.CharField(null=False, max_length=FIELDLENGTH)
-    
+    user = djdm.ForeignKey(null=False, to=aum.User, on_delete=djdm.PROTECT)
+    num_new_rooms = djdm.IntegerField(null=False, default=0)
+    num_new_seats = djdm.IntegerField(null=False, default=0)
+    num_existing_rooms = djdm.IntegerField(null=False, default=0)
+    num_existing_seats = djdm.IntegerField(null=False, default=0)
+
 
 class Room(djdm.Model):
     """
