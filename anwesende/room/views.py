@@ -61,12 +61,22 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        interval = dt.timedelta(hours=12)
-        imports = arm.Importstep.objects.filter(
-            when__gt=djut.now() - interval) \
-            .annotate(organization=Max('room__organization')) \
-            .annotate(department=Max('room__department'))
+        if self.is_datenverwalter:
+            interval = dt.timedelta(hours=12)
+            imports = arm.Importstep.objects.filter(
+                when__gt=djut.now() - interval) \
+                .annotate(organization=Max('room__organization')) \
+                .annotate(department=Max('room__department'))
+            show_imports = imports.count() > 0
+        else:
+            room = arm.Seat.get_dummy_seat().room
+            importstep = room.importstep
+            importstep.organization = room.organization 
+            importstep.department = room.department 
+            imports = [importstep]
+            show_imports = True
         context['imports'] = imports
+        context['show_imports'] = show_imports
         return context
 
     def form_valid(self, form: arf.UploadFileForm):
@@ -90,11 +100,17 @@ class QRcodesView(IsDatenverwalterMixin, vv.DetailView):
 
     def get_object(self):
         object = super().get_object()
-        return object
-    
-    
+        if self.is_datenverwalter or object == arm.Seat.get_dummy_seat().room.importstep:
+            return object
+        else:
+            raise djh.Http404
+
+
 class QRcodeView(IsDatenverwalterMixin, vv.View):
     def get(self, request, *args, **kwargs):
+        if not self.is_datenverwalter \
+                and kwargs['hash'] != arm.Seat.get_dummy_seat().hash:
+            raise djh.Http404
         path = dju.reverse('room:visit', kwargs=dict(hash=kwargs['hash']))
         url = self.request.build_absolute_uri(path)
         qrcode_bytes = auq.qrcode_data(url, imgtype='svg')

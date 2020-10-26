@@ -98,7 +98,7 @@ class Seat(djdm.Model):
         num_dummyseats = all_dummyseats.count()
         if num_dummyseats == 0:
             return cls._make_dummyseat(DUMMY_ORG)
-        return all_dummyseats.select_related('room').get()
+        return all_dummyseats.select_related('room__importstep').get()
 
     @classmethod
     def _make_dummyseat(cls, dummyorg: str) -> 'Seat':

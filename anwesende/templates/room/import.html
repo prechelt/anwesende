@@ -5,7 +5,7 @@
   {% crispy form %}
   <hr>
   <p>Importe der letzten 12 Stunden:</p>
-  {% if imports.count > 0 %}
+  {% if show_imports %}
     <ol>
       {% for o in imports %}
         <li>
