@@ -24,42 +24,44 @@
       (<a href="{% static "xlsx/roomdata-example.xlsx" %}">Excel-Download</a>).
       Jeder Raum bekommt eine Zeile. <br>
       Geben Sie die Felder an wie folgt:
-    </li>
-    <li>
-      <var>organization</var>: Domainname der teilnehmenden Hochschule, z.B.
-      <var>fu-berlin.de</var> für die Freie Universität Berlin.  
-      Dieser Wert ist in allen Zeilen der Datei gleich.
-    </li>
-    <li>
-      <var>department</var>: Intern gebräuchlicher Kurzname der Hochschuleinheit, z.B.
-     <var>MathInf</var> für den Fachbereich Mathematik und Informatik.  
-     Auch dieser Wert ist in aller Regel in allen Zeilen der Datei gleich.
-    </li>
-    <li>
-      <var>building</var>: Gebäudebezeichnung, meist Straße und Hausnummer, z.B.
-     <var>Takustr. 9</var> für das Informatik-Hauptgebäude in der Takustraße 9.  
-     Diesen Wert sollte man (genau wie alle anderen) am besten kurz halten,
-     da er auf dem QR-Code-Schild mit ausgedruckt wird und dort
-     die verfügbare Breite nicht überschreiten sollte.  
-     Der Name muss nicht unbedingt exakt zum Straßenschild passen.
-     Wenn es also von einem langen Straßennamen eine in dieser
-     Hochschuleinheit allgemein gebräuchliche Abkürzung gibt
-     oder einen in der ganzen Hochschule geläufigen Gebäudenamen 
-     könnte man auch die verwenden.
-    </li>
-    <li>
-      <var>room</var>: Raumbezeichnung, in der Regel eine Raumnummer, z.B.
-     <var>055</var> für den Seminarraum 055 im Erdgeschoss.  
-     Dies sollte zur Beschriftung an der Eingangstür des Raums passen.
-    </li>
-    <li>
-      <var>seat_min</var>: Kleinste Sitznummer, in aller Regel 1.
-    </li>
-    <li>
-      <var>seat_max</var>: Größte Sitznummer, z.B. 14.  
-     Diese Sitznummern sind fortlaufend und werden auf den QR-Code-Schildern
-     gut lesbar mit ausgedruckt.  
-     In diesem beiden Feldern sind nur ganze Zahlen möglich.
+      <ul>
+      <li>
+        <var>organization</var>: Domainname der teilnehmenden Hochschule, z.B.
+        <var>fu-berlin.de</var> für die Freie Universität Berlin.  
+        Dieser Wert ist in allen Zeilen der Datei gleich.
+      </li>
+      <li>
+        <var>department</var>: Intern gebräuchlicher Kurzname der Hochschuleinheit, z.B.
+       <var>MathInf</var> für den Fachbereich Mathematik und Informatik.  
+       Auch dieser Wert ist in aller Regel in allen Zeilen der Datei gleich.
+      </li>
+      <li>
+        <var>building</var>: Gebäudebezeichnung, meist Straße und Hausnummer, z.B.
+       <var>Takustr. 9</var> für das Informatik-Hauptgebäude in der Takustraße 9.  
+       Diesen Wert sollte man (genau wie alle anderen) am besten kurz halten,
+       da er auf dem QR-Code-Schild mit ausgedruckt wird und dort
+       die verfügbare Breite nicht überschreiten sollte.  
+       Der Name muss nicht unbedingt exakt zum Straßenschild passen.
+       Wenn es also von einem langen Straßennamen eine in dieser
+       Hochschuleinheit allgemein gebräuchliche Abkürzung gibt
+       oder einen in der ganzen Hochschule geläufigen Gebäudenamen 
+       könnte man auch die verwenden.
+      </li>
+      <li>
+        <var>room</var>: Raumbezeichnung, in der Regel eine Raumnummer, z.B.
+       <var>055</var> für den Seminarraum 055 im Erdgeschoss.  
+       Dies sollte zur Beschriftung an der Eingangstür des Raums passen.
+      </li>
+      <li>
+        <var>seat_min</var>: Kleinste Sitznummer, in aller Regel 1.
+      </li>
+      <li>
+        <var>seat_max</var>: Größte Sitznummer, z.B. 14.  
+       Diese Sitznummern sind fortlaufend und werden auf den QR-Code-Schildern
+       gut lesbar mit ausgedruckt.  
+       In diesem beiden Feldern sind nur ganze Zahlen möglich.
+      </li>
+      </ul>
     </li>
     <li>
       <b>Die fertige Datei</b> schicken Sie an die Datenverwalter_innen 
