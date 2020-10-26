@@ -2,7 +2,6 @@ import datetime as dt
 import json
 import os
 
-import django.contrib.auth.mixins as djcamx
 import django.contrib.auth.models as djcam
 import django.http as djh
 import django.urls as dju
@@ -21,13 +20,18 @@ import anwesende.utils.qrcode as auq
 COOKIENAME = 'anwesende'
 
 
-class IsDatenverwalterMixin(djcamx.LoginRequiredMixin):
-    """Ensures user is logged in and is member of arm.STAFF_GROUP."""
+class IsDatenverwalterMixin:
+    """
+    Sets self.is_datenverwalter flag.
+    For POST, ensures user is logged in and is member of arm.STAFF_GROUP.
+    """
     datenverwalter_group = None  # cache attribute
 
     def dispatch(self, request: djh.HttpRequest, *args, **kwargs) -> djh.HttpResponse:
         self._init_datenverwalter_group()
-        if not request.user.groups.filter(pk=self.datenverwalter_group.pk).exists():
+        self.is_datenverwalter = request.user.is_authenticated \
+            and request.user.groups.filter(pk=self.datenverwalter_group.pk).exists()
+        if request.method == 'POST' and not self.is_datenverwalter:
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
@@ -35,6 +39,11 @@ class IsDatenverwalterMixin(djcamx.LoginRequiredMixin):
         if not self.datenverwalter_group:
             self.datenverwalter_group = djcam.Group.objects.get_by_natural_key(
                 arm.STAFF_GROUP)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_datenverwalter'] = self.is_datenverwalter
+        return context
 
 
 class HomeView(vv.TemplateView):
