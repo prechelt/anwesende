@@ -4,12 +4,18 @@
   <p>{% url 'room:qrcodes' object.pk %}</p>
   <p>
     Dieser Importschritt hat
-    {{ object.num_new_rooms }} neue Räume und
-    {{ object.num_new_seats }} neue Sitzplätze erzeugt.
+    {{ object.num_new_rooms }} 
+    {{ object.num_new_rooms|pluralize:"neuen Raum,neue Räume" }} und
+    {{ object.num_new_seats }}
+    {{ object.num_new_seats|pluralize:"neuen Sitzplatz,neue Sitzplätze" }}
+    erzeugt.
     {% if object.num_existing_seats %}
       In der Liste der QR-Codes unten finden sich außerdem
-      {{ object.num_existing_rooms }} schon vorher vorhandene Räume und
-      {{ object.num_existing_seats }} schon vorher vorhandene Sitzplätze.
+      {{ object.num_existing_rooms }} schon vorher 
+      vorhanden{{ object.num_existing_rooms|pluralize:"er Raum,e Räume" }}
+      und 
+      {{ object.num_existing_seats }} schon vorher
+      vorhanden{{ object.num_existing_seats|pluralize:"er Sitzplatz,e Sitzplätze" }}.
     {% endif %}
   </p>
   <hr>
@@ -20,6 +26,9 @@
           <img class="qrcode" src="{% url 'room:qrcode' seat.hash %}">
         </td>
         <td class="qrblock">
+          <span class="qrb-label">date: </span>
+          <span class="qrb-item">{{seat.room.importstep.when | date:"Y-m-d"}}</span>
+          <br>
           <span class="qrb-label">organization: </span>
           <span class="qrb-item">{{seat.room.organization}}</span>
           <br>
