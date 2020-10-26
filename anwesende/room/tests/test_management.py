@@ -1,13 +1,13 @@
 import django.contrib.auth.models as djcam
 import pytest
 
-import anwesende.room.apps as ara
+import anwesende.room.management.commands.make_base_data as make_base_data
 
 
 @pytest.mark.django_db
-def test_STAFF_GROUP_init():
+def test_make_base_data():
     assert djcam.Group.objects.count() == 0
-    ara._ensure_datenverwalter_group()
+    make_base_data.Command().handle()
     dvgroup = djcam.Group.objects.get()  # must exist now
-    ara._ensure_datenverwalter_group()  # must be idempotent
+    make_base_data.Command().handle()  # must be idempotent
     assert dvgroup == djcam.Group.objects.get()

@@ -7,6 +7,6 @@ set -o nounset
 
 python /app/manage.py collectstatic --noinput
 python /app/manage.py migrate
-python /app/manage.py ensure_datenverwalter_group
+python /app/manage.py make_base_data
 
 /usr/local/bin/gunicorn config.wsgi --bind 0.0.0.0:5000 --chdir=/app
