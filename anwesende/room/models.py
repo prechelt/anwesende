@@ -93,8 +93,9 @@ class Seat(djdm.Model):
     
     @classmethod
     def seathash(cls, room: Room, seatnumber: int):
+        make_unguessable = settings.SEAT_KEY
         seat_id = (f"{room.organization}|{room.department}|{room.building}|"
-                   f"{room.room}|{seatnumber}|{settings.SECRET_KEY}")
+                   f"{room.room}|{seatnumber}|{make_unguessable}")
         return hashlib.sha256(seat_id.encode()).hexdigest()[:10]
 
     def __str__(self):

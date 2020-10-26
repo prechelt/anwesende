@@ -71,9 +71,9 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    # Your stuff: custom apps go here
-    "anwesende.room.apps.RoomConfig",
+    # Your stuff: custom apps go here. User model first!
     "anwesende.users.apps.UsersConfig",
+    "anwesende.room.apps.RoomConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -126,7 +126,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",  # TODO: turn back on
+    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
@@ -273,4 +273,5 @@ DATA_CONTACT = env('DATA_CONTACT')  # Datenverwalter/in email address
 DATA_RETENTION_DAYS = env.int('DATA_RETENTION_DAYS', 28)
 IMPRINT_URL = env('IMPRINT_URL')
 MIN_OVERLAP_MINUTES = env.int('MIN_OVERLAP_MINUTES', 10)
+SEAT_KEY=env('SEAT_KEY')
 TECH_CONTACT = env('TECH_CONTACT')
