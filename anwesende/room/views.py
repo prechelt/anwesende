@@ -218,8 +218,10 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
 
     def get_queryset(self):
         f = self.form.cleaned_data
+        secure_organization = f['organization'] if self.is_datenverwalter \
+            else settings.DUMMY_ORG 
         return (arm.Visit.objects
-                .filter(seat__room__organization__like=f['organization'])
+                .filter(seat__room__organization__like=secure_organization)
                 .filter(seat__room__department__like=f['department'])
                 .filter(seat__room__building__like=f['building'])
                 .filter(seat__room__room__like=f['room'])
@@ -232,11 +234,19 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
                 )
 
     def get(self, request, *args, **kwargs):
+        def make_secure():
+            if not self.is_datenverwalter:
+                self.form.fields['organization'].initial = settings.DUMMY_ORG
+                self.form.fields['organization'].widget.attrs['readonly'] = True
+
         self.form = self.get_form()
+        make_secure()
         context = self.get_context_data(is_post=False)
         return self.render_to_response(context)
 
+
     def post(self, request, *args, **kwargs):
+        # will be secure wrt not is_datenverwalter due to safe get_queryset()
         self.form = self.get_form(data=request.POST)
         context = self.get_context_data(is_post=True)
         if context['display_switch'] == 'xlsx':

@@ -93,11 +93,10 @@ class Seat(djdm.Model):
     
     @classmethod
     def get_dummy_seat(cls) -> 'Seat':
-        DUMMY_ORG = "uni-dummy.de"  # must not be used by proper data
-        all_dummyseats = cls.objects.filter(room__organization=DUMMY_ORG)
+        all_dummyseats = cls.objects.filter(room__organization=settings.DUMMY_ORG)
         num_dummyseats = all_dummyseats.count()
         if num_dummyseats == 0:
-            return cls._make_dummyseat(DUMMY_ORG)
+            return cls._make_dummyseat(settings.DUMMY_ORG)
         return all_dummyseats.select_related('room__importstep').get()
 
     @classmethod
