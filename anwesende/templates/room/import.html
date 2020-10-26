@@ -1,7 +1,112 @@
 {% extends "base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
 
 {% block content %}
+  <h1>Raumdaten einlesen und QRcodes erzeugen</h1>
+
+  <h2>Für Mitglieder von Hochschuleinheiten</h2>
+  <ul>
+    <li>
+      <b>Teilnahme:</b>
+      Wenn Sie mit Ihrer Einheit am Verfahren teilnehmen möchten, 
+      benötigen Sie QR-Codes für Ihre Räume.<br>
+      Sie schicken eine Excel-Datei mit Rauminformationen zu den
+      Datenverwalter_innen und bekommen eine PDF-Datei mit QR-Codes zurück. <br>
+      Machen Sie am besten eine Excel-Datei pro Gebäude, dann lassen 
+      sich die QR-Code-Dateien am besten handhaben.
+    </li>
+    <li>
+      <b>Format:</b> Die Excel-Datei wird direkt in die Anwendung eingelesen.
+      Die Überschriftzeile und die Zellenformate deshalb bitte keinesfalls ändern
+      und die nachfolgenden Hinweise genau beachten.<br>
+      Beginnen Sie mit dieser Vorlage
+      (<a href="{% static "xlsx/roomdata-example.xlsx" %}">Excel-Download</a>).
+      Jeder Raum bekommt eine Zeile. <br>
+      Geben Sie die Felder an wie folgt:
+    </li>
+    <li>
+      <var>organization</var>: Domainname der teilnehmenden Hochschule, z.B.
+      <var>fu-berlin.de</var> für die Freie Universität Berlin.  
+      Dieser Wert ist in allen Zeilen der Datei gleich.
+    </li>
+    <li>
+      <var>department</var>: Intern gebräuchlicher Kurzname der Hochschuleinheit, z.B.
+     <var>MathInf</var> für den Fachbereich Mathematik und Informatik.  
+     Auch dieser Wert ist in aller Regel in allen Zeilen der Datei gleich.
+    </li>
+    <li>
+      <var>building</var>: Gebäudebezeichnung, meist Straße und Hausnummer, z.B.
+     <var>Takustr. 9</var> für das Informatik-Hauptgebäude in der Takustraße 9.  
+     Diesen Wert sollte man (genau wie alle anderen) am besten kurz halten,
+     da er auf dem QR-Code-Schild mit ausgedruckt wird und dort
+     die verfügbare Breite nicht überschreiten sollte.  
+     Der Name muss nicht unbedingt exakt zum Straßenschild passen.
+     Wenn es also von einem langen Straßennamen eine in dieser
+     Hochschuleinheit allgemein gebräuchliche Abkürzung gibt
+     oder einen in der ganzen Hochschule geläufigen Gebäudenamen 
+     könnte man auch die verwenden.
+    </li>
+    <li>
+      <var>room</var>: Raumbezeichnung, in der Regel eine Raumnummer, z.B.
+     <var>055</var> für den Seminarraum 055 im Erdgeschoss.  
+     Dies sollte zur Beschriftung an der Eingangstür des Raums passen.
+    </li>
+    <li>
+      <var>seat_min</var>: Kleinste Sitznummer, in aller Regel 1.
+    </li>
+    <li>
+      <var>seat_max</var>: Größte Sitznummer, z.B. 14.  
+     Diese Sitznummern sind fortlaufend und werden auf den QR-Code-Schildern
+     gut lesbar mit ausgedruckt.  
+     In diesem beiden Feldern sind nur ganze Zahlen möglich.
+    </li>
+    <li>
+      <b>Die fertige Datei</b> schicken Sie an die Datenverwalter_innen 
+      unter der Emailadresse
+      <a href="mailto:{{ settings.DATA_CONTACT }}">{{ settings.DATA_CONTACT }}</a>.
+    </li>
+    <li>
+      Wenn alles klappt, kommt sehr bald die entsprechende <b>PDF-Datei</b> 
+      mit den QR-Codes per Email an Sie zurück.<br>
+      Wenn es Unstimmitgkeiten in den Raumdaten gibt, kommt statt dessen eine
+      Rückfrage.
+    </li>
+    <li>
+      Wenn mal die <b>Sitzanzahl</b> für einen Raum <b>nicht gestimmt</b> hat, 
+      ist das kein Problem: 
+      überzählige QR-Codes kann man ohne Schaden für das System
+      einfach unaufgeklebt lassen. <br>
+      Fehlende QR-Codes kann man nachträglich beschaffen:
+      Einfach eine Datei mit der korrigierten Zeile für diesen Raum nochmal
+      einreichen. Es werden dadurch keine Daten doppelt erzeugt, die das System
+      später durcheinander bringen könnten.
+      (Man kann sogar das ganze Gebäude nochmal neu einreichen, falls das
+      praktischer ist.)
+    </li>
+  </ul>
+
+  <h2>Für Datenverwalter_innen</h2>
+  <p>Bitte prüfen Sie zugesandte Raumdaten vor dem Einlesen, insbesondere:</p>
+  <ul>
+    <li>
+      Benutzen <var>organization</var> und <var>department</var>
+      die richtigen Schreibweisen?
+    </li>
+    <li>Gibt es absurde Sitzanzahlen?</li>
+    <li>
+      Einlesen lassen sich nur Excel-Dateien im korrekten Format,
+      siehe oben.
+    </li>
+  </ul>
+  <p>
+    Alles OK? Dann lesen Sie die Excel-Datei über das nachfolgende Hochlade-Feld ein,
+    drucken Sie die entstehende Seite mit einem PDF-Treiber
+    (z.B. Adobe PDF) in eine PDF-Datei (also nicht auf einen Drucker)
+    und schicken Sie diese Datei an die einreichende Person zurück.
+  </p>
+
+
   {% crispy form %}
   <hr>
   <p>Importe der letzten 12 Stunden:</p>

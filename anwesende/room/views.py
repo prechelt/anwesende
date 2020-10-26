@@ -77,6 +77,7 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
             show_imports = True
         context['imports'] = imports
         context['show_imports'] = show_imports
+        context['settings'] = settings
         return context
 
     def form_valid(self, form: arf.UploadFileForm):
