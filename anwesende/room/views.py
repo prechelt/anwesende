@@ -37,6 +37,15 @@ class IsDatenverwalterMixin(djcamx.LoginRequiredMixin):
                 arm.STAFF_GROUP)
 
 
+class HomeView(vv.TemplateView):
+    template_name = "room/home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['dummyseat'] = arm.Seat.get_dummy_seat()
+        return context
+
+
 class ImportView(IsDatenverwalterMixin, vv.FormView):
     form_class = arf.UploadFileForm
     template_name = "room/import.html"
@@ -44,7 +53,8 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         interval = dt.timedelta(hours=12)
-        imports = arm.Importstep.objects.filter(when__gt=djut.now()-interval) \
+        imports = arm.Importstep.objects.filter(
+            when__gt=djut.now() - interval) \
             .annotate(organization=Max('room__organization')) \
             .annotate(department=Max('room__department'))
         context['imports'] = imports

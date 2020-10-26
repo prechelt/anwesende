@@ -4,7 +4,9 @@ import anwesende.room.views as arv
 
 app_name = "room"
 urlpatterns = [
-    path("import", 
+    path("",
+         view = arv.HomeView.as_view(), name = "home"),
+    path("import",
          view=arv.ImportView.as_view(), name="import"),
     path("qrcodes/<pk>",
          view=arv.QRcodesView.as_view(), name="qrcodes"),
