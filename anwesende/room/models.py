@@ -92,7 +92,33 @@ class Seat(djdm.Model):
         return cls.objects.select_related('room').get(hash=hash)
     
     @classmethod
-    def seathash(cls, room: Room, seatnumber: int):
+    def get_dummy_seat(cls) -> 'Seat':
+        DUMMY_ORG = "uni-dummy.de"  # must not be used by proper data
+        all_dummyseats = cls.objects.filter(room__organization=DUMMY_ORG)
+        num_dummyseats = all_dummyseats.count()
+        if num_dummyseats == 0:
+            return cls._make_dummyseat(DUMMY_ORG)
+        return all_dummyseats.select_related('room').get()
+
+    @classmethod
+    def _make_dummyseat(cls, dummyorg: str) -> 'Seat':
+        DUMMYSEAT_NUM = 1
+        user = aum.User.objects.create(name="dummy", username="dummy", 
+                                       first_name="D.", last_name="dummy", email="",
+                                       is_active=False)
+        step = Importstep.objects.create(num_new_rooms=1, num_new_seats=1,
+                                         num_existing_rooms=0, num_existing_seats=0,
+                                         user=user)
+        room = Room.objects.create(organization=dummyorg, department="dummydept", 
+                                   building="dummybldg", 
+                                   room="dummyroom", seat_max=1, seat_min=1,
+                                   importstep=step)
+        dummyseat = cls.objects.create(room=room, number=DUMMYSEAT_NUM,
+                                       hash=cls.seathash(room, DUMMYSEAT_NUM))
+        return dummyseat
+    
+    @classmethod
+    def seathash(cls, room: Room, seatnumber: int) -> str:
         make_unguessable = settings.SEAT_KEY
         seat_id = (f"{room.organization}|{room.department}|{room.building}|"
                    f"{room.room}|{seatnumber}|{make_unguessable}")

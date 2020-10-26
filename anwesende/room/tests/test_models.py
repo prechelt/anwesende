@@ -66,3 +66,11 @@ def test_get_overlapping_visits():
     assert result_pks == expected
     # --- now look which ones appear for shorttargetvisit:
     assert shorttargetvisit.get_overlapping_visits().count() == 0
+
+
+@pytest.mark.django_db
+def test_get_dummy_seat():
+    dummy1 = arm.Seat.get_dummy_seat()
+    dummy2 = arm.Seat.get_dummy_seat()
+    assert dummy1 == dummy2
+    assert arm.Seat.objects.count() == 1
