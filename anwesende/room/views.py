@@ -113,7 +113,7 @@ class QRcodeView(IsDatenverwalterMixin, vv.View):
                 and kwargs['hash'] != arm.Seat.get_dummy_seat().hash:
             raise djh.Http404
         path = dju.reverse('room:visit', kwargs=dict(hash=kwargs['hash']))
-        url = self.request.build_absolute_uri(path)
+        url = settings.SHORTURL_PREFIX + path
         qrcode_bytes = auq.qrcode_data(url, imgtype='svg')
         return djh.HttpResponse(qrcode_bytes, content_type="image/svg+xml")
 
