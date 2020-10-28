@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-10-21  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-10-28  (see "Implementation status" at the bottom)
 
 Simple attendance registration for universities having pandemics.
 "anwesende" is German for "people that are being present".
@@ -14,7 +14,7 @@ um die Software einfach und den Gebrauch flexibel zu halten.
 at universities.
 Makes heavy use of human judgment and manual operations 
 to keep the software simple and its use flexible.  
-Alas, the remainder of the documentation is available in German only (so far).
+Alas, the remainder of the documentation is mostly German only.
 
 
 # 1. Abläufe
@@ -35,18 +35,26 @@ Rollen:
 Schritte des Gesamtablaufs:
 1. Eine teilnehmende Hochschule übermittelt der Datenverwalter/in 
    eine Liste von Räumen und Sitzplätzen, 
-   siehe `Räume übermitteln`.
+   siehe `Räume übermitteln` unten.
 2. Sie erhält im Gegenzug eine PDF-Datei mit einem QR-Code für
    jeden Sitzplatz
    und klebt den QR-Code dauerhaft am zugehörigen Sitzplatz auf.
 3. Ein/e Besucher/in scannt den QR-Code an ihrem Sitzplatz
    und gibt mininale Daten für die Verfolgung ein;
-   siehe `Besucher/innen/sicht`
+   siehe `Besucher/innen/sicht` unten.
 4. Der Dienst speichert die Platzdaten, Personendaten und den Zeitpunkt.
 5. Im Infektionsfall ruft die Datenverwalter/in die Anwesenheitsdaten für jeden
    betreffenden Raum im passenden Zeitfenster (z.B. 2 Stunden) ab,
    um sie dem Gesundheitsamt zu übermitteln;
-   siehe `Anwesenheitsdaten abrufen`.
+   siehe `Anwesenheitsdaten abrufen` unten.
+
+Große Teile dieser Beschreibung sind auch in der Software selbst enthalten:
+Der Überblick in 
+[anwesende/templates/room/home.html](anwesende/templates/room/home.html)),
+die Beschreibung der Schritte 1, 3 und 5 in 
+[anwesende/templates/room/import.html](anwesende/templates/room/import.html),
+[anwesende/templates/room/privacy.html](anwesende/templates/room/privacy.html) und
+[anwesende/templates/room/search.html](anwesende/templates/room/search.html).
 
 
 ## 1.2 Besucher/innen/sicht
@@ -81,7 +89,7 @@ Mitarbeiter/in einer teilnehmenden Hochschule,
 Datenverwalter/in.
 
 1. Die Mitarbeiter/in lädt sich die 
-   [Excel-Vorlage zur Raumübermittlung](anwesende/room/tests/data/room1.xlsx)
+   [Excel-Vorlage zur Raumübermittlung](anwesende/static/xlsx/roomdata-example.xlsx)
    und füllt sie aus:
    - Die Überschriftzeile und die Zellenformate keinesfalls ändern!
    - Jeder Raum bekommt eine Zeile.
@@ -217,7 +225,7 @@ Risiken:
 
 This is technical information, therefore in English.
 
-The application is meant to be deployed in many places
+The application is meant to be deployed separately in many organizations
 (to simplify the situation regarding privacy protection)
 and allows some configuration to adopt to local needs.
 
@@ -237,7 +245,61 @@ and allows some configuration to adopt to local needs.
 
 ## 4.2 Deployment
 
-t.b.d. !!!
+The service is build using Python, Django, and PostgreSQL.
+The deployment infrastructure assumes Linux, Docker (with docker-compose), 
+and Traefik.
+The project organization follows the 
+[cookiecutter](https://cookiecutter-django.readthedocs.io) template.
+
+Deployment procedure:
+1. Create a working directory anywhere on your Linux server and do  
+   `git clone https://git.imp.fu-berlin.de/anwesende/anwesende.git`.  
+   This working directory is the reference for all commands.
+2. Copy directory `anwesende/.envs/.template` to `anwesende/.envs/.production`
+   and set the environment variables in `anwesende/.envs/.production/.django`
+   as described above.
+   If you feel like it, you can also modify 
+   `POSTGRES_USER` and `POSTGRES_PASSWORD` in
+   `anwesende/.envs/.production/.postgres`.
+3. Review `anwesende/templates/room/privacy.html` and decide whether you need
+   to modify it.
+   If so, either change it directly (make sure you keep a copy in case of 
+   later software updates) or fork
+   [https://github.com/prechelt/anwesende](https://github.com/prechelt/anwesende),
+   a release-versions-only copy of the above development repository,
+   put your modification on a branch of your fork, and use the fork in step 1.
+   (If that Github repo does not yet exist, holler.)
+4. The standard setup assumes you are using manually created certificates for
+   https. If you do, too, skip the next step.
+5. If you want to use letsencyrpt instead, modify
+   `compose/production/traefik/traefik.yml` as follows in the 
+   http / routers / web-secure-router / tls block:
+   - comment the `certificates` block (3 lines),
+   - uncomment the whole `certificatesResolvers` block (~9 lines)
+   - uncomment the `certResolver` line next to the `certificates` block.
+6. Perform `docker-compose -f production.yml build`.
+   This will create three docker images:
+   `anwesende_production_django`, `anwesende_production_postgres`, and
+   `anwesende_production_traefik`.
+7. If your target server is in a DMZ (de-militarized zone), you will have to
+   perform the above steps on a build machine that is connected
+   to the target server via a docker registry that both can access.
+   In that case, you need to do the following additional steps:
+   - `docker push` the three docker images to the registry on the build server,
+   - switch to the target server, and docker pull the three images there
+   - The standard setup assumes the server files to lie in various subdirectories
+     of path `/srv/docker/anwesende`.
+   - Copy the build server working dir to `/srv/docker/anwesende/src`.
+     I use something along the lines of  
+     `rsync --exclude .git --exclude .*cache . targethost:/srv/docker/anwesende/src`
+8. If you use manually created certificates (rather than letsencrypt),
+   put your certificate at 
+   `/srv/docker/anwesende/traefik_ssl/certs/anwesende.pem`
+   and your private key at 
+   `/srv/docker/anwesende/traefik_ssl/private/anwesende-key.pem`.
+   (For good order's sake, directory `private` should be readable for root only.)
+
+
 
 ## 4.3 Initiating operation
 
@@ -263,10 +325,10 @@ provide maximal transparency.
 - DONE 2020-10-19: Cleaning up code structure
 - DONE 2020-10-21: homepage, privacy info
 - DONE 2020-10-21: login, datenverwalter group, authorization checks
-- TODO: Automatic purging of visit data after retention time
+- DONE 2020-10-26: User-visible process documentation, DUMMY_ORG for demo mode.
+- DONE 2020-10-28: Automatic purging of visit data after retention time
 - TODO: Pilot deployment
 - TODO: Pilot testing
 - TODO: Writing additional automated tests
-- TODO: Cleaning up code structure, part 2
 - TODO: Add logging
 - TODO: Deployment
