@@ -30,36 +30,21 @@ http:
         - redirect_root
         - redirect_a
         - redirect_fu
-#        - csrf
+        - redirect_to_https
       service: django
 
-#    web-secure-router:
-#      # https://doc.traefik.io/traefik/routing/routers/#rule
-#      rule: "PathPrefix(`/`)"
-#      entryPoints:
-#        - web-secure
-#      middlewares:
-#        - csrf
-#      service: django
-#      tls:
-#        # https://docs.traefik.io/master/routing/routers/#certresolver
-#        # certResolver: letsencrypt
-#        certificates:
-#          - certFile: /etc/ssl/anwesende.pem
-#            keyFile: /etc/ssl/anwesende-key.pem
-
+    web-secure-router:
+      # https://doc.traefik.io/traefik/routing/routers/#rule
+      rule: "PathPrefix(`/`)"
+      entryPoints:
+        - web-secure
+      # middlewares:
+      #   - csrf
+      service: django
+      tls: {}
+      
   middlewares:
     # https://doc.traefik.io/traefik/master/middlewares/overview/
-    redirect:
-      # https://docs.traefik.io/master/middlewares/redirectscheme/
-      redirectScheme:
-        scheme: https
-        permanent: true
-    csrf:
-      # https://docs.traefik.io/master/middlewares/headers/#hostsproxyheaders
-      # https://docs.djangoproject.com/en/dev/ref/csrf/#ajax
-      headers:
-        hostsProxyHeaders: ["X-CSRFToken"]
     redirect_root:
       # https://doc.traefik.io/traefik/v2.0/middlewares/redirectregex/
       redirectRegex:
@@ -73,12 +58,24 @@ http:
       redirectRegex:
         regex: "^http://a.nwesen.de/fu/(.*)$"
         replacement: "http://anwesende.imp.fu-berlin.de/${1}"
+    redirect_to_https:
+      # https://docs.traefik.io/master/middlewares/redirectscheme/
+      redirectScheme:
+        scheme: https
+        permanent: false
 
   services:
     django:
       loadBalancer:
         servers:
           - url: http://django:5000
+
+tls:
+  # https://docs.traefik.io/master/routing/routers/#certresolver
+  # certResolver: letsencrypt
+  certificates:
+    - certFile: /etc/traefik/myssl/anwesende.pem
+      keyFile: /etc/traefik/myssl/anwesende-key.pem
 
 api:
   dashboard: true

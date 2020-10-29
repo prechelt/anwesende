@@ -35,7 +35,7 @@ services:
       - django
     volumes:
       - ${ANW_HOSTDIR_TRAEFIK_ACME}:/etc/traefik/acme:z
-      - ${ANW_HOSTDIR_TRAEFIK_SSL}:/etc/ssl:z
+      - ${ANW_HOSTDIR_TRAEFIK_SSL}:/etc/traefik/myssl:z
     ports:
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"
