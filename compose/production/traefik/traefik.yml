@@ -10,39 +10,46 @@ entryPoints:
     # https
     address: ":443"
 
-certificatesResolvers:
-  letsencrypt:
-    # https://docs.traefik.io/master/https/acme/#lets-encrypt
-    acme:
-      email: "prechelt@inf.fu-berlin.de"
-      storage: /etc/traefik/acme/acme.json
-      # https://docs.traefik.io/master/https/acme/#httpchallenge
-      httpChallenge:
-        entryPoint: web
+#certificatesResolvers:
+#  letsencrypt:
+#    # https://docs.traefik.io/master/https/acme/#lets-encrypt
+#    acme:
+#      email: "techexpert@here-at-example.com"
+#      storage: /etc/traefik/acme/acme.json
+#      # https://docs.traefik.io/master/https/acme/#httpchallenge
+#      httpChallenge:
+#        entryPoint: web
 
 http:
   routers:
     web-router:
-      rule: "Host(`a.nwesen.de`)"
+      rule: "PathPrefix(`/`)"
       entryPoints:
         - web
       middlewares:
-        - redirect
-        - csrf
+        - redirect_root
+        - redirect_a
+        - redirect_fu
+#        - csrf
       service: django
 
-    web-secure-router:
-      rule: "Host(`a.nwesen.de`)"
-      entryPoints:
-        - web-secure
-      middlewares:
-        - csrf
-      service: django
-      tls:
-        # https://docs.traefik.io/master/routing/routers/#certresolver
-        certResolver: letsencrypt
+#    web-secure-router:
+#      # https://doc.traefik.io/traefik/routing/routers/#rule
+#      rule: "PathPrefix(`/`)"
+#      entryPoints:
+#        - web-secure
+#      middlewares:
+#        - csrf
+#      service: django
+#      tls:
+#        # https://docs.traefik.io/master/routing/routers/#certresolver
+#        # certResolver: letsencrypt
+#        certificates:
+#          - certFile: /etc/ssl/anwesende.pem
+#            keyFile: /etc/ssl/anwesende-key.pem
 
   middlewares:
+    # https://doc.traefik.io/traefik/master/middlewares/overview/
     redirect:
       # https://docs.traefik.io/master/middlewares/redirectscheme/
       redirectScheme:
@@ -53,12 +60,29 @@ http:
       # https://docs.djangoproject.com/en/dev/ref/csrf/#ajax
       headers:
         hostsProxyHeaders: ["X-CSRFToken"]
+    redirect_root:
+      # https://doc.traefik.io/traefik/v2.0/middlewares/redirectregex/
+      redirectRegex:
+        regex: "^http://a.nwesen.de/?$"
+        replacement: "http://anwesende.imp.fu-berlin.de/"
+    redirect_a:
+      redirectRegex:
+        regex: "^http://a.nwesen.de/a/(.*)$"
+        replacement: "http://anwesende.imp.fu-berlin.de/${1}"
+    redirect_fu:
+      redirectRegex:
+        regex: "^http://a.nwesen.de/fu/(.*)$"
+        replacement: "http://anwesende.imp.fu-berlin.de/${1}"
 
   services:
     django:
       loadBalancer:
         servers:
           - url: http://django:5000
+
+api:
+  dashboard: true
+  insecure: true
 
 providers:
   # https://docs.traefik.io/master/providers/file/

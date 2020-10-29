@@ -1,21 +1,18 @@
 version: '3'
 
-volumes:
-  production_postgres_data: {}
-  production_postgres_data_backups: {}
-  production_traefik: {}
-
 services:
   django:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
     image: anwesende_production_django
+    env_file: .envs/.production
+    volumes:
+      - ${ANW_HOSTDIR_DJANGO_LOG}:/djangolog:Z
     depends_on:
       - postgres
-    env_file:
-      - ./.envs/.production/.django
-      - ./.envs/.production/.postgres
+    # ports:
+    #   - "0.0.0.0:5000:5000"
     command: /start
 
   postgres:
@@ -23,21 +20,25 @@ services:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
     image: anwesende_production_postgres
+    env_file: .envs/.production
     volumes:
-      - production_postgres_data:/var/lib/postgresql/data:Z
-      - production_postgres_data_backups:/backups:z
-    env_file:
-      - ./.envs/.production/.postgres
+      - ${ANW_HOSTDIR_POSTGRES_DATA}:/var/lib/postgresql/data:Z
+      - ${ANW_HOSTDIR_POSTGRES_BACKUP}:/backups:z
 
   traefik:
     build:
       context: .
       dockerfile: ./compose/production/traefik/Dockerfile
     image: anwesende_production_traefik
+    env_file: .envs/.production
     depends_on:
       - django
     volumes:
-      - production_traefik:/etc/traefik/acme:z
+      - ${ANW_HOSTDIR_TRAEFIK_ACME}:/etc/traefik/acme:z
+      - ${ANW_HOSTDIR_TRAEFIK_SSL}:/etc/ssl:z
     ports:
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"
+  
+  # redis:
+  #   image: redis:5.0
