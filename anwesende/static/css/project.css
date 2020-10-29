@@ -16,6 +16,11 @@
   border-color: #eed3d7;
 }
 
+.bg-light {
+    background-color: #99CC00 !important;
+    filter: brightness(90%);
+}
+
 .qrb-label {
   color: #222222;
   font-size: 100%;
@@ -47,6 +52,11 @@
 
 .qrcode {
   width: 100mm;
+}
+
+sup {
+  font-weight: 700;
+  color: #dd0000;
 }
 
 var {
