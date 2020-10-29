@@ -20,31 +20,27 @@
     <ol>
       <li>
         Teilnehmende Hochschulen 
-        <a href="{% url 'room:import' %}">registrieren ihre Räume</a>, 
+        <a href="{% url 'room:import' %}">registrieren ihre Räume<sup>*</sup></a>, 
         erhalten für jeden
         Sitzplatz einen QR-Code 
-        (<a href="{% url 'room:qrcodes' dummyseat.room.importstep.pk %}">Beispiel</a>)
+        (<a href="{% url 'room:qrcodes' dummyseat.room.importstep.pk %}">Beispiel<sup>*</sup></a>)
         und kleben diese auf.
       </li>
       <li>
         Besucher von Räumen scannen Ihren QR-Code
-        (<a href="{% url 'room:qrcode' dummyseat.hash %}">Beispiel</a>), 
+        (<a href="{% url 'room:qrcode' dummyseat.hash %}">Beispiel<sup>*</sup></a>), 
         füllen ein Formular mit Kontaktdaten aus 
         (<a href="{% url 'room:visit' dummyseat.hash %}">Beispiel<sup>*</sup></a>)
         und geben dabei die Anwesenheitszeit an.
         <br>
         Diese Daten werden zentral gespeichert, geordnet
         nach Räumen und Zeiten.
-        <br>
-        <sup>*</sup>Das ist das echte Formular, aber für einen Fantasieraum
-        in einer Fantasieorganisation.
-        Wer möchte, darf es gern zur Probe ausfüllen und abschicken.
       </li>
       <li>
         Im Infektionsfall meldet sich ein_e Infizierte_r bei der Hochschule.
         <br>
         Die Hochschule ruft für die fraglichen Tage die Daten dieser Person ab
-        (über <a href="{% url 'room:search' %}">dieses Formular</a>)
+        (über <a href="{% url 'room:search' %}">dieses Formular<sup>*</sup></a>)
         und erhält für jeden besuchten Raum die ganze Kontaktgruppe von 
         Personen, die überlappend im gleichen Raum gewesen sind.
       </li>
@@ -52,8 +48,19 @@
         Die Hochschule gibt diese Daten gemäß ihrer gesetzlichen Verpflichtung
         an das Gesundheitsamt weiter.
       </li>
-      <li></li>
     </ol>
+    <p>
+      <sup>*</sup>Diese Beispiellinks gehören zu einem Demonstrationsmodus. <br>
+      Sie erzwingen an Stellen, die normalerweise nur
+      für die Datenverwalter_innen zugänglich sind, einen Fantasiesitzplatz
+      in der Fantasieorganisation '{{ settings.DUMMY_ORG }}'. <br>
+      Die Daten, die man so ins Anwesenheitsformular eingibt, 
+      sind öffentlich sichtbar und lassen sich über das zugehörige
+      Suchformular auch öffentlich abrufen. <br>
+      Das wirkliche Anwesenheitsformular erreicht man über das Scannen
+      eines QR-Codes, der an einem echten Sitzplatz aufgeklebt ist. <br>
+      Das wirkliche Suchformular erreichen nur Datenverwalter_innen mit Passwort.
+    </p>
   </p>
   <p>
     EN: An open source web application for people to register their presence.
