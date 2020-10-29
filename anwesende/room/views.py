@@ -31,8 +31,6 @@ class IsDatenverwalterMixin:
         self._init_datenverwalter_group()
         self.is_datenverwalter = request.user.is_authenticated \
             and request.user.groups.filter(pk=self.datenverwalter_group.pk).exists()
-        if request.method == 'POST' and not self.is_datenverwalter:
-            return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
     def _init_datenverwalter_group(self):
