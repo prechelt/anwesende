@@ -50,6 +50,7 @@ class HomeView(vv.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['dummyseat'] = arm.Seat.get_dummy_seat()
+        context['settings'] = settings
         return context
 
 
