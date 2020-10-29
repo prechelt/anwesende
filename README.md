@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-10-28  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-10-29  (see "Implementation status" at the bottom)
 
 Simple attendance registration for universities having pandemics.
 "anwesende" is German for "people that are being present".
@@ -308,7 +308,7 @@ Deployment procedure:
 
 # 5. Implementation status
 
-The application is **not complete and not ready for use!**
+The application is **almost complete, but ready for pilot use only!**
 
 The application is written in Python using the Django framework
 and a PostgreSQL database. 
@@ -327,8 +327,7 @@ provide maximal transparency.
 - DONE 2020-10-21: login, datenverwalter group, authorization checks
 - DONE 2020-10-26: User-visible process documentation, DUMMY_ORG for demo mode.
 - DONE 2020-10-28: Automatic purging of visit data after retention time
-- TODO: Pilot deployment
+- DONE 2020-10-29: Pilot deployment
 - TODO: Pilot testing
 - TODO: Writing additional automated tests
 - TODO: Add logging
-- TODO: Deployment
