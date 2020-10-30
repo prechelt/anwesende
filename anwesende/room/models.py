@@ -12,7 +12,6 @@ import anwesende.users.models as aum
 import anwesende.utils.date as aud
 
 FIELDLENGTH = 80
-STAFF_GROUP = "datenverwalter"
 
 
 class Importstep(djdm.Model):

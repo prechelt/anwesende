@@ -13,6 +13,7 @@ from django.db.models import Max
 import anwesende.room.forms as arf
 import anwesende.room.excel as are
 import anwesende.room.models as arm
+import anwesende.users.models as aum
 import anwesende.utils.date as aud
 import anwesende.utils.lookup as aul  # noqa,  registers lookup
 import anwesende.utils.qrcode as auq
@@ -22,21 +23,11 @@ COOKIENAME = 'anwesende'
 
 class IsDatenverwalterMixin:
     """
-    Sets self.is_datenverwalter flag.
-    For POST, ensures user is logged in and is member of arm.STAFF_GROUP.
+    Sets is_datenverwalter flag in self and in context.
     """
-    datenverwalter_group = None  # cache attribute
-
     def dispatch(self, request: djh.HttpRequest, *args, **kwargs) -> djh.HttpResponse:
-        self._init_datenverwalter_group()
-        self.is_datenverwalter = request.user.is_authenticated \
-            and request.user.groups.filter(pk=self.datenverwalter_group.pk).exists()
+        self.is_datenverwalter = request.user.is_datenverwalter()
         return super().dispatch(request, *args, **kwargs)
-
-    def _init_datenverwalter_group(self):
-        if not self.datenverwalter_group:
-            self.datenverwalter_group = djcam.Group.objects.get_by_natural_key(
-                arm.STAFF_GROUP)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
