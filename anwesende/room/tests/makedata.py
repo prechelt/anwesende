@@ -18,7 +18,7 @@ def make_user_rooms_seats_visits(seatsN: int, visitsN: int) -> \
     In room2, everything happens 10 minutes later than in room1.
     """
     MINUTE = dt.timedelta(minutes=1)
-    user = aum.User.objects.create(username=f"datenverw{random.randint(1000,9999)}")
+    user = make_datenverwalter_user()
     visitlength = dt.timedelta(minutes=30)
     importstep = arm.Importstep(user=user)
     importstep.save()
@@ -40,6 +40,16 @@ def make_user_rooms_seats_visits(seatsN: int, visitsN: int) -> \
             when += dt.timedelta(hours=1)  # next group one hour later
     return (rooms, seatgroups)
 
+
+def make_datenverwalter_user(username=None, password=None) -> aum.User:
+    number = random.randint(1000, 9999)
+    username = username or f"datenverw{number}"
+    user = aum.User.objects.create_user(
+        username=username,
+        email=f"{username}}@example.com",
+        password=password or "1234")
+    user.assign_datenverwalter_group()
+    return user
 
 def _make_seats(importstep: arm.Importstep, roomname: str,
                 numseats: int) -> tg.Tuple[arm.Room, tg.Sequence[arm.Seat]]:

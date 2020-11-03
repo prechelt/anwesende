@@ -26,7 +26,8 @@ class IsDatenverwalterMixin:
     Sets is_datenverwalter flag in self and in context.
     """
     def dispatch(self, request: djh.HttpRequest, *args, **kwargs) -> djh.HttpResponse:
-        self.is_datenverwalter = request.user.is_datenverwalter()
+        self.is_datenverwalter = request.user.is_authenticated \
+            and request.user.is_datenverwalter()
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -72,11 +73,11 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
 
     def form_valid(self, form: arf.UploadFileForm):
         filename = form.cleaned_data['excelfile']
-        self.result = are.create_seats_from_excel(filename, self.request.user)
+        self.importstep = are.create_seats_from_excel(filename, self.request.user)
+        return super().form_valid(form)
 
     def get_success_url(self):
-        pk = self.result['importstep'].pk
-        return dju.reverse('room:qrcodes', kwargs=dict(pk=pk))
+        return dju.reverse('room:qrcodes', kwargs=dict(pk=self.importstep.pk))
 
 
 class QRcodesView(IsDatenverwalterMixin, vv.DetailView):
