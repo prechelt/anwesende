@@ -49,16 +49,16 @@
             {% if request.user.is_authenticated %}
               <li class="nav-item">
                 {# URL provided by django-allauth/account/urls.py #}
-                <a class="nav-link" href="{% url 'users:detail' request.user.username  %}">{% trans "My Profile" %}</a>
+                <a class="nav-link" href="{% url 'users:detail' request.user.username  %}">Mein Profil</a>
               </li>
               <li class="nav-item">
                 {# URL provided by django-allauth/account/urls.py #}
-                <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Abmelden" %}</a>
+                <a class="nav-link" href="{% url 'account_logout' %}">Abmelden</a>
               </li>
             {% else %}
               <li class="nav-item">
                 {# URL provided by django-allauth/account/urls.py #}
-                <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% trans "Datenverwaltung" %}</a>
+                <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">Datenverwaltung</a>
               </li>
             {% endif %}
           </ul>
