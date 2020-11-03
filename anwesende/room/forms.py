@@ -27,7 +27,7 @@ class UploadFileForm(djf.Form):
     because validation is not considered complete until that is successful.
     (This is a departure from normal Django application architecture.)
     """
-    file = djf.FileField()
+    file = djf.FileField(required=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
