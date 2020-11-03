@@ -1,9 +1,5 @@
-import datetime as dt
-
 import django.contrib.auth.models as djcam
-import django.utils.timezone as djut
 import pytest
-from django.conf import settings
 
 import anwesende.room.management.commands.delete_outdated_data as delete_outdated_data
 import anwesende.room.management.commands.make_base_data as make_base_data
@@ -20,7 +16,7 @@ def test_make_base_data():
 
 
 @pytest.mark.django_db
-def test_deleted_outdated_data(freezer, caplog):
+def test_delete_outdated_data(freezer, caplog):
     freezer.move_to("2020-10-01")
     batch1 = artm.make_user_rooms_seats_visits(seatsN=5, visitsN=25)
     assert arm.Visit.objects.count() == 2*25

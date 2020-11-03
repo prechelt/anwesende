@@ -8,7 +8,7 @@ import anwesende.room.models as arm
 import anwesende.users.models as aum
 
 def make_user_rooms_seats_visits(seatsN: int, visitsN: int) -> \
-        tg.Tuple[arm.Importstep, arm.Room, tg.Sequence[arm.Visit]]:
+        tg.Tuple[tg.Sequence[arm.Room], tg.Sequence[tg.Sequence[arm.Seat]]]:
     """
     Creates 2 Rooms, each with seatsN Seats, and visitsN Visits for each Room,
     of which groups of seatsN overlap and the next group is an hour later.
@@ -46,10 +46,11 @@ def make_datenverwalter_user(username=None, password=None) -> aum.User:
     username = username or f"datenverw{number}"
     user = aum.User.objects.create_user(
         username=username,
-        email=f"{username}}@example.com",
+        email=f"{username}@example.com",
         password=password or "1234")
     user.assign_datenverwalter_group()
     return user
+
 
 def _make_seats(importstep: arm.Importstep, roomname: str,
                 numseats: int) -> tg.Tuple[arm.Room, tg.Sequence[arm.Seat]]:

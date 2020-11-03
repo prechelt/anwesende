@@ -29,7 +29,7 @@ def create_seats_from_excel(filename: str, user: aum.User) -> arm.Importstep:
     importstep = _create_importstep(user)
     rooms, importstep.num_new_rooms, importstep.num_existing_rooms = \
         _find_or_create_rooms(columnsdict, importstep)
-    seats, importstep.num_new_seatsN, importstep.num_existing_seatsN = \
+    seats, importstep.num_new_seats, importstep.num_existing_seats = \
         _find_or_create_seats(rooms)
     importstep.save()
     return importstep

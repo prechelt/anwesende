@@ -28,10 +28,10 @@ class IsDatenverwalterMixin:
     def dispatch(self, request: djh.HttpRequest, *args, **kwargs) -> djh.HttpResponse:
         self.is_datenverwalter = request.user.is_authenticated \
             and request.user.is_datenverwalter()
-        return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)  # type: ignore
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)  # type: ignore
         context['is_datenverwalter'] = self.is_datenverwalter
         return context
 
@@ -62,9 +62,9 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
         else:
             room = arm.Seat.get_dummy_seat().room
             importstep = room.importstep
-            importstep.organization = room.organization 
-            importstep.department = room.department 
-            imports = [importstep]
+            importstep.organization = room.organization  # type: ignore[attr-defined]
+            importstep.department = room.department  # type: ignore[attr-defined]
+            imports = [importstep]  # type: ignore[assignment]
             show_imports = True
         context['imports'] = imports
         context['show_imports'] = show_imports
