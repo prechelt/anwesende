@@ -61,9 +61,9 @@ class TimeOnlyDateTimeField(djf.CharField):
         error_msg = "Falsches Uhrzeitformat / Wrong time-of-day format"
         if not re.match(time_regex, value or ""):
             raise djce.ValidationError(error_msg)
-        dt_string = djut.now().strftime(f"%Y-%m-%d {value}")
+        dt_string = djut.localtime().strftime(f"%Y-%m-%d {value}")
         dt_tuple = time.strptime(dt_string, "%Y-%m-%d %H:%M")[0:5]
-        dt_obj = dt.datetime(*dt_tuple, tzinfo=djut.get_current_timezone())
+        dt_obj = djut.make_aware(dt.datetime(*dt_tuple))
         return dt_obj
 
 
@@ -96,7 +96,6 @@ class VisitForm(djf.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.data['present_from_dt'] = aud.nowstring(date=False, time=True)
         self.helper = cfh.FormHelper()
         self.helper.form_id = 'VisitForm'
         self.helper.form_method = 'post'

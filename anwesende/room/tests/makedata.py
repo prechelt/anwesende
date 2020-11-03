@@ -25,7 +25,7 @@ def make_user_rooms_seats_visits(seatsN: int, visitsN: int) -> \
     rooms = []
     seatgroups = []
     for roomI in range(2):
-        when = djut.now() - dt.timedelta(hours=24) + dt.timedelta(minutes=roomI*10)
+        when = djut.localtime() - dt.timedelta(hours=24) + dt.timedelta(minutes=roomI*10)
         visitI = 0
         room, seats = _make_seats(importstep, f"room{roomI+1}", seatsN)
         rooms.append(room)

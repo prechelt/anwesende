@@ -7,7 +7,7 @@ import anwesende.room.forms as arm
 
 def test_TimeOnlyDateTimeField_to_python_OK():
     fmt = "%Y-%m-%d %H:%M"
-    now = djut.now().strftime(fmt)
+    now = djut.localtime().strftime(fmt)
     dt_val = arm.TimeOnlyDateTimeField().to_python("17:27")
     dt_str = dt_val.strftime(fmt)
     print(dt_str)

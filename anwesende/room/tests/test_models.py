@@ -24,7 +24,7 @@ def test_get_overlapping_visits():
         return tuple(results)
     
     def _make_visit(seat: arm.Seat, tfrom: str, tto: str) -> arm.Visit:
-        now = djut.now()
+        now = djut.localtime()
         present_from = aud.make_dt(now, tfrom)
         present_to = aud.make_dt(now, tto)
         assert present_from < present_to

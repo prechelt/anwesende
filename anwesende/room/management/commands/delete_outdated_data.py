@@ -13,7 +13,7 @@ class Command(djcmb.BaseCommand):
     help = "Deletes all Visits older than settings.DATA_RETENTION_DAYS."
 
     def handle(self, *args, **options):
-        horizon = djut.now() - dt.timedelta(days=settings.DATA_RETENTION_DAYS)
+        horizon = djut.localtime() - dt.timedelta(days=settings.DATA_RETENTION_DAYS)
         oldvisits = arm.Visit.objects.filter(submission_dt__lt=horizon)
         howmany_deleted = oldvisits.count()
         howmany_exist = arm.Visit.objects.count()

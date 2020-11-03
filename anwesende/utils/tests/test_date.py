@@ -23,7 +23,7 @@ def test_nowstring():
 
 def test_make_dt_with_tz():
     tzname = djut.get_current_timezone_name()
-    now = djut.now()
+    now = djut.localtime()
     result = aud.make_dt(now, "12:34")
     print(tzname, now.tzname(), result.tzname())
     assert result.tzinfo.utcoffset(result) == \
@@ -41,5 +41,5 @@ def test_make_dt_naive():
 
 def test_make_dt_illformed():
     with pytest.raises(AssertionError) as ex:
-        aud.make_dt(djut.now(), "23.45")
+        aud.make_dt(djut.localtime(), "23.45")
     assert "hh:mm" in str(ex.value)

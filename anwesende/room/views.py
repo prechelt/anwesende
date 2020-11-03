@@ -55,7 +55,7 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
         if self.is_datenverwalter:
             interval = dt.timedelta(hours=12)
             imports = arm.Importstep.objects.filter(
-                when__gt=djut.now() - interval) \
+                when__gt=djut.localtime() - interval) \
                 .annotate(organization=Max('room__organization')) \
                 .annotate(department=Max('room__department'))
             show_imports = imports.count() > 0
@@ -130,14 +130,16 @@ class VisitView(vv.CreateView):
         return arm.Seat.objects.filter(hash=hashvalue).count() == 0
     
     def get_form(self, data=None, files=None, **kwargs):
-        if data:
+        if data:  # POST
             data = {k: v for k, v in data.items()}  # extract ordinary dict
-        elif COOKIENAME in self.request.COOKIES:
-            data = json.loads(self.request.COOKIES[COOKIENAME])
+            return arf.VisitForm(data=data, files=files, **kwargs)
+        # else GET:
+        if COOKIENAME in self.request.COOKIES:
+            initial = json.loads(self.request.COOKIES[COOKIENAME])
         else:
-            data = dict(cookie=arm.Visit.make_cookie())
-        form = arf.VisitForm(data=data, files=files, **kwargs)
-        return form
+            initial = dict(cookie=arm.Visit.make_cookie())
+        initial['present_from_dt']=aud.nowstring(date=False, time=True)
+        return arf.VisitForm(initial=initial)
         
     def form_valid(self, form: arf.VisitForm):
         response = djh.HttpResponseRedirect(self.get_success_url())
@@ -152,9 +154,10 @@ class VisitView(vv.CreateView):
         cookiedict = {k: v for k, v, in
                       form.data.items()}  # extract ordinary dict
         del cookiedict['csrfmiddlewaretoken']
-        del cookiedict['submit']
         del cookiedict['present_from_dt']
         del cookiedict['present_to_dt']
+        if 'submit' in cookiedict:
+            del cookiedict['submit']
         cookiejson = json.dumps(cookiedict)
         return cookiejson
 
