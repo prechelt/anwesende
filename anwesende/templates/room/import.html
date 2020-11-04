@@ -17,7 +17,8 @@
       sich die QR-Code-Dateien am besten handhaben.
     </li>
     <li>
-      <b>Format:</b> Die Excel-Datei wird direkt in die Anwendung eingelesen.
+      <b>Format:</b> Die <b>Excel-Datei</b> wird nicht von einem Menschen,
+      sondern direkt von der Anwendung interpretiert.
       Die Überschriftzeile und die Zellenformate deshalb bitte keinesfalls ändern
       und die nachfolgenden Hinweise genau beachten.<br>
       Beginnen Sie mit dieser Vorlage
@@ -29,6 +30,8 @@
         <var>organization</var>: Domainname der teilnehmenden Hochschule, z.B.
         <var>fu-berlin.de</var> für die Freie Universität Berlin.  
         Dieser Wert ist in allen Zeilen der Datei gleich.
+        Er bezieht sich auf die Hochschule als Ganzes, 
+        nicht auf die Hochschuleinheit.
       </li>
       <li>
         <var>department</var>: Intern gebräuchlicher Kurzname der Hochschuleinheit, z.B.
@@ -38,14 +41,11 @@
       <li>
         <var>building</var>: Gebäudebezeichnung, meist Straße und Hausnummer, z.B.
        <var>Takustr. 9</var> für das Informatik-Hauptgebäude in der Takustraße 9.  
-       Diesen Wert sollte man (genau wie alle anderen) am besten kurz halten,
+       Dieser Wert sollte (genau wie alle anderen) nicht zu lang sein,
        da er auf dem QR-Code-Schild mit ausgedruckt wird und dort
        die verfügbare Breite nicht überschreiten sollte.  
-       Der Name muss nicht unbedingt exakt zum Straßenschild passen.
-       Wenn es also von einem langen Straßennamen eine in dieser
-       Hochschuleinheit allgemein gebräuchliche Abkürzung gibt
-       oder einen in der ganzen Hochschule geläufigen Gebäudenamen 
-       könnte man auch die verwenden.
+       Der Name muss nicht unbedingt exakt zum Straßenschild passen;
+       evtl. verkürzte Straßennamen oder weithin bekannte Gebäudenamen bevorzugen.
       </li>
       <li>
         <var>room</var>: Raumbezeichnung, in der Regel eine Raumnummer, z.B.
@@ -59,8 +59,11 @@
         <var>seat_max</var>: Größte Sitznummer, z.B. 14.  
        Diese Sitznummern sind fortlaufend und werden auf den QR-Code-Schildern
        gut lesbar mit ausgedruckt.  
-       In diesem beiden Feldern sind nur ganze Zahlen möglich.
+       In diesen beiden Feldern sind nur ganze Zahlen möglich.
       </li>
+      <li>
+        Alle Zellen der Datei haben das Zellenformat <i>Text</i>.
+      </li>  
       </ul>
     </li>
     <li>
