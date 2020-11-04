@@ -1,6 +1,5 @@
 import collections
 import os
-import random
 import tempfile
 import typing as tg
 
@@ -263,5 +262,5 @@ def _as_vgrouprows(visits) -> tg.List[tg.Optional[VGroupRow]]:
                 v.seat.room.organization, v.seat.room.department, 
                 v.seat.room.building, v.seat.room.room,
                 v.seat.number)
-    vgrouprows.append(row)
+        vgrouprows.append(row)
     return vgrouprows
