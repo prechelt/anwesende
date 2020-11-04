@@ -271,9 +271,9 @@ SOCIALACCOUNT_ADAPTER = "anwesende.users.adapters.SocialAccountAdapter"
 
 DATA_CONTACT = env('DATA_CONTACT')  # Datenverwalter/in email address
 DATA_RETENTION_DAYS = env.int('DATA_RETENTION_DAYS', 28)
-DUMMY_ORG="uni-dummy.de"
+DUMMY_ORG = "uni-dummy.de"
 IMPRINT_URL = env('IMPRINT_URL')
 MIN_OVERLAP_MINUTES = env.int('MIN_OVERLAP_MINUTES', 10)
-SEAT_KEY=env('SEAT_KEY')
-SHORTURL_PREFIX=env('SHORTURL_PREFIX')
+SEAT_KEY = env('SEAT_KEY')
+SHORTURL_PREFIX = env('SHORTURL_PREFIX')
 TECH_CONTACT = env('TECH_CONTACT')

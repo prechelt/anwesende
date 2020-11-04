@@ -7,6 +7,7 @@ import django.utils.timezone as djut
 import anwesende.room.models as arm
 import anwesende.users.models as aum
 
+
 def make_user_rooms_seats_visits(seatsN: int, visitsN: int) -> \
         tg.Tuple[tg.Sequence[arm.Room], tg.Sequence[tg.Sequence[arm.Seat]]]:
     """
@@ -25,7 +26,7 @@ def make_user_rooms_seats_visits(seatsN: int, visitsN: int) -> \
     rooms = []
     seatgroups = []
     for roomI in range(2):
-        when = djut.localtime() - dt.timedelta(hours=24) + dt.timedelta(minutes=roomI*10)
+        when = djut.localtime() - dt.timedelta(hours=24) + dt.timedelta(minutes=roomI * 10)
         visitI = 0
         room, seats = _make_seats(importstep, f"room{roomI+1}", seatsN)
         rooms.append(room)
@@ -36,7 +37,7 @@ def make_user_rooms_seats_visits(seatsN: int, visitsN: int) -> \
                 _make_visit(seat, tfrom, tfrom + visitlength, visitorI)
                 visitI += 1
                 if visitI == visitsN:
-                    break;
+                    break
             when += dt.timedelta(hours=1)  # next group one hour later
     return (rooms, seatgroups)
 

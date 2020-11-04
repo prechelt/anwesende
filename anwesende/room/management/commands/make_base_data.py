@@ -1,4 +1,3 @@
-import django.contrib.auth.models as djcam
 import django.core.management.base as djcmb
 
 import anwesende.room.models as arm

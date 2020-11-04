@@ -3,7 +3,6 @@ import json
 import os
 import typing as tg
 
-import django.contrib.auth.models as djcam
 import django.http as djh
 import django.urls as dju
 import django.utils.timezone as djut
@@ -11,10 +10,9 @@ import vanilla as vv  # Django vanilla views
 from django.conf import settings
 from django.db.models import Max
 
-import anwesende.room.forms as arf
 import anwesende.room.excel as are
+import anwesende.room.forms as arf
 import anwesende.room.models as arm
-import anwesende.users.models as aum
 import anwesende.utils.date as aud
 import anwesende.utils.lookup as aul  # noqa,  registers lookup
 import anwesende.utils.qrcode as auq
@@ -140,7 +138,7 @@ class VisitView(vv.CreateView):
             initial = json.loads(self.request.COOKIES[COOKIENAME])
         else:
             initial = dict(cookie=arm.Visit.make_cookie())
-        initial['present_from_dt']=aud.nowstring(date=False, time=True)
+        initial['present_from_dt'] = aud.nowstring(date=False, time=True)
         return arf.VisitForm(initial=initial)
         
     def form_valid(self, form: arf.VisitForm):
@@ -241,7 +239,6 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
         make_secure()
         context = self.get_context_data(is_post=False)
         return self.render_to_response(context)
-
 
     def post(self, request, *args, **kwargs):
         # will be secure wrt not is_datenverwalter due to safe get_queryset()

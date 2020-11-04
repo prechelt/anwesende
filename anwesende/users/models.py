@@ -24,5 +24,5 @@ class User(djcam.AbstractUser):
     @classmethod
     def get_datenverwalter_group(cls) -> djcam.Group:
         if not djcam.Group.objects.filter(name=cls.STAFF_GROUP).exists():
-            fresh_group = djcam.Group.objects.create(name=cls.STAFF_GROUP)
+            fresh_group = djcam.Group.objects.create(name=cls.STAFF_GROUP)  # noqa
         return djcam.Group.objects.get_by_natural_key(cls.STAFF_GROUP)
