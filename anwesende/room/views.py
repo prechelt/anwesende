@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 import os
+import typing as tg
 
 import django.contrib.auth.models as djcam
 import django.http as djh
@@ -72,8 +73,9 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
         return context
 
     def form_valid(self, form: arf.UploadFileForm):
-        filename = form.cleaned_data['excelfile']
+        filename = form.cleaned_data['excelfile']  # form has created the file
         self.importstep = are.create_seats_from_excel(filename, self.request.user)
+        os.remove(filename)
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -250,7 +252,7 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
         else:
             return self.render_to_response(context)
 
-    def excel_download_response(self, visits):
+    def excel_download_response(self, visits: tg.List[tg.Optional[arm.Visit]]) -> djh.HttpResponse:
         # https://stackoverflow.com/questions/4212861
         excel_contenttype_excel = \
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

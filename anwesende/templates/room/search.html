@@ -35,8 +35,8 @@
         Please use more specific search criteria.
       </p>
   {% elif display_switch == 'visit' or display_switch == 'visitgroup' %}
-      <p>Found {{ visits.count }} results</p>
-      <ol>
+      <p>{{ visits.count }} Treffer</p>
+      <ol class="searchhits">
         {% for v in visits %}
           {% if v is None %}
             <li>-- next group: --</li>      

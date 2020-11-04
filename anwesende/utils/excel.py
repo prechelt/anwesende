@@ -29,7 +29,7 @@ def _cleansed(cell):
         return cell  # None or int or what-have-you
     
 
-RowsListsType = tg.Mapping[str, tg.List[tg.Optional[tg.NamedTuple]]]
+RowsListsType = tg.Mapping[str, tg.List[tg.Optional[tg.NamedTuple]]]  # sheetname -> sheetcontents
 
 
 def write_excel_from_rowslists(filename: str, rowslists: RowsListsType,

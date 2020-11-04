@@ -41,7 +41,7 @@ class UploadFileForm(djf.Form):
         uploadedfile = self.cleaned_data['file']
         excelfile = self._store_excelfile(uploadedfile)
         try:
-            are.validate_excel(excelfile)  # stores models iff valid
+            are.validate_excel_importfile(excelfile)  # stores models iff valid
         except are.InvalidExcelError as err:
             raise djce.ValidationError(err)
         self.cleaned_data['excelfile'] = excelfile
