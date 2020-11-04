@@ -211,6 +211,8 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
         return ctx
 
     def get_queryset(self):
+        def fdt(d: dt.date):
+            return djut.make_aware(dt.datetime(d.year, d.month, d.day))
         f = self.form.cleaned_data
         secure_organization = f['organization'] if self.is_datenverwalter \
             else settings.DUMMY_ORG 
@@ -223,8 +225,8 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
                 .filter(familyname__like=f['familyname'])
                 .filter(phone__like=f['phone'])
                 .filter(email__like=f['email'])
-                .filter(present_to_dt__gt=f['from_date'])  # left after from
-                .filter(present_from_dt__lt=f['to_date'])  # came before to
+                .filter(present_to_dt__gt=fdt(f['from_date']))  # left after from
+                .filter(present_from_dt__lt=fdt(f['to_date']))  # came before to
                 )
 
     def get(self, request, *args, **kwargs):
