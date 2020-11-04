@@ -17,7 +17,7 @@ class InvalidExcelError(ValueError):
     pass  # no additional logic is needed
 
 
-def validate_excel(filename) -> None:
+def validate_excel_importfile(filename) -> None:
     # may raise InvalidExcelError
     columnsdict = aue.read_excel_as_columnsdict(filename)
     _validate_room_declarations(columnsdict)
