@@ -12,7 +12,7 @@ urlpatterns = [
          view=arv.QRcodesView.as_view(), name="qrcodes"),
     path("qrcode/<hash>",
          view=arv.QRcodeView.as_view(), name="qrcode"),
-    path("v<hash>",
+    path("S<hash>",
          view=arv.VisitView.as_view(), name="visit"),
     path("thankyou",
          view=arv.ThankyouView.as_view(), name="thankyou"),
