@@ -12,6 +12,7 @@ django-webtest==1.9.7  # https://github.com/django-webtest/django-webtest
 pytest==6.1.1  # https://github.com/pytest-dev/pytest
 pytest-freezegun==0.4.2  # https://github.com/ktosiek/pytest-freezegun
 pytest-sugar==0.9.4  # https://github.com/Frozenball/pytest-sugar
+WSGIProxy2==0.4.6  # 
 
 # Documentation
 # ------------------------------------------------------------------------------

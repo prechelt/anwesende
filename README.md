@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-10-29  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-11-05  (see "Implementation status" at the bottom)
 
 Simple attendance registration for universities having pandemics.
 "anwesende" is German for "people that are being present".
@@ -247,8 +247,8 @@ and allows some configuration to adopt to local needs.
 
 The service is build using Python, Django, and PostgreSQL.
 The deployment infrastructure assumes Linux, Docker (with docker-compose), 
-and Traefik.
-The project organization follows the 
+Gunicorn, and Traefik.
+The code organization follows the 
 [cookiecutter](https://cookiecutter-django.readthedocs.io) template.
 
 Deployment procedure:
@@ -298,7 +298,7 @@ Deployment procedure:
    and your private key at 
    `/srv/docker/anwesende/traefik_ssl/private/anwesende-key.pem`.
    (For good order's sake, directory `private` should be readable for root only.)
-
+9. ...(incomplete)...
 
 
 ## 4.3 Initiating operation
@@ -328,6 +328,8 @@ provide maximal transparency.
 - DONE 2020-10-26: User-visible process documentation, DUMMY_ORG for demo mode.
 - DONE 2020-10-28: Automatic purging of visit data after retention time
 - DONE 2020-10-29: Pilot deployment
+- DONE 2020-11-04: Automated system test of the whole workflow
+- DONE 2020-11-05: Load testing (about 1000 visits/minute: fast enough)
 - TODO: Pilot testing
-- TODO: Writing additional automated tests
+- TODO: Deployment description
 - TODO: Add logging
