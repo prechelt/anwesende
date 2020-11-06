@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-11-05  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-11-06  (see "Implementation status" at the bottom)
 
 Simple attendance registration for universities having pandemics.
 "anwesende" is German for "people that are being present".
@@ -210,57 +210,48 @@ Risiken:
 
 # 3. Der/Die Datenverwalter/in
 
-- Muss Englisch können (denn die Dialoge in diesem technischeren Bereich
-  der Anwendung sind auf Englisch gehalten).
 - Benötigt eine Einweisung (ca. 1 Stunde).
 - Muss Mitglied einer teilnehmenden Hochschule sein.
   Alle anderen teilnehmenden Hochschulen müssen mit dieser Hochschule
   einen Auftragsdatenverarbeitungsvertrag schließen.
+- Sollte bei jeder Meldung von Räumen aus einer Hochschuleinheit
+  die Excel-Datei durchsehen und nötigenfalls die Schreibweisen
+  (insbesondere von Hochschuleinheiten) vereinheitlichen.
 - Muss bei jeder Meldung von Räumen aus einer Hochschuleinheit klären,
   wer für diese Einheit berechtigt ist, Anwesenheitsdaten abzurufen,
   und dann den Datenzugang auf diesen Personenkreis beschränken.
-   
+  
 
 # 4. Deployment and operation
 
-This is technical information, therefore in English.
+Everything beyond this point is technical information, therefore in English.
 
 The application is meant to be deployed separately in many organizations
 (to simplify the situation regarding privacy protection)
 and allows some configuration to adopt to local needs.
 
-## 4.1 Environment variables
+## 4.1 Deployment
 
-- `DATA_CONTACT`: Email address of the Datenverwalter/in
-- `DATA_RETENTION_DAYS`: Number of days after which an 
-   attendance event record will be deleted (default: 28).
-- `IMPRINT_URL`: Web address of the Imprint/Impressum page
-  that legally identifies the service's operator.
-- `MIN_OVERLAP_MINUTES`: How long two people need to have been 
-  in the same room to be considered in contact (default: 10)
-- `TECH_CONTACT`: Email address of the server operator.
-- `TIME_ZONE`: How to interpret times entered by visitors 
-  (default: Europe/Berlin)
-- (and more coming...)
+The service is build using Python, Django, PostgreSQL, Gunicorn, and Traefik.
+The deployment procedure described below will obtain these pieces
+and configure them.
+The code organization follows the
+[cookiecutter-django](https://cookiecutter-django.readthedocs.io) template.
 
-## 4.2 Deployment
-
-The service is build using Python, Django, and PostgreSQL.
-The deployment infrastructure assumes Linux, Docker (with docker-compose), 
-Gunicorn, and Traefik.
-The code organization follows the 
-[cookiecutter](https://cookiecutter-django.readthedocs.io) template.
+The deployment procedure assumes an existing infrastructure of
+Linux, Docker (with docker-compose), and make.
 
 Deployment procedure:
 1. Create a working directory anywhere on your Linux server and do  
    `git clone https://git.imp.fu-berlin.de/anwesende/anwesende.git`.  
    This working directory is the reference for all commands.
-2. Copy directory `anwesende/.envs/.template` to `anwesende/.envs/.production`
-   and set the environment variables in `anwesende/.envs/.production/.django`
-   as described above.
-   If you feel like it, you can also modify 
-   `POSTGRES_USER` and `POSTGRES_PASSWORD` in
-   `anwesende/.envs/.production/.postgres`.
+2. Do `mkdir .envs; cp anwesende/compose/production/env-template anwesende/.envs/.production`.
+   and set the environment variables in `anwesende/.envs/.production`
+   as described in that file.  
+   Note this is an extremely limited file format: No blanks are allowed
+   around the `=` and all values are used verbatim 
+   (including the quotes if you use any!)
+   The handling of SHORTURL_PREFIX will be described in step !!! below.
 3. Review `anwesende/templates/room/privacy.html` and decide whether you need
    to modify it.
    If so, either change it directly (make sure you keep a copy in case of 
@@ -270,7 +261,7 @@ Deployment procedure:
    put your modification on a branch of your fork, and use the fork in step 1.
    (If that Github repo does not yet exist, holler.)
 4. The standard setup assumes you are using manually created certificates for
-   https. If you do, too, skip the next step.
+   https. If you do, skip the next step.
 5. If you want to use letsencyrpt instead, modify
    `compose/production/traefik/traefik.yml` as follows in the 
    http / routers / web-secure-router / tls block:
@@ -281,12 +272,15 @@ Deployment procedure:
    This will create three docker images:
    `anwesende_production_django`, `anwesende_production_postgres`, and
    `anwesende_production_traefik`.
+   (The first name part is a directory name; yours may be different.)
 7. If your target server is in a DMZ (de-militarized zone), you will have to
    perform the above steps on a build machine that is connected
    to the target server via a docker registry that both can access.
-   In that case, you need to do the following additional steps:
+   In that case, you need to do the following additional steps
+   (I will now assume you have basic docker knowledge, have heard of
+    `docker login` etc.):
    - `docker push` the three docker images to the registry on the build server,
-   - switch to the target server, and docker pull the three images there
+   - switch to the target server, and `docker pull` the three images there
    - The standard setup assumes the server files to lie in various subdirectories
      of path `/srv/docker/anwesende`.
    - Copy the build server working dir to `/srv/docker/anwesende/src`.
@@ -298,17 +292,69 @@ Deployment procedure:
    and your private key at 
    `/srv/docker/anwesende/traefik_ssl/private/anwesende-key.pem`.
    (For good order's sake, directory `private` should be readable for root only.)
-9. ...(incomplete)...
+9. Do `docker-compose -f production.yml up -d`.
+   If all went well, your anwesende server should now be reachable.
+   Let's assume it is called `anwesende.some-university.de`.
+   Start a web browser and visit `https://anwesende.some-university.de`.
+   Works? Congratulations!
+   
+## 4.2 Short-URL service
 
+10. There is one installation of anwesende that is special:
+    The one at `http://a.nwesen.de` (no https here!). 
+    It can be used by all other installations for creating short URLs.
+    (The shorter the URLs specified by the QR codes, the more robust these
+    codes can be against scratching, chocolate taints etc.)  
+    So instead of seat URLs like `https://anwesende.some-university.de/S12345abcde`
+    your installation can use URLs like `http://a.nwesen.de/z/S12345abcde`
+    which will simply redirect to the corresponding one above.  
+    How? 
+    - You send me your installation URL such as 
+      `https://anwesende.some-university.de` and ask me for a 
+      SHORTURL_PREFIX.
+    - I assign a prefix, such as `http://a.nwesen.de/z`,
+      enter it into the configuration of the central installation,
+      and tell you about it.
+    - You enter it into your settings file at `anwesende/.envs/.production`
+      (for instance `SHORTURL_PREFIX=http://a.nwesen.de/z`) and
+      restart your server:  
+      Do a `docker-compose -f production down` (which stops the server)
+      and repeat the above steps 6, 7, and 9.
+11. Your service is now ready to be used.
+    Time to tell it about your buildings!
 
 ## 4.3 Initiating operation
 
-- Determine Datenverwalter/in and create account
+Once the server is running and you can retrieve the homepage properly,
+perform the following steps once:
+
+- Log in to the server and perform  
+  `set -a; source .envs/.production` to define the environment
+  (modern versions of docker-compose allow `--env-file` instead)
+  and then
+  `docker-compose -f production.yml run --rm django python manage.py createsuperuser --username superuser`.
+  You can use a different username if you prefer.
+- In a browser, visit
+  `https://anwesende.some-university.de/admin`, 
+  log in as the superuser, and create two-or-so personal accounts for the
+  Datenverwalters at `https://anwesende.some-university.de/admin/users/user/`.  
+  Enter strings for name (fullname), firstname, lastname, email.  
+  Do not change any of the checkboxes.  
+  Under "Groups:" pick group "datenverwalter" and add it to "Chosen groups".  
+  Save.  
+  This group membership is what gives an account the Datenverwalter
+  privilege. The superuser account does not (and should not) have that privilege.
+  
+Done!
+
+Note that by default, no email sending is configured, so the password reset
+function (which is available on the web pages) is not going to work.
+The superuser must tell the 
 
 
 # 5. Implementation status
 
-The application is **almost complete, but ready for pilot use only!**
+The application is **complete, but not yet field-tested: ready for pilot use only!**
 
 The application is written in Python using the Django framework
 and a PostgreSQL database. 
@@ -330,6 +376,6 @@ provide maximal transparency.
 - DONE 2020-10-29: Pilot deployment
 - DONE 2020-11-04: Automated system test of the whole workflow
 - DONE 2020-11-05: Load testing (about 1000 visits/minute: fast enough)
+- DONE 2020-11-06: Added logging
+- DONE 2020-11-06: Deployment description
 - TODO: Pilot testing
-- TODO: Deployment description
-- TODO: Add logging
