@@ -159,11 +159,11 @@ def _excelerror(row: int = None, column: str = None,
     if row:
         result += f"row {row}  "
     if column:
-        result += f"column '{column}'"
+        result += f"column '{column}':"
     if row or column:
         result += '\n'
     if expected:
-        result += f"EXPECTED: {expected}\n"
+        result += f"EXPECTED: {expected}.\n"
     if expected:
         result += "FOUND: "
     result += found

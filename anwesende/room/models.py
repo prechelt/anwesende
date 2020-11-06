@@ -1,5 +1,6 @@
 import datetime as dt
 import hashlib
+import re
 
 import django.core.validators as djcv
 import django.db.models as djdm
@@ -10,6 +11,7 @@ from django.db.models.query import F
 
 import anwesende.users.models as aum
 import anwesende.utils.date as aud
+import anwesende.utils.validators as auv
 
 FIELDLENGTH = 80
 
@@ -146,6 +148,7 @@ class Visit(djdm.Model):
         blank=False, null=False,
         max_length=FIELDLENGTH,
         db_index=True,
+        validators=[auv.validate_isprintable],
         verbose_name="Vorname / Given name",
         help_text="Rufname / the firstname by which you are commonly known",
     )
@@ -153,13 +156,15 @@ class Visit(djdm.Model):
         blank=False, null=False,
         max_length=FIELDLENGTH,
         db_index=True,
+        validators=[auv.validate_isprintable],
         verbose_name="Familienname / Family name",
-        help_text="Wie im Ausweis angegeben / as shown in your passport",
+        help_text="Wie im Ausweis angegeben / as shown in your passport (Latin script)",
     )
     street_and_number = djdm.CharField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
         db_index=True,
+        validators=[auv.validate_isprintable],
         verbose_name="Straße und Hausnummer / Street and number",
         help_text="Wohnadresse für diese Woche / This week's living address",
     )
@@ -169,12 +174,14 @@ class Visit(djdm.Model):
         verbose_name="Postleitzahl / Postal code",
         db_index=True,
         validators=[djcv.RegexValidator(regex=r"^\d{5}$",  # noqa
-                message="5 Ziffern bitte / 5 digits, please")]
+                message="5 Ziffern bitte / 5 digits, please", 
+                flags=re.ASCII)]
     )
     town = djdm.CharField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
         db_index=True,
+        validators=[auv.validate_isprintable],
         verbose_name="Ort / Town",
     )
     phone = djdm.CharField(
@@ -186,7 +193,8 @@ class Visit(djdm.Model):
                   "With country code, starting with '+'",
         validators=[djcv.RegexValidator(regex=r"^\+\d\d[\d /-]+$",
                 message="Falsches Format für eine Telefonnummer / "
-                        "Wrong format as a phone number")],
+                        "Wrong format as a phone number",
+                flags=re.ASCII)],
     )
     email = djdm.EmailField(
         blank=False, null=False,
