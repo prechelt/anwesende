@@ -124,8 +124,8 @@ class SearchForm(djf.Form):
             initial="%", required=True, )
     familyname = djf.CharField(label="Nachname / Family name",
             initial="%", required=True, )
-    phone = djf.CharField(label="Telefonnummer",
-            initial="+491%", required=True, )
+    # phone = djf.CharField(label="Telefonnummer",
+    #         initial="+491%", required=True, )
     email = djf.CharField(label="Emailadresse",
             initial="%@%", required=True, )
     from_date = djf.DateField(label="von Datum (jjjj-mm-tt)",

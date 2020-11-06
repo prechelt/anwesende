@@ -80,12 +80,17 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
     visit_url = reverse('room:visit', kwargs=dict(hash=seathash))
     data = dict(givenname="A.", familyname="Fam", 
                 street_and_number="Str.1", zipcode="12345", town="Town",
-                phone="+49 1234 1", email="a@fam.de",
+                phone="+49 1234 1", 
+                email="a@fam.de",
                 present_from_dt="11:00", present_to_dt="12:00")
     # --- fill visit form once:
     visit_page = django_app.get(visit_url)
     _fill_with(visit_page.form, data)
-    resp = visit_page.form.submit().follow()
+    resp = visit_page.form.submit()
+    # resp.showbrowser()  # activate if follow fails
+    # print("container:", _find(resp.text, name="div", class_="container"))
+    resp = resp.follow()
+
     assert resp.request.path == reverse('room:thankyou')
     # --- check DB contents:
     visit = arm.Visit.objects.last()
@@ -98,7 +103,8 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
     del data['present_to_dt']  # not stored in cookie
     _check_against(visit_page_with_cookie.form, data)
     changed_data = dict(givenname="B.",
-                        phone="+49 1234 2", email="b@fam.de",
+                        phone="+49 1234 2", 
+                        email="b@fam.de",
                         present_from_dt="11:20", present_to_dt="12:00")
     _fill_with(visit_page_with_cookie.form, changed_data)
     resp = visit_page_with_cookie.form.submit().follow()
@@ -108,7 +114,8 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
     del changed_data['present_to_dt']  # not stored in cookie
     _check_against(visit_page3.form, changed_data)  # partial check suffices
     changed_data3 = dict(givenname="C.",
-                         phone="+49 1234 3", email="c@fam.de",
+                         phone="+49 1234 3", 
+                         email="c@fam.de",
                          present_from_dt="13:00", present_to_dt="14:00")
     _fill_with(visit_page3.form, changed_data3)
     resp = visit_page3.form.submit().follow()
@@ -121,7 +128,7 @@ def _search_and_download(django_app: wt.TestApp, current_html: str):
     search1 = django_app.get(search_url)
     # the following is hardcoded against data values in _make_visits:
     # --- search:
-    data = dict(phone="+49 1234 1",
+    data = dict(givenname="A.",
                 from_date=aud.nowstring(), to_date=aud.nowstring())
     _fill_with(search1.form, data)
     search2 = search1.form.submit('visit')

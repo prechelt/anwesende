@@ -223,7 +223,7 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
                 .filter(seat__room__room__like=f['room'])
                 .filter(givenname__like=f['givenname'])
                 .filter(familyname__like=f['familyname'])
-                .filter(phone__like=f['phone'])
+                # .filter(phone__like=f['phone'])
                 .filter(email__like=f['email'])
                 .filter(present_to_dt__gt=fdt(f['from_date']))  # left after from
                 .filter(present_from_dt__lt=fdt(f['to_date']))  # came before to
