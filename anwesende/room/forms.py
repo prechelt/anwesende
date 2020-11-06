@@ -152,5 +152,6 @@ class SearchForm(djf.Form):
                 and cd['from_date'] > cd['to_date']):
             self.add_error('to_date', 
                            "'von Datum' muss vor oder auf 'bis Datum' liegen")
-        cd['to_date'] += dt.timedelta(hours=24)  # is time 0:00, should be 24:00
+        if 'to_date' in cd:
+            cd['to_date'] += dt.timedelta(hours=24)  # is time 0:00, should be 24:00
         return cd
