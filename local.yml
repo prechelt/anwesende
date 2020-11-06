@@ -1,9 +1,5 @@
 version: '3'
 
-volumes:
-  local_postgres_data: {}
-  local_postgres_data_backups: {}
-
 services:
   django:
     build:
@@ -16,8 +12,7 @@ services:
     volumes:
       - .:/app:z
     env_file:
-      - ./.envs/.local/.django
-      - ./.envs/.local/.postgres
+      - ./.envs/.local
     ports:
       - "8006:8000"  # host:container
     command: /start
@@ -32,19 +27,4 @@ services:
       - local_postgres_data:/var/lib/postgresql/data:Z
       - local_postgres_data_backups:/backups:z
     env_file:
-      - ./.envs/.local/.postgres
-
-#  docs:
-#    image: anwesende_local_docs
-#    container_name: docs
-#    build:
-#      context: .
-#      dockerfile: ./compose/local/docs/Dockerfile
-#    env_file:
-#      - ./.envs/.local/.django
-#    volumes:
-#      - ./docs:/docs:z
-#      - ./config:/app/config:z
-#      - ./anwesende:/app/anwesende:z
-#    ports:
-#      - "7000:7000"
+      - ./.envs/.local
