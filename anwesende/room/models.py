@@ -22,6 +22,11 @@ class Importstep(djdm.Model):
     num_new_seats = djdm.IntegerField(null=False, default=0)
     num_existing_rooms = djdm.IntegerField(null=False, default=0)
     num_existing_seats = djdm.IntegerField(null=False, default=0)
+    
+    def __str__(self):
+        return (f"{self.num_new_rooms}+{self.num_new_seats} imported "
+                + f"by {self.user.username}, "        
+                + f"{self.num_existing_rooms}+{self.num_existing_seats} pre-existing")
 
 
 class Room(djdm.Model):

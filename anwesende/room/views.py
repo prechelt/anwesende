@@ -1,5 +1,6 @@
 import datetime as dt
 import json
+import logging
 import os
 import typing as tg
 
@@ -22,15 +23,17 @@ COOKIENAME = 'anwesende'
 
 class IsDatenverwalterMixin:
     """
-    Sets is_datenverwalter flag in self and in context.
+    Sets user and is_datenverwalter flag in self and in context.
     """
     def dispatch(self, request: djh.HttpRequest, *args, **kwargs) -> djh.HttpResponse:
-        self.is_datenverwalter = request.user.is_authenticated \
-            and request.user.is_datenverwalter()
+        self.user = self.request.user
+        self.is_datenverwalter = self.user.is_authenticated \
+            and self.user.is_datenverwalter()
         return super().dispatch(request, *args, **kwargs)  # type: ignore
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)  # type: ignore
+        context['user'] = self.user
         context['is_datenverwalter'] = self.is_datenverwalter
         return context
 
@@ -70,10 +73,15 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
         context['settings'] = settings
         return context
 
+    def form_invalid(self, form: arf.UploadFileForm):
+        logging.warning(f"ImportView invalid: {form.errors}")
+        return super().form_invalid(form)
+
     def form_valid(self, form: arf.UploadFileForm):
         filename = form.cleaned_data['excelfile']  # form has created the file
-        self.importstep = are.create_seats_from_excel(filename, self.request.user)
+        self.importstep = are.create_seats_from_excel(filename, self.user)
         os.remove(filename)
+        logging.info(f"ImportView({self.importstep})")
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -138,6 +146,7 @@ class VisitView(vv.CreateView):
             initial = json.loads(self.request.COOKIES[COOKIENAME])
         else:
             initial = dict(cookie=arm.Visit.make_cookie())
+            logging.info(f"VisitView: new {initial}")
         initial['present_from_dt'] = aud.nowstring(date=False, time=True)
         return arf.VisitForm(initial=initial)
         
@@ -148,6 +157,8 @@ class VisitView(vv.CreateView):
         self.object = form.save(commit=False)
         self.object.seat = arm.Seat.by_hash(self.kwargs['hash'])
         self.object.save()
+        o = self.object
+        logging.info(f"VisitView({o.seat.hash}): {o.givenname}; {o.email}; {o.zipcode}; {o.cookie}")
         return response
 
     def get_cookiejson(self, form):
@@ -244,10 +255,21 @@ class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and
         # will be secure wrt not is_datenverwalter due to safe get_queryset()
         self.form = self.get_form(data=request.POST)
         context = self.get_context_data(is_post=True)
+        self._log_post(context)
         if context['display_switch'] == 'xlsx':
             return self.excel_download_response(context['visits'])
         else:
             return self.render_to_response(context)
+
+    def _log_post(self, context):
+        logcontext = context.copy()
+        if 'visits' in logcontext:
+            del logcontext['visits']
+        if 'environ' in logcontext:
+            del logcontext['environ']
+        if 'form' in logcontext:
+            logcontext['form'] = logcontext['form'].data
+        logging.info(f"SearchView({logcontext}")
 
     def excel_download_response(self, visits: tg.List[tg.Optional[arm.Visit]]) -> djh.HttpResponse:
         # https://stackoverflow.com/questions/4212861
