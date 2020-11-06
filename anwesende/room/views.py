@@ -38,17 +38,24 @@ class IsDatenverwalterMixin:
         return context
 
 
-class HomeView(vv.TemplateView):
+class SettingsMixin:
+    """base.html requires 'settings' in context"""
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)  # type: ignore
+        context['settings'] = settings
+        return context
+
+
+class HomeView(SettingsMixin, vv.TemplateView):
     template_name = "room/home.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['dummyseat'] = arm.Seat.get_dummy_seat()
-        context['settings'] = settings
         return context
 
 
-class ImportView(IsDatenverwalterMixin, vv.FormView):
+class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
     form_class = arf.UploadFileForm
     template_name = "room/import.html"
 
@@ -88,7 +95,7 @@ class ImportView(IsDatenverwalterMixin, vv.FormView):
         return dju.reverse('room:qrcodes', kwargs=dict(pk=self.importstep.pk))
 
 
-class QRcodesView(IsDatenverwalterMixin, vv.DetailView):
+class QRcodesView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
     model = arm.Importstep
     template_name = "room/qrcodes.html"
 
@@ -106,7 +113,7 @@ class QRcodesView(IsDatenverwalterMixin, vv.DetailView):
             raise djh.Http404
 
 
-class QRcodeView(IsDatenverwalterMixin, vv.View):
+class QRcodeView(IsDatenverwalterMixin, SettingsMixin, vv.View):
     def get(self, request, *args, **kwargs):
         if not self.is_datenverwalter \
                 and kwargs['hash'] != arm.Seat.get_dummy_seat().hash:
@@ -117,7 +124,7 @@ class QRcodeView(IsDatenverwalterMixin, vv.View):
         return djh.HttpResponse(qrcode_bytes, content_type="image/svg+xml")
 
 
-class VisitView(vv.CreateView):
+class VisitView(SettingsMixin, vv.CreateView):
     model = arm.Visit
     form_class = arf.VisitForm
     template_name = "room/visit.html"
@@ -173,7 +180,7 @@ class VisitView(vv.CreateView):
         return cookiejson
 
 
-class ThankyouView(vv.TemplateView):
+class ThankyouView(SettingsMixin, vv.TemplateView):
     template_name = "room/thankyou.html"
 
 
@@ -184,7 +191,7 @@ class UncookieView(vv.GenericView):
         return response
 
 
-class SearchView(IsDatenverwalterMixin, vv.ListView):  # same view for valid and invalid form
+class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same view for valid and invalid form
     form_class = arf.SearchForm
     template_name = "room/search.html"
 
