@@ -214,15 +214,23 @@ X_FRAME_OPTIONS = "DENY"
 EMAIL_BACKEND = env(
     "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
 )
-# https://docs.djangoproject.com/en/dev/ref/settings/#email-timeout
-EMAIL_TIMEOUT = 5
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_USE_SSL = env("EMAIL_USE_SSL")
+EMAIL_TIMEOUT = 30
+EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
 
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL.
 ADMIN_URL = "admin/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = [("""Lutz Prechelt""", "prechelt@inf.fu-berlin.de")]
+ADMINS = [(env("TECH_CONTACT"), env("TECH_CONTACT"))]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
 
@@ -272,8 +280,9 @@ SOCIALACCOUNT_ADAPTER = "anwesende.users.adapters.SocialAccountAdapter"
 DATA_CONTACT = env('DATA_CONTACT')  # Datenverwalter/in email address
 DATA_RETENTION_DAYS = env.int('DATA_RETENTION_DAYS', 28)
 DUMMY_ORG = "uni-dummy.de"
-IMPRINT_URL = env('IMPRINT_URL')
-MIN_OVERLAP_MINUTES = env.int('MIN_OVERLAP_MINUTES', 10)
+GDPR_PROCESSOR_URL = env('GDPR_PROCESSOR_URL')
+GDPR_PROCESSOR_NAME = env('GDPR_PROCESSOR_NAME')
+MIN_OVERLAP_MINUTES = env.int('MIN_OVERLAP_MINUTES', 15)
 SEAT_KEY = env('SEAT_KEY')
 SHORTURL_PREFIX = env('SHORTURL_PREFIX')
 TECH_CONTACT = env('TECH_CONTACT')
