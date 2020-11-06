@@ -7,4 +7,3 @@ psycopg2==2.8.6  # https://github.com/psycopg/psycopg2
 
 # Django
 # ------------------------------------------------------------------------------
-django-anymail==8.0  # https://github.com/anymail/django-anymail
