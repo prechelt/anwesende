@@ -220,8 +220,8 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = env("EMAIL_PORT")
 EMAIL_USE_SSL = env("EMAIL_USE_SSL")
 EMAIL_TIMEOUT = 30
-EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX")
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX").strip('\"\'')
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL").strip('\"\'')
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 
@@ -277,7 +277,7 @@ SOCIALACCOUNT_ADAPTER = "anwesende.users.adapters.SocialAccountAdapter"
 # Environment variables
 # ------------------------------------------------------------------------------
 
-DATA_CONTACT = env('DATA_CONTACT')  # Datenverwalter/in email address
+DATA_CONTACT = env('DATA_CONTACT').strip('\"\'')
 DATA_RETENTION_DAYS = env.int('DATA_RETENTION_DAYS', 28)
 DUMMY_ORG = "uni-dummy.de"
 GDPR_PROCESSOR_URL = env('GDPR_PROCESSOR_URL')
@@ -287,4 +287,4 @@ LEGAL_BASIS_EN = env('LEGAL_BASIS_EN').strip('\"\'')
 MIN_OVERLAP_MINUTES = env.int('MIN_OVERLAP_MINUTES', 15)
 SEAT_KEY = env('SEAT_KEY')
 SHORTURL_PREFIX = env('SHORTURL_PREFIX')
-TECH_CONTACT = env('TECH_CONTACT')
+TECH_CONTACT = env('TECH_CONTACT').strip('\"\'')
