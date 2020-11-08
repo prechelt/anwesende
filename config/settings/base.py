@@ -15,6 +15,12 @@ if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
     env.read_env(str(ROOT_DIR / ".env"))
 
+
+def quoted(varname: str) -> str:
+    # strip quotes off multi-word values coming from env files rather than env
+    return env.str(varname).strip('\"\'')
+
+
 # GENERAL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
@@ -220,8 +226,8 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = env("EMAIL_PORT")
 EMAIL_USE_SSL = env("EMAIL_USE_SSL")
 EMAIL_TIMEOUT = 30
-EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX").strip('\"\'')
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL").strip('\"\'')
+EMAIL_SUBJECT_PREFIX = quoted("EMAIL_SUBJECT_PREFIX")
+DEFAULT_FROM_EMAIL = quoted("DEFAULT_FROM_EMAIL")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 
@@ -277,14 +283,14 @@ SOCIALACCOUNT_ADAPTER = "anwesende.users.adapters.SocialAccountAdapter"
 # Environment variables
 # ------------------------------------------------------------------------------
 
-DATA_CONTACT = env('DATA_CONTACT').strip('\"\'')
+DATA_CONTACT = env('DATA_CONTACT')
 DATA_RETENTION_DAYS = env.int('DATA_RETENTION_DAYS', 28)
 DUMMY_ORG = "uni-dummy.de"
 GDPR_PROCESSOR_URL = env('GDPR_PROCESSOR_URL')
-GDPR_PROCESSOR_NAME = env('GDPR_PROCESSOR_NAME').strip('\"\'')
-LEGAL_BASIS_DE = env('LEGAL_BASIS_DE').strip('\"\'')
-LEGAL_BASIS_EN = env('LEGAL_BASIS_EN').strip('\"\'')
+GDPR_PROCESSOR_NAME = quoted('GDPR_PROCESSOR_NAME')
+LEGAL_BASIS_DE = quoted('LEGAL_BASIS_DE')
+LEGAL_BASIS_EN = quoted('LEGAL_BASIS_EN')
 MIN_OVERLAP_MINUTES = env.int('MIN_OVERLAP_MINUTES', 15)
 SEAT_KEY = env('SEAT_KEY')
 SHORTURL_PREFIX = env('SHORTURL_PREFIX')
-TECH_CONTACT = env('TECH_CONTACT').strip('\"\'')
+TECH_CONTACT = env('TECH_CONTACT')
