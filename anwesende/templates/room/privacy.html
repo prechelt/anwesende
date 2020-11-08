@@ -8,16 +8,19 @@
   <span class="languagemark">DE:</span> 
   Die Erhebung und Nutzung erfolgt zur Eindämmung der CoViD19-Pandemie.
   Die Daten dienen zur Ermittlung von Kontaktpersonen und dem besseren
-  Verständnis des Infektionsgeschehens.
+  Verständnis des Infektionsgeschehens in der Hochschule.
   Sie werden nur weitergegeben an und genutzt von dem Verantwortlichen
   (siehe unten) und den jeweils zuständigen Gesundheitsämtern.
   Rechtsgrundlage: {{ settings.LEGAL_BASIS_DE }}.
 </p>
 <p>
-  <span class="languagemark">EN:</span> 
-  <!-- ADAPT -->
-  (TODO)
-  <!-- END ADAPT -->
+  <span class="languagemark">EN:</span>
+  Collection and use of this data serve to contain the CoViD19 pandemic.
+  The purpose is determining contact persons and understanding better
+  when infections occur in the university.
+  They will be transmitted to and used by only the controller (see below)
+  and the responsible local health authorities.
+  Legal basis: {{ settings.LEGAL_BASIS_EN }}.
 </p>
 
 <!-------------------------------------------------------->
@@ -25,20 +28,21 @@
 
 <p>
   <span class="languagemark">DE:</span> 
-  <!-- ADAPT -->
   Die Daten werden erhoben und gespeichert von: 
   <a href="{{ settings.GDPR_PROCESSOR_URL }}">{{ settings.GDPR_PROCESSOR_NAME }}</a>.
   Kontakt: <a href="mailto:{{ settings.DATA_CONTACT }}">{{ settings.DATA_CONTACT }}</a>.
   <br>
   Verantwortlicher ist {{ room.organization }}, also die Organisation,
-  in deren Räumen wir hier gerade sind.
-  <!-- END ADAPT -->
+  in deren Räumen Sie hier gerade sind.
 </p>
 <p>
   <span class="languagemark">EN:</span> 
-  <!-- ADAPT -->
-  (TODO)
-  <!-- END ADAPT -->
+  The data are being processed by 
+  <a href="{{ settings.GDPR_PROCESSOR_URL }}">{{ settings.GDPR_PROCESSOR_NAME }}</a>.
+  Contact: <a href="mailto:{{ settings.DATA_CONTACT }}">{{ settings.DATA_CONTACT }}</a>.
+  <br>
+  The data controller is {{ room.organization }}, the organization in whose rooms
+  you currently are.
 </p>
 
 <!-------------------------------------------------------->
