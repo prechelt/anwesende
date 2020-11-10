@@ -26,7 +26,7 @@ class IsDatenverwalterMixin:
     Sets user and is_datenverwalter flag in self and in context.
     """
     def dispatch(self, request: djh.HttpRequest, *args, **kwargs) -> djh.HttpResponse:
-        self.user = self.request.user
+        self.user = self.request.user  # type: ignore
         self.is_datenverwalter = self.user.is_authenticated \
             and self.user.is_datenverwalter()
         return super().dispatch(request, *args, **kwargs)  # type: ignore
