@@ -297,31 +297,44 @@ Deployment procedure:
    Let's assume it is called `anwesende.some-university.de`.
    Start a web browser and visit `https://anwesende.some-university.de`.
    Works? Congratulations!
+10. Create a cronjob for continuous database health:  
+    ```
+    cd $reference_dir  # where the source code is (we need two config files)
+    set -a; source .envs/.production; 
+    docker-compose -f production.yml run --rm django python manage.py delete_outdated_data
+    docker-compose -f production.yml exec postgres backup
+    ```
+11. There is a simple, stand-alone load testing script in
+    `anwesende/room/tests/loadtest.py`
+    with which you can optionalle get a rough estimate of 
+    your server's performance.
+
    
 ## 4.2 Short-URL service
 
-10. There is one installation of anwesende that is special:
-    The one at `http://a.nwesen.de` (no https here!). 
-    It can be used by all other installations for creating short URLs.
-    (The shorter the URLs specified by the QR codes, the more robust these
-    codes can be against scratching, chocolate taints etc.)  
-    So instead of seat URLs like `https://anwesende.some-university.de/S12345abcde`
-    your installation can use URLs like `http://a.nwesen.de/z/S12345abcde`
-    which will simply redirect to the corresponding one above.  
-    How? 
-    - You send me your installation URL such as 
-      `https://anwesende.some-university.de` and ask me for a 
-      SHORTURL_PREFIX.
-    - I assign a prefix, such as `http://a.nwesen.de/z`,
-      enter it into the configuration of the central installation,
-      and tell you about it.
-    - You enter it into your settings file at `anwesende/.envs/.production`
-      (for instance `SHORTURL_PREFIX=http://a.nwesen.de/z`) and
-      restart your server:  
-      Do a `docker-compose -f production down` (which stops the server)
-      and repeat the above steps 6, 7, and 9.
-11. Your service is now ready to be used.
-    Time to tell it about your buildings!
+There is one installation of anwesende that is special:
+The one at `http://a.nwesen.de` (no https here!). 
+It can be used by all other installations for creating short URLs.
+(The shorter the URLs specified by the QR codes, the more robust these
+codes can be against scratching, chocolate taints etc.)  
+So instead of seat URLs like `https://anwesende.some-university.de/S12345abcde`
+your installation can use URLs like `http://a.nwesen.de/z/S12345abcde`
+which will simply redirect to the corresponding one above.  
+How? 
+- You send me your installation URL such as 
+  `https://anwesende.some-university.de` and ask me for a 
+  SHORTURL_PREFIX.
+- I assign a prefix, such as `http://a.nwesen.de/z`,
+  enter it into the configuration of the central installation,
+  and tell you about it.
+- You enter it into your settings file at `anwesende/.envs/.production`
+  (for instance `SHORTURL_PREFIX=http://a.nwesen.de/z`) and
+  restart your server:  
+  Do a `docker-compose -f production down` (which stops the server)
+  and repeat the above steps 6, 7, and 9.
+
+Your service is now ready to be used.
+Time to create the Datenverwalter accounts!
 
 ## 4.3 Initiating operation
 
