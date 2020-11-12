@@ -17,7 +17,7 @@ class Command(djcmb.BaseCommand):
         oldvisits = arm.Visit.objects.filter(submission_dt__lt=horizon)
         howmany_deleted = oldvisits.count()
         howmany_exist = arm.Visit.objects.count()
-        msg = "delete_outdated_data: deleting %d (of %d) visit entries before %s" % \
-              (howmany_deleted, howmany_exist, aud.dtstring(horizon))
+        msg = "delete_outdated_data: deleting %d visit entries before %s (of %d existing)" % \
+              (howmany_deleted, aud.dtstring(horizon), howmany_exist)
         logging.info(msg)
         oldvisits.delete()

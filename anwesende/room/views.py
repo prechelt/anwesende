@@ -62,7 +62,7 @@ class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.is_datenverwalter:
-            interval = dt.timedelta(hours=12)
+            interval = dt.timedelta(hours=36)
             imports = arm.Importstep.objects.filter(
                 when__gt=djut.localtime() - interval) \
                 .annotate(organization=Max('room__organization')) \

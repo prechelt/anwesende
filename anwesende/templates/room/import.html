@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <h1>Raumdaten einlesen und QRcodes erzeugen</h1>
+  <h1>Raumdaten einlesen und QR-Codes erzeugen</h1>
 
   <h2>Für Mitglieder von Hochschuleinheiten</h2>
   <ul>
@@ -23,7 +23,8 @@
       und die nachfolgenden Hinweise genau beachten.<br>
       Beginnen Sie mit dieser Vorlage
       (<a href="{% static "xlsx/roomdata-example.xlsx" %}">Excel-Download</a>).
-      Jeder Raum bekommt eine Zeile. <br>
+      Jeder Raum bekommt eine Zeile. 
+      Sie sollten am Schluss die beiden Beispielzeilen natürlich löschen.<br>
       Geben Sie die Felder an wie folgt:
       <ul>
       <li>
@@ -79,6 +80,7 @@
       <b>Die fertige Datei</b> schicken Sie an die Datenverwalter_innen 
       unter der Emailadresse
       <a href="mailto:{{ settings.DATA_CONTACT }}">{{ settings.DATA_CONTACT }}</a>.
+      Der Betreff sollte mit "QR-Codes für" und dem Namen der Hochschuleinheit beginnen.
     </li>
     <li>
       Wenn alles klappt, kommt sehr bald die entsprechende <b>PDF-Datei</b> 
@@ -123,7 +125,7 @@
 
   {% crispy form %}
   <hr>
-  <p>Importe der letzten 12 Stunden:</p>
+  <p>Importe der letzten 36 Stunden:</p>
   {% if show_imports %}
     <ol>
       {% for o in imports %}

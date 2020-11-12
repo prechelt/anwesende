@@ -28,6 +28,11 @@ a:visited {
   background-color: #99CC00 !important;
 }
 
+.languagemark {
+  color: #cc0000;
+  font-weight: bold;
+}
+
 .qrb-label {
   color: #222222;
   font-size: 100%;
@@ -61,7 +66,7 @@ a:visited {
 
 sup {
   font-weight: 700;
-  color: #dd0000;
+  color: #cc0000;
 }
 
 var {

@@ -20,27 +20,27 @@
     <ol>
       <li>
         Teilnehmende Hochschulen 
-        <a href="{% url 'room:import' %}">registrieren ihre Räume<sup>*</sup></a>, 
+        <a href="{% url 'room:import' %}">registrieren ihre Räume</a><sup>*</sup>, 
         erhalten für jeden
         Sitzplatz einen QR-Code 
-        (<a href="{% url 'room:qrcodes' dummyseat.room.importstep.pk %}">Beispiel<sup>*</sup></a>)
-        und kleben diese auf.
+        (<a href="{% url 'room:qrcodes' dummyseat.room.importstep.pk %}">Beispiel</a><sup>*</sup>)
+        und kleben diesen auf.
       </li>
       <li>
-        Besucher von Räumen scannen Ihren QR-Code
-        (<a href="{% url 'room:qrcode' dummyseat.hash %}">Beispiel<sup>*</sup></a>), 
+        Besucher von Räumen scannen ihren QR-Code
+        (<a href="{% url 'room:qrcode' dummyseat.hash %}">Beispiel</a><sup>*</sup>), 
         füllen ein Formular mit Kontaktdaten aus 
-        (<a href="{% url 'room:visit' dummyseat.hash %}">Beispiel<sup>*</sup></a>)
+        (<a href="{% url 'room:visit' dummyseat.hash %}">Beispiel</a><sup>*</sup>)
         und geben dabei die Anwesenheitszeit an.
         <br>
         Diese Daten werden zentral gespeichert, geordnet
         nach Räumen und Zeiten.
       </li>
       <li>
-        Im Infektionsfall meldet sich ein_e Infizierte_r bei der Hochschule.
+        Im Infektionsfall meldet sich der/die Infizierte bei der Hochschule.
         <br>
         Die Hochschule ruft für die fraglichen Tage die Daten dieser Person ab
-        (über <a href="{% url 'room:search' %}">dieses Formular<sup>*</sup></a>)
+        (über <a href="{% url 'room:search' %}">dieses Formular</a><sup>*</sup>)
         und erhält für jeden besuchten Raum die ganze Kontaktgruppe von 
         Personen, die überlappend im gleichen Raum gewesen sind.
       </li>
@@ -50,7 +50,7 @@
       </li>
     </ol>
     <p>
-      <sup>*</sup>Diese Beispiellinks gehören zu einem Demonstrationsmodus. <br>
+      <sup>*</sup>Diese Beispiellinks gehören zu einem Demonstrationsmodus.
       Sie erzwingen an Stellen, die normalerweise nur
       für die Datenverwalter_innen zugänglich sind, einen Fantasiesitzplatz
       in der Fantasieorganisation '{{ settings.DUMMY_ORG }}'. <br>
