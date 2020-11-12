@@ -43,8 +43,9 @@ Schritte des Gesamtablaufs:
    und gibt mininale Daten für die Verfolgung ein;
    siehe `Besucher/innen/sicht` unten.
 4. Der Dienst speichert die Platzdaten, Personendaten und den Zeitpunkt.
-5. Im Infektionsfall ruft die Datenverwalter/in die Anwesenheitsdaten für jeden
-   betreffenden Raum im passenden Zeitfenster (z.B. 2 Stunden) ab,
+5. Im Infektionsfall ruft die Datenverwalter/in die Anwesenheitsdaten für die
+   Kontaktgruppen einer infizierten Person im passenden Zeitfenster 
+   (z.B. 3 Tage) ab,
    um sie dem Gesundheitsamt zu übermitteln;
    siehe `Anwesenheitsdaten abrufen` unten.
 
@@ -118,22 +119,18 @@ Datenverwalter/in.
      Diese Sitznummern sind fortlaufend und werden auf den QR-Code-Schildern
      gut lesbar mit ausgedruckt.  
      In diesem beiden Feldern sind nur ganze Zahlen möglich.
-   - `contactemail`: Emailadresse einer Ansprechperson für Rückfragen 
-     der Datenverwalter/in oder des Gesundheitsamts zur Raumsituation, z.B.
-     `vorname.nachname@mi.fu-berlin.de`
 2. Die Mitarbeiter/in schickt die Excel-Datei per Email an
    die Datenverwalter/in.
 3. Die Datenverwalter/in prüft die Daten auf Plausibilität,
    liest die Datei in den Dienst ein
-   und erhält einen Link zurück.
-4. Die Datenverwalter/in öffnet diese Webseite.
+   und erhält eine Seite mit QR-Codes als Ergebnis.
    Sie enthält für jeden Sitzplatz einen QR-Code mit beschreibender Beschriftung
    wie es in der Excel-Datei deklariert war.
 5. Die Datenverwalter/in druckt diese Webseite in eine PDF-Datei
    und schickt sie der Mitarbeiter/in per Email.  
 6. Die Mitarbeiter/in druckt die QR-Codes aus und klebt jeden davon
    auf den entsprechenden Sitzplatz im entsprechenden Raum.  
-   Der QR-Code muss vollständig mit mattem transparentem Klebeband
+   Der QR-Code sollte vollständig mit mattem transparentem Klebeband
    bedeckt sein, damit er lange lesbar bleibt.
 
 Varianten:
@@ -142,19 +139,29 @@ Schritt 3b: Ist die Datei fehlerhaft und lässt sich nicht einlesen,
 korrigiert die Datenverwalter/in offensichtliche Fehler selbst
 und klärt andernfalls die Korrekturen mit der Mitarbeiter/in.
 
+Anmerkungen:
+
+- Obige Beschreibung gilt für den Bereich der Lehre. 
+  Im Bürobereich wird hingegen grober erfasst:
+  Ein Bereich, in dem sich Beschäftigte vermutlich gelegentlich auch 
+  länger begegnen (Korridor, Küche, Besprechungsraum, Bürobesuche), 
+  wird zu einem "Raum" zusammengefasst, z.B. ein ganzer Flur.  
+  Dadurch muss jede/r nur einmal pro Tag eine Eingabe machen und die 
+  Kontaktgruppen fallen eher zu groß aus als zu klein. 
+  Das ist deshalb sinnvoll, weil es wesentlich einfacher ist, 
+  eine zu lange Liste möglicher Kontakte zu bereinigen, 
+  als fehlende Kontakte aufzuspüren.
+
 
 ## 1.4 Anwesenheitsdaten abrufen
-
 
 Rollen:
 Infiziertes Mitglied der Hochschule,
 Mitarbeiter/in der Hochschuleinheit,
 Datenverwalter/in
 
-**Folgender Ablauf wird noch drastisch vereinfacht werden (nur Hochschule, Name und Tage nötig)**
-
-1. Ist ein Mitglied einer teilnehmenden Hochschule infiziert,
-   so informiert es seine Hochschuleinheit(en) darüber,
+1. 1. Ist ein Mitglied (oder ein/e Besucher/in) der Hochschule infiziert, 
+   so informiert es die betreffenden Hochschuleinheit(en) darüber,
    an welchen Tagen eine Infektiösität bestanden haben kann.
 2. Die Mitarbeiter/in der Hochschuleinheit, die bei der Datenverwalter/in
    als abrufberechtigt bekannt ist, übermittelt diesen Zeitraum und
@@ -163,10 +170,10 @@ Datenverwalter/in
 3. Die Datenverwalter/in ruft die zugehörigen Kontaktpersonen ab und übermittelt
    sie an die Mitarbeiter/in.
    Als Kontaktpersonen gelten alle, die Einträge im selben Raum haben,
-   die sich zeitlich mindestens 10 Minuten mit der Anwesenheit der
+   die sich zeitlich mindestens 15 Minuten mit der Anwesenheit der
    infizierten Person überlappen.
-4. Die Mitarbeiter/in bereinigt die Daten per Augenschein und entfernt
-   ggf. überzählige Einträge.
+4. Die Mitarbeiter/in bereinigt die Daten per Augenschein und Rückfragen 
+   und entfernt ggf. überzählige Einträge.
 5. Die Mitarbeiter/in übermittelt die bereinigten Daten dem
    Gesundheitsamt.
    
