@@ -31,4 +31,5 @@ def test_delete_outdated_data(freezer, caplog):
     delete_outdated_data.Command().handle()  # should delete batch 1
     assert arm.Visit.objects.count() == 2 * 33
     msg = caplog.records[0].msg
-    assert "deleting 50 (of " in msg
+    assert "deleting 50 " in msg
+    assert "(of 116 existing)" in msg
