@@ -1,6 +1,8 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-11-06  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-11-13  (see "Implementation status" at the bottom)
+
+[![coverage report](https://git.imp.fu-berlin.de/anwesende/anwesende/badges/master/coverage.svg)](https://git.imp.fu-berlin.de/anwesende/anwesende/-/commits/master)
 
 Simple attendance registration for universities having pandemics.
 "anwesende" is German for "people that are being present".
