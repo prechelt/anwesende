@@ -5,7 +5,7 @@ pytest:
   stage: test
   image: python:3.8
   before_script:
-    - pip install -r local.txt
+    - pip install -r requirements/local.txt
     - cp $DOT_ENV_FILE .env
   script:
     - mypy anwesende
