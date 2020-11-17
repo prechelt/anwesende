@@ -111,40 +111,40 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": '/djangolog/django.log',
-            "formatter": "verbose",
-        },
-        "file_error": {
-            "level": "ERROR",
-            "class": "logging.FileHandler",
-            "filename": '/djangolog/django-errors.log',
-            "formatter": "verbose",
-        },
-        "file_request": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": '/djangolog/django-requests.log',
-            "formatter": "verbose",
-        },
+        # "file": {
+        #     "level": "DEBUG",
+        #     "class": "logging.FileHandler",
+        #     "filename": '/djangolog/django.log',
+        #     "formatter": "verbose",
+        # },
+        # "file_error": {
+        #     "level": "ERROR",
+        #     "class": "logging.FileHandler",
+        #     "filename": '/djangolog/django-errors.log',
+        #     "formatter": "verbose",
+        # },
+        # "file_request": {
+        #     "level": "DEBUG",
+        #     "class": "logging.FileHandler",
+        #     "filename": '/djangolog/django-requests.log',
+        #     "formatter": "verbose",
+        # },
     },
     "loggers": {
         "django.request": {
-            "handlers": ["file_request"],
-            "level": "INFO",
+            "handlers": ["console"], # file_request"],
+            "level": "WARNING",
             "propagate": False,
         },
         "django.security": {
             "level": "ERROR",
-            "handlers": ["console", "mail_admins", "file_error"],
+            "handlers": ["console", "mail_admins", ],  # "file_error"],
             "propagate": True,
         },
     },
     "root": {
         "level": "INFO",
-        "handlers": ["console", "file", "file_error"]
+        "handlers": ["console", ], # "file", "file_error"]
     },
 }
 
