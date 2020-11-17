@@ -91,7 +91,9 @@ TEMPLATES[-1]["OPTIONS"]["loaders"] = [  # type: ignore[index] # noqa F405
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "filters": {"require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}},
+    "filters": {
+        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}
+    },
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
@@ -109,19 +111,40 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": '/djangolog/django.log',
+            "formatter": "verbose",
+        },
+        "file_error": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": '/djangolog/django-errors.log',
+            "formatter": "verbose",
+        },
+        "file_request": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": '/djangolog/django-requests.log',
+            "formatter": "verbose",
+        },
     },
-    "root": {"level": "INFO", "handlers": ["console"]},
     "loggers": {
         "django.request": {
-            "handlers": ["mail_admins"],
+            "handlers": ["file_request"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.security": {
             "level": "ERROR",
+            "handlers": ["console", "mail_admins", "file_error"],
             "propagate": True,
         },
-        "django.security.DisallowedHost": {
-            "level": "ERROR",
-            "handlers": ["console", "mail_admins"],
-            "propagate": True,
-        },
+    },
+    "root": {
+        "level": "INFO",
+        "handlers": ["console", "file", "file_error"]
     },
 }
 
