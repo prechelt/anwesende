@@ -1,0 +1,105 @@
+# anwesende per-installation configuration settings template.
+# Copy this file to .envs/.production and .envs/.local and adapt
+# it accordingly.
+# See *.yml and config/settings/*.py for uses of the variables.
+
+# This file must contain only three kinds of line:
+# - empty line
+# - comment line starting with #
+# - variable definition line using 'NAME=value' format
+# No spaces are allowed around the '='.
+
+# The file is read (and parts of it used) by three different mechanisms:
+# 1) bash 'source'  
+# 2) django-environ env file
+#    https://django-environ.readthedocs.io/en/latest/
+# 3) docker-compose env file
+#    https://docs.docker.com/compose/environment-variables/
+# Multi-word values must be put in quotes (single or double) for mechanism 1),
+# but those quotes will become part of the value for mechanisms 2) and 3)
+# and must be stripped off by application logic. Therefore, use quotes exactly
+# for those variables where this file asks you to.
+ 
+# Traefik
+# ------------------------------------------------------------------------------
+# The hostnames under which the server will accept requests; 
+# used in a Host() rule by traefik to filter all traffic
+# (traefik backquotes must be shell-escaped):
+TRAEFIK_HOST="\`name1.example.com\`, \`name2.example.com\`"
+
+# Django
+# ------------------------------------------------------------------------------
+# Leave this as is or Django won't know itself:
+DJANGO_SETTINGS_MODULE=config.settings.production
+# Leave this as is; redirection is handled by the Traefik router:
+DJANGO_SECURE_SSL_REDIRECT=False
+# Set this to a secret random string (~40 bytes, alphanumeric) 
+# or attackers can compromise requests:
+DJANGO_SECRET_KEY=
+# Comma-separated list of hostnames under which the server can be reached;
+# access by any other name will be ignored (should correspond to TRAEFIK_HOST): 
+DJANGO_ALLOWED_HOSTS=name1.example.com,name2.example.com
+
+# Django Email
+# ------------------------------------------------------------------------------
+# Required for sending password-reset emails, nothing else.
+# Read about these on  https://docs.djangoproject.com/en/dev/ref/settings/
+EMAIL_HOST=
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+EMAIL_PORT=
+EMAIL_USE_SSL=True
+EMAIL_SUBJECT_PREFIX=[anwesende]
+DEFAULT_FROM_EMAIL=noreply@a.nwesen.de
+
+# Technical stuff: PostgreSQL, Gunicorn, Redis
+# ------------------------------------------------------------------------------
+# Leave Postgres HOST, PORT and DB as they are.
+# Pick random USER and PASSWORD:
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=anwesende
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+
+# a.nwesen.de
+# ------------------------------------------------------------------------------
+# Email address of the Datenverwalters, to query them in case of infections:
+DATA_CONTACT=
+# How long visits data is kept before it is deleted:
+DATA_RETENTION_DAYS=28
+# Impressum page of data processor (Verantwortlicher or Auftragsdatenverarbeiter) in EU GDPR sense:
+GDPR_PROCESSOR_URL=
+# Organization name of data processor, in double quotes: "Universität XYZ"
+GDPR_PROCESSOR_NAME="name"
+# one-line HTML snippet describing the legal basis (Rechtsgrundlage) of the data collection:
+LEGAL_BASIS_DE='§x und §y der <a href="">verordnung</a>'
+# ditto, in English language:
+LEGAL_BASIS_EN='Clause x and clause y of the <a href="">regulation</a> (in German)'
+# How long visits need to overlap before they are considered a relevant contact:
+MIN_OVERLAP_MINUTES=15
+# A mildly-confidential 40-letter random string to make seat URLs unguessable: 
+SEAT_KEY=
+# See discussion in installation instructions:
+SHORTURL_PREFIX=http://a.nwesen.de/zz
+# Email address of the server operators, to query them in case of server trouble:
+TECH_CONTACT=
+# The meaning of local time; you will most probably want to leave this as is:
+TIME_ZONE=Europe/Berlin
+
+# docker volumes
+# ------------------------------------------------------------------------------
+# Which directories on the server the docker containers created by
+# the docker-compose file will use to store their data.
+# You can change these paths if needed. 
+# The defaults describe a common Debian-style layout.
+# Currently unused: 
+ANW_HOSTDIR_DJANGO_LOG=
+# The database as such:
+ANW_HOSTDIR_POSTGRES_DATA=
+# Plain-SQL backups of the database:
+ANW_HOSTDIR_POSTGRES_BACKUP=
+# Certificate/key store used if Traefik uses LetsEncrypt (must be set):
+ANW_HOSTDIR_TRAEFIK_ACME=
+# Certificate/key store used if Traefik uses manually created certificates (must be set):
+ANW_HOSTDIR_TRAEFIK_SSL=

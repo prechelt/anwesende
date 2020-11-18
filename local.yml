@@ -10,9 +10,9 @@ services:
     depends_on:
       - postgres
     volumes:
-      - .:/app:z
+      - ${ANW_HOSTDIR_DJANGO_LOG}:/djangolog:Z
     env_file:
-      - ./.envs/.local
+      - .envs/.local
     ports:
       - "8006:8000"  # host:container
     command: /start
@@ -24,7 +24,7 @@ services:
     image: anwesende_production_postgres
     container_name: postgres
     volumes:
-      - local_postgres_data:/var/lib/postgresql/data:Z
-      - local_postgres_data_backups:/backups:z
+      - ${ANW_HOSTDIR_POSTGRES_DATA}:/var/lib/postgresql/data:Z
+      - ${ANW_HOSTDIR_POSTGRES_BACKUP}:/backups:z
     env_file:
-      - ./.envs/.local
+      - .envs/.local
