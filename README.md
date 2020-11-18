@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-11-13  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-11-18  (see "Implementation status" at the bottom)
 
 [![coverage report](https://git.imp.fu-berlin.de/anwesende/anwesende/badges/master/coverage.svg)](https://git.imp.fu-berlin.de/anwesende/anwesende/-/commits/master)
 
@@ -254,13 +254,13 @@ Deployment procedure:
 1. Create a working directory anywhere on your Linux server and do  
    `git clone https://git.imp.fu-berlin.de/anwesende/anwesende.git`.  
    This working directory is the reference for all commands.
-2. Do `mkdir .envs; cp anwesende/compose/production/env-template anwesende/.envs/.production`.
+2. Do `mkdir .envs; cp anwesende/config/env-template anwesende/.envs/.production`.
    and set the environment variables in `anwesende/.envs/.production`
    as described in that file.  
    Note this is an extremely limited file format: No blanks are allowed
    around the `=` and all values are used verbatim 
    (including the quotes if you use any!)
-   The handling of SHORTURL_PREFIX will be described in step !!! below.
+   The handling of SHORTURL_PREFIX will be described in section 4.2 below.
 3. Review `anwesende/templates/room/privacy.html` and decide whether you need
    to modify it.
    If so, either change it directly (make sure you keep a copy in case of 
@@ -335,12 +335,20 @@ How?
   SHORTURL_PREFIX.
 - I assign a prefix, such as `http://a.nwesen.de/z`,
   enter it into the configuration of the central installation,
-  and tell you about it.
+  and tell you about it. (Don't get confused by the contents of
+  `compose/production/traefik/traefik.yml`: All parts talking about
+  `a.nwesen.de` are relevant only for the host that actually serves
+  that hostname, not for yours. 
+  They are present in the public repository for transparency only.)
 - You enter it into your settings file at `anwesende/.envs/.production`
   (for instance `SHORTURL_PREFIX=http://a.nwesen.de/z`) and
   restart your server:  
   Do a `docker-compose -f production down` (which stops the server)
   and repeat the above steps 6, 7, and 9.
+
+If you do not want to use the short URL service,
+simply set SHORTURL_PREFIX to your installation URL instead,
+e.g. `https://anwesende.some-university.de`
 
 Your service is now ready to be used.
 Time to create the Datenverwalter accounts!
