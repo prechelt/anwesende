@@ -120,6 +120,11 @@ LOGGING = {
         },
     },
     "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": True,
+        },
         "django.request": {
             "handlers": ["file_request"],
             "level": "INFO",
