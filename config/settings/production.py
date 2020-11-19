@@ -138,13 +138,13 @@ LOGGING = {
         },
         "django.security": {
             "level": "ERROR",
-            "handlers": ["console", "mail_admins", "file_error"],
+            "handlers": ["console", "file_error"],
             "propagate": True,
         },
     },
     "root": {
         "level": "INFO",
-        "handlers": ["console", "file", "file_error"]
+        "handlers": ["console", "file"]
     },
 }
 

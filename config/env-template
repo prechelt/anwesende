@@ -20,13 +20,6 @@
 # and must be stripped off by application logic. Therefore, use quotes exactly
 # for those variables where this file asks you to.
  
-# Traefik
-# ------------------------------------------------------------------------------
-# The hostnames under which the server will accept requests; 
-# used in a Host() rule by traefik to filter all traffic
-# (traefik backquotes must be shell-escaped):
-TRAEFIK_HOST="\`name1.example.com\`, \`name2.example.com\`"
-
 # Django
 # ------------------------------------------------------------------------------
 # Leave this as is or Django won't know itself:
