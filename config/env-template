@@ -24,8 +24,9 @@
 # ------------------------------------------------------------------------------
 # Leave this as is or Django won't know itself:
 DJANGO_SETTINGS_MODULE=config.settings.production
-# Leave this as is; redirection is handled by the Traefik router:
-DJANGO_SECURE_SSL_REDIRECT=False
+# Set this to True once your certificates and https are working nicely,
+# but not before (else the debugging of your https setup will be painful):
+DJANGO_HTTPS_INSIST=False
 # Set this to a secret random string (~40 bytes, alphanumeric) 
 # or attackers can compromise requests:
 DJANGO_SECRET_KEY=

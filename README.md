@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-11-18  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-11-19  (see "Implementation status" at the bottom)
 
 [![coverage report](https://git.imp.fu-berlin.de/anwesende/anwesende/badges/master/coverage.svg)](https://git.imp.fu-berlin.de/anwesende/anwesende/-/commits/master)
 
@@ -241,6 +241,8 @@ and allows some configuration to adopt to local needs.
 
 ## 4.1 Deployment
 
+(These instructions have not yet been tested. If you find errors, please speak up!)
+
 The service is build using Python, Django, PostgreSQL, Gunicorn, and Traefik.
 The deployment procedure described below will obtain these pieces
 and configure them.
@@ -248,7 +250,7 @@ The code organization follows the
 [cookiecutter-django](https://cookiecutter-django.readthedocs.io) template.
 
 The deployment procedure assumes an existing infrastructure of
-Linux, Docker (with docker-compose), and make.
+Linux and Docker 18.09 or younger (with docker-compose 1.21 or younger).
 
 Deployment procedure:
 1. Create a working directory anywhere on your Linux server and do  
@@ -304,8 +306,15 @@ Deployment procedure:
 9. Do `docker-compose -f production.yml up -d`.
    If all went well, your anwesende server should now be reachable.
    Let's assume it is called `anwesende.some-university.de`.
-   Start a web browser and visit `https://anwesende.some-university.de`.
-   Works? Congratulations!
+   Start a web browser and visit `https://anwesende.some-university.de`.  
+   Works?  
+   Then now set `DJANGO_HTTPS_INSIST=True` in `.envs/.production` and
+   re-deploy (that is, repeat steps 6, 7, and 9). Congratulations!  
+   Does not work?  
+   Then have a look at the SECURITY block in the 
+   `config/settings/production.py` configuration file (in particular the
+   `SECURE_HSTS_SECONDS` setting) in order to understand what you are working
+   with during https debugging.
 10. Create a cronjob for continuous database health:  
     ```
     cd $reference_dir  # where the source code is (we need two config files)
@@ -313,7 +322,8 @@ Deployment procedure:
     docker-compose -f production.yml run --rm django python manage.py delete_outdated_data
     docker-compose -f production.yml exec postgres backup
     ```
-11. There is a simple, stand-alone load testing script in
+11. Purely optional:
+    There is a simple, stand-alone load testing script in
     `anwesende/room/tests/loadtest.py`
     with which you can optionalle get a rough estimate of 
     your server's performance.

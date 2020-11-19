@@ -35,36 +35,30 @@ CACHES = {
     }
 }
 
-# SECURITY  # TODO!
+# SECURITY  
 # ------------------------------------------------------------------------------
+DJANGO_HTTPS_INSIST = env.bool("DJANGO_HTTPS_INSIST")  # an 'anwesende' pseudo-setting
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-proxy-ssl-header
 #  SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-ssl-redirect
-#  SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)
+SECURE_SSL_REDIRECT = False
 # https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-secure
-#  SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = DJANGO_HTTPS_INSIST
 # https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-secure
-#  CSRF_COOKIE_SECURE = True  
+CSRF_COOKIE_SECURE = DJANGO_HTTPS_INSIST
 # https://docs.djangoproject.com/en/dev/topics/security/#ssl-https
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-seconds
-# TODO: set this to 60 seconds first and then to 518400 once you prove the former works
-#  SECURE_HSTS_SECONDS = 60
+SECURE_HSTS_SECONDS = 366 * 24 * 3600 if DJANGO_HTTPS_INSIST else 60
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-include-subdomains
-#  SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
-#     "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True
-#  )
+SECURE_HSTS_INCLUDE_SUBDOMAINS = DJANGO_HTTPS_INSIST
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-hsts-preload
-#  SECURE_HSTS_PRELOAD = env.bool("DJANGO_SECURE_HSTS_PRELOAD", default=True)
+SECURE_HSTS_PRELOAD = DJANGO_HTTPS_INSIST
 # https://docs.djangoproject.com/en/dev/ref/middleware/#x-content-type-options-nosniff
-#  SECURE_CONTENT_TYPE_NOSNIFF = env.bool(
-#      "DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True
-#  )
+SECURE_CONTENT_TYPE_NOSNIFF = DJANGO_HTTPS_INSIST
 
-# STATIC
+# STATIC and MEDIA
 # ------------------------
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-# MEDIA
-# ------------------------------------------------------------------------------
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
@@ -79,15 +73,10 @@ TEMPLATES[-1]["OPTIONS"]["loaders"] = [  # type: ignore[index] # noqa F405
     )
 ]
 
-
 # LOGGING
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#logging
-# See https://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
+# https://docs.djangoproject.com/en/dev/topics/logging
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -147,6 +136,3 @@ LOGGING = {
         "handlers": ["console", "file"]
     },
 }
-
-# Your stuff...
-# ------------------------------------------------------------------------------
