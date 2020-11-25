@@ -72,6 +72,10 @@ LEGAL_BASIS_DE='§x und §y der <a href="">verordnung</a>'
 LEGAL_BASIS_EN='Clause x and clause y of the <a href="">regulation</a> (in German)'
 # How long visits need to overlap before they are considered a relevant contact:
 MIN_OVERLAP_MINUTES=15
+# one-line HTML snippet with a link to the Datenschutzinformationen (in German)
+PRIVACYINFO_DE='<a href="/static/pdf/Datenschutzinformationen-a.nwesen.de.pdf">Datenschutzinformationen</a> (PDF)'
+# one-line HTML snippet with a link to the information about privacy protection (in English)
+PRIVACYINFO_EN='<a href="/static/pdf/privacyinformation-a.nwesen.de.pdf">information about privacy protection</a> (PDF)'
 # A mildly-confidential 40-letter random string to make seat URLs unguessable: 
 SEAT_KEY=
 # See discussion in installation instructions:

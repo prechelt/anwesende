@@ -80,7 +80,9 @@
           &bullet;
           <a href="mailto:{{ settings.TECH_CONTACT }}">Serverbetrieb</a>
           &bullet;
-          <a href="https://git.imp.fu-berlin.de/anwesende/anwesende">Software</a>
+          {{ settings.PRIVACYINFO_DE|safe }}
+          &bullet;
+          <a href="https://git.imp.fu-berlin.de/anwesende/anwesende">Open Source</a>
         </small>
       {% endblock footer %}
 

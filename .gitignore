@@ -116,4 +116,5 @@ fabric.properties
 ### anwesende
 
 anwesende/media/
+anwesende/static/pdf
 Makefile
