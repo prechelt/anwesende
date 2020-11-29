@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-11-19  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-11-29  (see "Implementation status" at the bottom)
 
 [![coverage report](https://git.imp.fu-berlin.de/anwesende/anwesende/badges/master/coverage.svg)](https://git.imp.fu-berlin.de/anwesende/anwesende/-/commits/master)
 
@@ -250,40 +250,75 @@ The code organization follows the
 [cookiecutter-django](https://cookiecutter-django.readthedocs.io) template.
 
 The deployment procedure assumes an existing infrastructure of
-Linux and Docker 18.09 or younger (with docker-compose 1.21 or younger).
+Linux, bash, and Docker 18.09 or younger (with docker-compose 1.21 or younger).
+There are three possible configurations:
+- Case CERT: a stand-alone configuration that brings its own Traefik web server
+  and relies on a manually created certificate for https. The default.
+  This configuration uses three docker containers: traefik, django, postgres.
+- Case LETS: a variant of the above that
+  relies on Let's Encrypt to generate the certificates for https.
+- Case NOWS: a configuration meant to run behind an existing webserver
+  that is capable of https. 
+  This configuration uses only two docker containers: django, postgres.
+
+Some of the deployment steps will be case-specific.
 
 Deployment procedure:
-1. Create a working directory anywhere on your Linux server and do  
+1. Create a working directory anywhere on your Linux server.
+   The instructions assume you will take care of appropriate
+   access rights for all directories involved.  
+   Perform
    `git clone https://git.imp.fu-berlin.de/anwesende/anwesende.git`.  
+   And go there: `cd anwesende` (you can rename the directory if you prefer).
    This working directory is the reference for all commands.
-2. Do `mkdir .envs; cp anwesende/config/env-template anwesende/.envs/.production`.
-   and set the environment variables in `anwesende/.envs/.production`
+2. Do `mkdir .envs; cp config/env-template .envs/.production`.
+   and set the environment variables in `.envs/.production`
    as described in that file.  
    Note this is an extremely limited file format: No blanks are allowed
    around the `=` and all values are used verbatim 
-   (including the quotes if you use any!)
-   The handling of SHORTURL_PREFIX will be described in section 4.2 below.
-3. Review `anwesende/templates/room/privacy.html` and decide whether you need
-   to modify it.
+   (including the quotes if you use any!)  
+   The handling of SHORTURL_PREFIX will be described in section 4.2 below.  
+   For `PRIVACYINFO_DE` and `_EN`, the URL path prefix `/static` refers to
+   the directory `anwesende/static`. 
+3. Optional: Review `anwesende/templates/room/privacy.html` and decide 
+   whether you need to modify it.
    If so, either change it directly (make sure you keep a copy in case of 
    later software updates) or fork
    [https://github.com/prechelt/anwesende](https://github.com/prechelt/anwesende),
    a release-versions-only copy of the above development repository,
    put your modification on a branch of your fork, and use the fork in step 1.
    (If that Github repo does not yet exist, holler.)
-4. The standard setup assumes you are using manually created certificates for
-   https. If you do, skip the next step.
-5. If you want to use letsencyrpt instead, modify
-   `compose/production/traefik/traefik.yml` as follows in the 
+4. For case NOWS only:
+   - In file `production.yml`, 
+     remove or comment the whole `traefik` configuration block. 
+   - The django container runs the Gunicorn application server, which will
+     expect requests via http (and only http) on port GUNICORN_PORT as
+     defined in `.envs/.production`.
+   - Define a name prefix on your webserver, for which it will 
+     remove the name prefix from the request and then forward the rewritten
+     request to `yourserverhost:$(GUNICORN_PORT)` (e.g. `localhost:5000`).  
+     For instance, for Apache, this might mean adding the file
+     `/etc/apache2/conf-available/anwesende_proxy.conf` containing
+     ````
+     ProxyRequests Off
+     ProxyPass "/anw"  "http://localhost:5000"
+     ProxyPassReverse "/anw"  "http://localhost:5000"
+     ````
+     and then perform
+     `a2enconf anwesende_proxy; systemctl reload apache2`.
+5. For case LETS only: 
+   modify `compose/production/traefik/traefik.yml` as follows in the 
    http / routers / web-secure-router / tls block:
    - comment the `certificates` block (3 lines),
    - uncomment the whole `certificatesResolvers` block (~9 lines)
    - uncomment the `certResolver` line next to the `certificates` block.
-6. Perform `docker-compose -f production.yml build`.
+6. Define the environment by (in bash)
+   `set -a; source .envs/.production`
+   and perform `docker-compose -f production.yml build`.
    This will create three docker images:
    `anwesende_production_django`, `anwesende_production_postgres`, and
    `anwesende_production_traefik`.
-   (The first name part is a directory name; yours may be different.)
+   (The first name part is the directory name, different if you renamed it.)
 7. If your target server is in a DMZ (de-militarized zone), you will have to
    perform the above steps on a build machine that is connected
    to the target server via a docker registry that both can access.
@@ -294,14 +329,15 @@ Deployment procedure:
    - switch to the target server, and `docker pull` the three images there
    - The standard setup assumes the server files to lie in various subdirectories
      of path `/srv/docker/anwesende`.
+     You can use a different path as you prefer.
    - Copy the build server working dir to `/srv/docker/anwesende/src`.
      I use something along the lines of  
      `rsync --exclude .git --exclude .*cache . targethost:/srv/docker/anwesende/src`
-8. If you use manually created certificates (rather than letsencrypt),
-   put your certificate at 
-   `/srv/docker/anwesende/traefik_ssl/certs/anwesende.pem`
+8. For case CERT only:
+   Put your certificate at 
+   `$ANW_HOSTDIR_TRAEFIK_SSL/certs/anwesende.pem`
    and your private key at 
-   `/srv/docker/anwesende/traefik_ssl/private/anwesende-key.pem`.
+   `ANW_HOSTDIR_TRAEFIK_SSL/private/anwesende-key.pem`.
    (For good order's sake, directory `private` should be readable for root only.)
 9. Do `docker-compose -f production.yml up -d`.
    If all went well, your anwesende server should now be reachable.

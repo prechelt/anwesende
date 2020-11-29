@@ -1,3 +1,6 @@
+# https://doc.traefik.io/traefik/v2.0/providers/file/
+# Quote: "Go Templating only works with dedicated dynamic configuration files.
+#         Templating does not work in the Traefik main static configuration file."
 log:
   level: INFO
 
