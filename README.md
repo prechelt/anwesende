@@ -153,6 +153,29 @@ Anmerkungen:
   Das ist deshalb sinnvoll, weil es wesentlich einfacher ist, 
   eine zu lange Liste möglicher Kontakte zu bereinigen, 
   als fehlende Kontakte aufzuspüren.
+- Innerhalb eines solchen "Raums" kann man dann Räume (oder
+  Teile davon) als Sitzplätze interpretieren und die
+  Beschäftigten anhalten, sich ggf. mehrfach anzumelden,
+  wenn sie länger an einem anderen "Sitzplatz" (z.B. der Küche)
+  als ihrem üblichen eigenen sind,
+  damit bei der Nachverfolgung das Sortieren in Kontakte
+  und Nichtkontakte von den Anmeldedaten besser unterstützt wird.  
+- Beispiel: A und B arbeiten gleichzeitig am "Sitzplatz" 1 
+  (tatsächlich Raum 33).
+  C, D, E, F, G, H arbeiten zur selben Zeit an den "Sitzplätzen" 
+  2, 2, 3, 4, 5, 5, 
+  (tatsächlich den Räumen 34, 34, 35, 36, 37, 37).  
+  Die Küche ist als "Sitzplatz" 7 registriert.  
+  Wenn sich A infiziert, ist sofort B als Kontakt klar.
+  Aber was ist mit B bis H?  
+  A, C und F haben sich am fraglichen Tag auch mal am Sitzplatz
+  7 angemeldet. C zu einer anderen Zeit als A, aber F zu einer überlappenden.   
+  Bei der Abfrage würden also B bis H alle in der Kontakteliste
+  aufgeführt, aber B und F sind als wahrscheinlichste Kontakte
+  leicht erkennbar, denn B hat den gleichen "Sitzplatz" 1 wie A
+  und F hat den gleichen "Sitzplatz" 7 wie A.
+  Den hat auch C, wird aber mangels Zeitüberlappung nur auf der
+  gleichen mäßigen Risikostufe geführt wie die übrigen.
 
 
 ## 1.4 Anwesenheitsdaten abrufen
