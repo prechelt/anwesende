@@ -262,38 +262,88 @@ The application is meant to be deployed separately in many organizations
 (to simplify the situation regarding privacy protection)
 and allows some configuration to adopt to local needs.
 
-## 4.1 Deployment
 
-(These instructions have not yet been tested. If you find errors, please speak up!)
+## 4.1 Architecture
 
 The service is build using Python, Django, PostgreSQL, Gunicorn, and Traefik.
 The deployment procedure described below will obtain these pieces
 and configure them.
 The code organization follows the
-[cookiecutter-django](https://cookiecutter-django.readthedocs.io) template.
+[cookiecutter-django](https://cookiecutter-django.readthedocs.io) template
+and the Python code is structured Django-style.
+
+
+## 4.2 Deployment overview
+
+(These instructions have not yet been tested a lot. 
+If you find errors, please speak up!)
 
 The deployment procedure assumes an existing infrastructure of
-Linux, bash, and Docker 18.09 or younger (with docker-compose 1.21 or younger).
-There are three possible configurations:
-- Case CERT: a stand-alone configuration that brings its own Traefik web server
+Linux, bash, ssh, rsync, and Docker 18.09 or younger 
+(with docker-compose 1.21 or younger).
+There are six possible styles of deployment:
+- `DEPLOYMODE=CERTS`: a stand-alone configuration that brings its own Traefik web server
   and relies on a manually created certificate for https. The default.
   This configuration uses three docker containers: traefik, django, postgres.
-- Case LETS: a variant of the above that
+- `DEPLOYMODE=LETSENCRYP`: a variant of the above that
   relies on Let's Encrypt to generate the certificates for https.
-- Case NoWS: a configuration meant to run behind an existing webserver
-  that is capable of https. 
+- `DEPLOYMODE=GUNICORN`: a configuration without webserver that exposes the
+  service port of the Gunicorn application server to be used by 
+  an existing webserver that is capable of https. 
   This configuration uses only two docker containers: django, postgres.
 
-Some of the deployment steps will be case-specific (6 to 11 steps total).
+All three of these can be deployed locally on a single server (`REMOTE=0`)
+or have their docker images build on a local machine
+and deployed onto a remote server via a docker registry 
+(`REMOTE=1`, resulting in another three styles).
+In any case, there are only few manual steps; most work is done by a 
+few calls to a script called `anw.sh`.
 
-Deployment procedure:
-1. Create a working directory anywhere on your Linux server.
+
+## 4.3 Deployment procedure
+
+1. Create a working directory anywhere on a Linux machine 
+   (called the 'source machine').
+   If your server is in a DMZ and cannot connect to other servers itself,
+   this must be a separate machine (`REMOTE=1`). 
    The instructions assume you will take care of appropriate
    access rights for all directories involved.  
    Perform
-   `git clone https://git.imp.fu-berlin.de/anwesende/anwesende.git`.  
-   And go there: `cd anwesende` (you can rename the directory if you prefer).
-   This working directory is the reference for all commands.
+   `git clone https://git.imp.fu-berlin.de/anwesende/anwesende.git`.
+   Rename the directory if you want, e.g.: `mv anwesende anw`,  
+   and go there: `cd anw`.  
+   This working directory is the reference for all subsequent commands.
+2. Do `./anw.sh - prepare_envs`.
+   This creates two new files:
+   - `.envs/myenv.env` is a docker environment file containing various
+     application settings. Review the comments in that file and insert
+     appropriate values for each setting.
+   - `.envs/production.sh` is a shell environment file containing various
+     deployment settings. Set appropriate values here, too.
+3. If `REMOTE=1`, call `./anw.sh production docker_login` and type
+   your password twice to log into the docker registry locally and on the server.
+   (If `REMOTE=0`, skip this step.)
+4. Do `./anw.sh production install`.
+   This will
+   - build the docker images on the source machine
+   - if `REMOTE=1`, transfer them to the server's docker service via the registry
+     and copy a handful of configuration files to the server's `~/anw` directory. 
+   - create and start the docker containers on the server.
+   Carefully review the output for error messages. 
+   Repair those problems and repeat the command.
+   
+Steps 2, 3, 4 can be repeated with no harm. 
+To start over from step 1, remove the reference directory (and beware
+that this will delete your settings in `.envs` as well).
+   
+
+## 4.4 Re-deployment
+
+...
+
+   
+## Deployment procedure OLD VERSION:
+   
 2. Do `mkdir .envs; cp config/env-template .envs/.production`.
    and set the environment variables in text file `.envs/.production`
    as described in that file.  
