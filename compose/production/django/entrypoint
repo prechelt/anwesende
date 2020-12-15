@@ -39,4 +39,6 @@ until postgres_ready; do
 done
 >&2 echo 'PostgreSQL is available'
 
-exec "$@"
+chown django:django /djangolog
+>&2 echo exec runuser -u django -g django "$@"
+exec runuser -u django -g django "$@"

@@ -117,4 +117,5 @@ fabric.properties
 
 anwesende/media/
 anwesende/static/pdf
+docker-compose.yml
 Makefile

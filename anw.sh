@@ -202,6 +202,9 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
+      args:
+        - "DJANGO_UID=${DJANGO_UID}"
+        - "DJANGO_GID=${DJANGO_GID}"
     image: anw_${ENV_SHORTNAME}_django
     env_file: $DOCKERENV_ENV
     volumes:
