@@ -91,7 +91,9 @@ transfer_env()   # args:
 {
   announce $FUNCNAME
   create_files_on_the_fly
-  rsync -av --relative anw.sh $DOCKER_COMPOSE_YML $DOCKERENV_ENV $ENVSDIR/*.sh  $TUTH:$ANW
+  # Debian Buster has no rsync --mkpath yet, so create path beforehands:
+  ssh -t $TUTH  mkdir -p ${ANW}/$ENV_SHORTNAME
+  rsync -av --relative anw.sh $DOCKER_COMPOSE_YML $DOCKERENV_ENV $ENVSDIR/*.sh  $TUTH:$ANW/$ENV_SHORTNAME
   announce $FUNCNAME end
 }
 
@@ -117,7 +119,7 @@ onserver()   # args: other_anw_cmd args...
 {
   if [ $REMOTE ]; then
     announce $FUNCNAME
-    ssh -t $TUTH  ${ANW}/anw.sh  $which_env  $@
+    ssh -t $TUTH  ${ANW}/$ENV_SHORTNAME/anw.sh  $which_env  $@
     announce $FUNCNAME end
   else
     $@
@@ -171,6 +173,17 @@ announce()  # internal: funcname [internal|end]
   fi
 }
 
+check_deploymode()   # internal
+{
+  if [[ $DEPLOYMODE == "" ]]; then
+    echo "DEPLOYMODE is not defined. (Perhaps consult README.md.)"
+    exit 1
+  elif [[ ! $DEPLOYMODE =~ ^(CERTS|GUNICORN|LETSENCRYPT)$ ]]; then
+    echo "DEPLOYMODE=$DEPLOYMODE. Must be one of: CERTS|GUNICORN|LETSENCRYPT."
+    exit 1
+  fi
+    
+}
 completions()   # internal
 {
   # use as  $(./anw.sh completions)
@@ -199,6 +212,7 @@ version: '2'
 
 services:
   django:
+    env_file: $DOCKERENV_ENV
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
@@ -206,7 +220,7 @@ services:
         - "DJANGO_UID=${DJANGO_UID}"
         - "DJANGO_GID=${DJANGO_GID}"
     image: anw_${ENV_SHORTNAME}_django
-    env_file: $DOCKERENV_ENV
+    container_name: c_anw_${ENV_SHORTNAME}_django
     volumes:
       - ${VOLUME_SERVERDIR_DJANGO_LOG}:/djangolog:Z
     depends_on:
@@ -222,11 +236,12 @@ ENDOFFILE2
     command: /start
 
   postgres:
+    env_file: $DOCKERENV_ENV
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
     image: anw_${ENV_SHORTNAME}_postgres
-    env_file: $DOCKERENV_ENV
+    container_name: c_anw_${ENV_SHORTNAME}_postgres
     volumes:
       - ${VOLUME_SERVERDIR_POSTGRES_DATA}:/var/lib/postgresql/data:Z
       - ${VOLUME_SERVERDIR_POSTGRES_BACKUP}:/backups:z
@@ -235,22 +250,23 @@ ENDOFFILE3
   if [ $DEPLOYMODE != GUNICORN ]; then
     cat >>$DOCKER_COMPOSE_YML <<ENDOFFILE4
   traefik:
+    env_file: $DOCKERENV_ENV
     build:
       context: .
       dockerfile: ./compose/production/traefik/Dockerfile
     image: anw_${ENV_SHORTNAME}_traefik
-    env_file: $DOCKERENV_ENV
+    container_name: c_anw_${ENV_SHORTNAME}_traefik
     depends_on:
       - django
     volumes:
 ENDOFFILE4
    fi
-  if [ $DEPLOYMODE != GUNICORN ]; then
+  if [ $DEPLOYMODE == LETSENCRYPT ]; then
     cat >>$DOCKER_COMPOSE_YML <<ENDOFFILE5
       - ${VOLUME_SERVERDIR_TRAEFIK_ACME}:/etc/traefik/acme:z
 ENDOFFILE5
   fi
-  if [ $DEPLOYMODE != GUNICORN ]; then
+  if [ $DEPLOYMODE == CERTS ]; then
     cat >>$DOCKER_COMPOSE_YML <<ENDOFFILE6
       - ${VOLUME_SERVERDIR_TRAEFIK_SSL}:/etc/traefik/myssl:z
 ENDOFFILE6
@@ -410,6 +426,7 @@ myself=`basename $0`
 if [ $which_env != '-' -a $which_env != '--' ]; then
   set -o allexport  # -a: export all new shell variables
   source $ENVSDIR/$which_env.sh
+  check_deploymode
   set +o allexport
   untagged=${ANW}_${ENV_SHORTNAME}
   tagged=${REGISTRYPREFIX}/${ANW}_${ENV_SHORTNAME}
