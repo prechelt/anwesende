@@ -383,8 +383,8 @@ ENDOFFILE4
 tls:
   # https://docs.traefik.io/master/routing/routers/#certresolver
   certificates:
-    - certFile: /etc/traefik/myssl/anwesende.pem
-      keyFile: /etc/traefik/myssl/anwesende-key.pem
+    - certFile: /etc/traefik/myssl/certs/anwesende.pem
+      keyFile: /etc/traefik/myssl/private/anwesende-key.pem
 ENDOFFILE5
   fi
   cat >>$TRAEFIK_YML <<ENDOFFILE6
