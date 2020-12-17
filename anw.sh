@@ -41,16 +41,16 @@ help()   # args:
 {
   announce "########## help: anw commands"
   egrep '\(\) *[#] args:' $myself | sed 's/() *[#] args:/ /'  # (must not match itself)
-  cat <<ENDOFFILE
-ENDOFFILE
 }
 
 prepare_envs()   # args:   (step 1)
 {
   announce $FUNCNAME
   mkdir -p $ENVSDIR
+  set -o xtrace
   cp -u $ENVSSRCDIR/myenv-template.env $ENVSDIR/myenv.env
   cp -u $ENVSSRCDIR/production-template.sh $ENVSDIR/production.sh
+  set +o xtrace
   announce $FUNCNAME end
 }
 
@@ -186,11 +186,10 @@ check_deploymode()   # internal
 }
 completions()   # internal
 {
-  # use as  $(./anw.sh completions)
-  # TODO using grep, sed, tr (similar to help)
-  # complete -W 'google.com cyberciti.biz nixcraft.com' host
+  # use as  $(./anw.sh - completions)
   # https://www.gnu.org/software/bash/manual/bash.html#Programmable-Completion
-  echo "complete -W 'prepare_envs docker_login install' anw.sh"
+  wordlist=`egrep '\(\) *[#] args:' $myself | sed 's/().\+//' | tr '\n' ' '` 
+  echo complete -W \"$wordlist\" anw.sh
 }
 
 create_files_on_the_fly()   # internal
@@ -430,7 +429,7 @@ if [ $which_env != '-' -a $which_env != '--' ]; then
   set +o allexport
   untagged=${ANW}_${ENV_SHORTNAME}
   tagged=${REGISTRYPREFIX}/${ANW}_${ENV_SHORTNAME}
+  announce "Environment is '$which_env'"
 fi
 
-announce "Environment is '$which_env'"
 $cmd $@
