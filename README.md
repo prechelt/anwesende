@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-12-04  (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-12-16 (see "Implementation status" at the bottom)
 
 [![coverage report](https://git.imp.fu-berlin.de/anwesende/anwesende/badges/master/coverage.svg)](https://git.imp.fu-berlin.de/anwesende/anwesende/-/commits/master)
 
@@ -268,24 +268,26 @@ and allows some configuration to adopt to local needs.
 The service is build using Python, Django, PostgreSQL, Gunicorn, and Traefik.
 The deployment procedure described below will obtain these pieces
 and configure them.
-The code organization follows the
+The code organization roughly follows the
 [cookiecutter-django](https://cookiecutter-django.readthedocs.io) template
 and the Python code is structured Django-style.
 
 
 ## 4.2 Deployment overview
 
-(These instructions have not yet been tested a lot. 
-If you find errors, please speak up!)
+(The LETSENCRYPT case not yet been tested. 
+If you find errors anywhere, please speak up!)
 
 The deployment procedure assumes an existing infrastructure of
 Linux, bash, ssh, rsync, and Docker 18.09 or younger 
 (with docker-compose 1.21 or younger).
+The deploying user must be a member of the `docker` group.
+
 There are six possible styles of deployment:
 - `DEPLOYMODE=CERTS`: a stand-alone configuration that brings its own Traefik web server
-  and relies on a manually created certificate for https. The default.
+  and relies on a manually created certificate for https.
   This configuration uses three docker containers: traefik, django, postgres.
-- `DEPLOYMODE=LETSENCRYP`: a variant of the above that
+- `DEPLOYMODE=LETSENCRYPT`: a variant of the above that
   relies on Let's Encrypt to generate the certificates for https.
 - `DEPLOYMODE=GUNICORN`: a configuration without webserver that exposes the
   service port of the Gunicorn application server to be used by 
@@ -295,7 +297,7 @@ There are six possible styles of deployment:
 All three of these can be deployed locally on a single server (`REMOTE=0`)
 or have their docker images build on a local machine
 and deployed onto a remote server via a docker registry 
-(`REMOTE=1`, resulting in another three styles).
+(`REMOTE=1`, resulting in another three styles of the same three DEPLOYMODEs).
 In any case, there are only few manual steps; most work is done by a 
 few calls to a script called `anw.sh`.
 
@@ -306,8 +308,6 @@ few calls to a script called `anw.sh`.
    (called the 'source machine').
    If your server is in a DMZ and cannot connect to other servers itself,
    this must be a separate machine (`REMOTE=1`). 
-   The instructions assume you will take care of appropriate
-   access rights for all directories involved.  
    Perform
    `git clone https://git.imp.fu-berlin.de/anwesende/anwesende.git`.
    Rename the directory if you want, e.g.: `mv anwesende anw`,  
@@ -316,63 +316,31 @@ few calls to a script called `anw.sh`.
 2. Do `./anw.sh - prepare_envs`.
    This creates two new files:
    - `.envs/myenv.env` is a docker environment file containing various
-     application settings. Review the comments in that file and insert
+     application settings. Carefully review the comments in that file and insert
      appropriate values for each setting.
    - `.envs/production.sh` is a shell environment file containing various
-     deployment settings. Set appropriate values here, too.
+     deployment settings. Carefully set appropriate values here, too.
 3. If `REMOTE=1`, call `./anw.sh production docker_login` and type
    your password twice to log into the docker registry locally and on the server.
    (If `REMOTE=0`, skip this step.)
 4. Do `./anw.sh production install`.
-   This will
+   If all goes well, this command will
    - build the docker images on the source machine
    - if `REMOTE=1`, transfer them to the server's docker service via the registry
      and copy a handful of configuration files to the server's `~/anw` directory. 
    - create and start the docker containers on the server.
    Carefully review the output for error messages. 
    Repair those problems and repeat the command.
-   
-Steps 2, 3, 4 can be repeated with no harm. 
-To start over from step 1, remove the reference directory (and beware
-that this will delete your settings in `.envs` as well).
-   
-
-## 4.4 Re-deployment
-
-...
-
-   
-## Deployment procedure OLD VERSION:
-   
-2. Do `mkdir .envs; cp config/env-template .envs/.production`.
-   and set the environment variables in text file `.envs/.production`
-   as described in that file.  
-   - Note this is an extremely limited file format: No blanks are allowed
-     around the `=` and all values are used verbatim 
-     (including the quotes if you use any!)  
-   - The handling of SHORTURL_PREFIX will be described in section 4.2 below.  
-   - For `PRIVACYINFO_DE` and `_EN`, the URL path prefix `/static` refers to
-     the directory `anwesende/static`.
-   - For the bottom four path variables `ANW_*`, 
-     create the corresponding directories and assign suitable access rights.  
-     The Django and Postgres processes will run as non-root, but no mechanism
-     is in place to make use of the particular UID/GID assigned to them in the 
-     respective Docker containers.
-     The simplest solution is to make the directories world-writable.
-3. Optional: Review `anwesende/templates/room/privacy.html` and decide 
-   whether you need to modify it.
-   If so, either change it directly (make sure you keep a copy in case of 
-   later software updates) or fork
-   [https://github.com/prechelt/anwesende](https://github.com/prechelt/anwesende),
-   a release-versions-only copy of the above development repository,
-   put your modification on a branch of your fork, and use the fork in step 1.
-   (If that Github repo does not yet exist, holler.)
-4. For case NoWS only:
-   - In file `production.yml`, 
-     remove or comment the whole `traefik` configuration block. 
+5. For `DEPLOYMODE=CERTS` only:  
+   Put your certificate at 
+   `$VOLUME_SERVERDIR_TRAEFIK_SSL/certs/anwesende.pem`
+   and your private key at 
+   `$VOLUME_SERVERDIR_TRAEFIK_SSL/private/anwesende-key.pem`.
+   Make directory `private` readable for root only.
+6. For `DEPLOYMODE=GUNICORN` only:
    - The django container runs the Gunicorn application server, which will
      expect requests via http (and only http) on port GUNICORN_PORT as
-     defined in `.envs/.production`.
+     defined in `.envs/production.sh`.
    - Define a name prefix on your webserver, for which it will 
      remove the name prefix from the request and then forward the rewritten
      request to `yourserverhost:${GUNICORN_PORT}` (e.g. `localhost:5000`).  
@@ -386,69 +354,64 @@ that this will delete your settings in `.envs` as well).
      ````
      and then perform
      `a2enconf anwesende_proxy; systemctl reload apache2`.
-5. For case LETS only: 
-   modify `compose/production/traefik/traefik.yml` as follows in the 
-   http / routers / web-secure-router / tls block:
-   - comment the `certificates` block (3 lines),
-   - uncomment the whole `certificatesResolvers` block (~9 lines)
-   - uncomment the `certResolver` line next to the `certificates` block.
-6. Define the environment by (in bash)
-   `set -a; source .envs/.production`
-   and perform `docker-compose -f production.yml build`.
-   This will create three docker images:
-   `anwesende_production_django`, `anwesende_production_postgres`, and
-   `anwesende_production_traefik`.
-   (The first name part may be different.)
-7. Optional: If your target server is in a DMZ (de-militarized zone), 
-   you will have to
-   perform the above steps on a build machine that is connected
-   to the target server via a docker registry that both can access.
-   In that case, you need to do the following additional steps
-   (I will now assume you have basic docker knowledge, have heard of
-    `docker login` etc.):
-   - `docker push` the three docker images to the registry on the build server,
-   - switch to the target server, and `docker pull` the three images there
-   - The standard setup assumes the server files to lie in various subdirectories
-     of path `/srv/docker/anwesende`.
-     You can use a different path as you prefer.
-   - Copy the build server working dir to `/srv/docker/anwesende/src`.
-     I use something along the lines of  
-     `rsync --exclude .git --exclude .*cache . targethost:/srv/docker/anwesende/src`
-8. For case CERT only:
-   Put your certificate at 
-   `$ANW_HOSTDIR_TRAEFIK_SSL/certs/anwesende.pem`
-   and your private key at 
-   `ANW_HOSTDIR_TRAEFIK_SSL/private/anwesende-key.pem`.
-   (For good order's sake, directory `private` must be readable for root only.)
-9. Do `docker-compose -f production.yml up -d`.
-   If all went well, your anwesende server should now be reachable.
-   Let's assume it is called `anwesende.some-university.de`.
-   Start a web browser and visit `https://anwesende.some-university.de`.  
-   Works?  
-   Then now set `DJANGO_HTTPS_INSIST=True` in `.envs/.production` and
-   re-deploy (that is, repeat steps 6, 7, and 9). Congratulations!  
-   Does not work?  
-   (In case LETS, you may have to wait 2 minutes for the certificates to arrive.)
-   Then consult the logs: `docker-compose -f production.yml logs`.
-   Also, have a look at the SECURITY block in the 
-   `config/settings/production.py` configuration file (in particular the
-   `SECURE_HSTS_SECONDS` setting) in order to understand what you are working
-   with during https debugging.
-10. Create a cronjob for continuous database health:  
-    ```
-    cd $the_reference_dir  # where the source code is (we need two config files)
-    set -a; source .envs/.production; 
-    docker-compose -f production.yml run --rm django python manage.py delete_outdated_data
-    docker-compose -f production.yml exec postgres backup
-    ```
-11. Optional:
-    There is a simple, stand-alone load testing script in
-    `anwesende/room/tests/loadtest.py`
-    with which you can get a rough estimate of 
-    your server's performance.
 
+Steps 2 to 6 can be repeated as needed with no harm. 
+To start over from step 1, remove the reference directory (and beware
+that this will delete your settings in `.envs` as well).
+
+
+## 4.4 Debugging
+
+- If all went well, your anwesende server should now be reachable.  
+  Let's assume it is called `anwesende.some-university.de`.
+  Start a web browser and visit `https://anwesende.some-university.de`.  
+- Works?    
+  Then now set `DJANGO_HTTPS_INSIST=True` in `.envs/production.sh` and
+  repeat step 4 above. Congratulations!  
+- Does not work?  
+  Then consider the following ideas for your debugging:
+- Step 4 has substeps that you can call independently.
+  Execute `./anw.sh - help` to see them.  
+  You can teach your bash autocompletion of these substep names by executing
+  `./anw.sh - completions` (which prints a long command) 
+  and then executing the command that it printed.
+  (Backticks do not work properly for this for some reason.)
+- In `DEPLOYMODE=LETSENCRYPT`, you may have to wait 2 minutes for
+  the certificates to arrive.
+- Consult the logs, either from remote (if `REMOTE=1`) by 
+   `./anw.sh production.sh onserver docker-compose logs`
+   or right on the server by `dcoker-compose logs`.
+- In `DEPLOYMODE=CERTS`, traefik will ignore your certificate if it does
+  not match the request (different fully-qualified domain name).
+  No log entry is created if this happens.
+- For https trouble, study the SECURITY block in the 
+  `config/settings/production.py` configuration file (in particular the
+  `SECURE_HSTS_SECONDS` setting) in order to understand what you are working
+  with during https debugging.
+- The simplest setup is using `DEPLOYMODE=GUNICORN` and then contacting
+  gunicorn on the `GUNICORN_PORT` directly.
+  If you have fundamental doubts whether the postgres and django containers
+  work, try that.
    
-## 4.2 Short-URL service
+   
+## 4.5 Final steps
+
+1. Create a cronjob with the following script (insert the proper reference dir):
+   ```
+   #!/bin/bash
+   cd $the_reference_dir  # where the source code is (we need two config files)
+   set -a; source .envs/production.sh; 
+   docker-compose run --rm django python manage.py delete_outdated_data  # to obey DATA_RETENTION_DAYS
+   docker-compose exec postgres backup
+   ```
+2. Optional:
+   There is a simple, stand-alone load testing script in
+   `anwesende/room/tests/loadtest.py`
+   with which you can get a rough estimate of 
+   your server's performance.
+
+
+## 4.6 Short-URL service
 
 There is one installation of anwesende that is special:
 The one at `http://a.nwesen.de` (no https here!). 
@@ -469,11 +432,9 @@ How?
   `a.nwesen.de` are relevant only for the host that actually serves
   that hostname, not for yours. 
   They are present in the public repository for transparency only.)
-- You enter it into your settings file at `anwesende/.envs/.production`
+- You enter it into your settings file at `.envs/production.sh`
   (for instance `SHORTURL_PREFIX=http://a.nwesen.de/z`) and
-  restart your server:  
-  Do a `docker-compose -f production down` (which stops the server)
-  and repeat the above steps 6, 7, and 9.
+  repeat step 4.
 
 If you do not want to use the short URL service,
 simply set SHORTURL_PREFIX to your installation URL instead,
@@ -482,33 +443,28 @@ e.g. `https://anwesende.some-university.de`
 Your service is now ready to be used.
 Time to create the Datenverwalter accounts!
 
-## 4.3 Initiating operation
+
+## 4.7 Initiating operation
 
 Once the server is running and you can retrieve the homepage properly,
 perform the following steps once:
 
-- Log in to the server and perform  
-  `set -a; source .envs/.production` to define the environment
-  (modern versions of docker-compose allow `--env-file` instead)
-  and then
-  `docker-compose -f production.yml run --rm django python manage.py createsuperuser --username superuser`.
-  You can use a different username if you prefer.
+- Perform  
+  `./anw.sh production.sh onserver docker-compose run --rm django python manage.py createsuperuser --username superuser`.
+  You could use a different username if you prefer.
+  Enter a (near-irrelevant) email address and password for the superuser.
 - In a browser, visit
   `https://anwesende.some-university.de/admin`, 
   log in as the superuser, and create two-or-so personal accounts for the
   Datenverwalters at `https://anwesende.some-university.de/admin/users/user/`.  
-  Enter strings for name (fullname), firstname, lastname, email.  
-  Do not change any of the checkboxes.  
-  Under "Groups:" pick group "datenverwalter" and add it to "Chosen groups".  
-  Save.  
-  This group membership is what gives an account the Datenverwalter
-  privilege. The superuser account does not (and should not) have that privilege.
+  - Enter strings for name (fullname), firstname, lastname, email.  
+  - Do not change any of the checkboxes.  
+  - Under "Groups:" pick group "datenverwalter" and add it to "Chosen groups".  
+    Save.  
+    This group membership is what gives an account the Datenverwalter
+    privilege. The superuser account does not (and should not) have that privilege.
   
 Done!
-
-Note that by default, no email sending is configured, so the password reset
-function (which is available on the web pages) is not going to work.
-The superuser must tell the 
 
 
 # 5. Implementation status
@@ -537,4 +493,5 @@ provide maximal transparency.
 - DONE 2020-11-05: Load testing (about 1000 visits/minute: fast enough)
 - DONE 2020-11-06: Added logging
 - DONE 2020-11-06: Deployment description
+- DONE 2020-12-16: Added anw.sh install script
 - TODO: Pilot testing
