@@ -40,5 +40,5 @@ done
 >&2 echo 'PostgreSQL is available'
 
 chown django:django /djangolog
->&2 echo exec runuser -u django -g django "$@"
-exec runuser -u django -g django "$@"
+>&2 echo exec runuser -g django -u django -- "$@"
+exec runuser -g django -u django  -- "$@"
