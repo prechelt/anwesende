@@ -68,8 +68,8 @@ install()   # args:        (step 3, the rest are substeps:)
 {
   announce $FUNCNAME
   build_images
-  transfer_env
-  if [ $REMOTE ]; then
+  if [ $REMOTE -eq 1 ]; then
+    transfer_env
     push_images
     onserver pull_images
     onserver server_up
