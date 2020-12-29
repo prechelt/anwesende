@@ -312,7 +312,7 @@ certificatesResolvers:
   letsencrypt:
     # https://docs.traefik.io/master/https/acme/#lets-encrypt
     acme:
-      email: "techexpert@here-at-example.com"
+      email: "$LETSENCRYPTEMAIL"
       storage: /etc/traefik/acme/acme.json
       # https://docs.traefik.io/master/https/acme/#httpchallenge
       httpChallenge:
@@ -336,13 +336,16 @@ http:
 
     web-secure-router:
       # https://doc.traefik.io/traefik/routing/routers/#rule
-      rule: "PathPrefix(`/`)"
+ENDOFFILE3
+  echo "      rule: \"Host(\`$SERVERNAME\`) && PathPrefix(\`/\`)\""  >>$TRAEFIK_YML
+  cat >>$TRAEFIK_YML <<"ENDOFFILE4"
       entryPoints:
         - web-secure
       # middlewares:
       #   - csrf
       service: django
-      tls: {}
+      tls:
+        certResolver: letsencrypt
 
   middlewares:
     # https://doc.traefik.io/traefik/master/middlewares/overview/
@@ -370,17 +373,10 @@ http:
       loadBalancer:
         servers:
           - url: http://django:5000
-ENDOFFILE3
-  if [ $DEPLOYMODE == LETSENCRYPT ]; then
-    cat >>$TRAEFIK_YML <<ENDOFFILE4
 tls:
-  # https://docs.traefik.io/master/routing/routers/#certresolver
-  certResolver: letsencrypt
 ENDOFFILE4
-  fi
   if [ $DEPLOYMODE == CERTS ]; then
     cat >>$TRAEFIK_YML <<ENDOFFILE5
-tls:
   # https://docs.traefik.io/master/routing/routers/#certresolver
   certificates:
     - certFile: /etc/traefik/myssl/certs/anwesende.pem
