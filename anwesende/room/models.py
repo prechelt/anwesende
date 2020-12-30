@@ -81,7 +81,7 @@ class Seat(djdm.Model):
     One seat in a Room. Each QR code refers to one Seat.
     """
     # ----- Fields:
-    number = djdm.IntegerField(null=False)
+    seatnumber = djdm.IntegerField(null=False)
     hash = djdm.CharField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
@@ -118,7 +118,7 @@ class Seat(djdm.Model):
                                    building="dummybldg", 
                                    room="dummyroom", seat_max=1, seat_min=1,
                                    importstep=step)
-        dummyseat = cls.objects.create(room=room, number=DUMMYSEAT_NUM,
+        dummyseat = cls.objects.create(room=room, seatnumber=DUMMYSEAT_NUM,
                                        hash=cls.seathash(room, DUMMYSEAT_NUM))
         return dummyseat
     
@@ -130,7 +130,7 @@ class Seat(djdm.Model):
         return hashlib.sha256(seat_id.encode()).hexdigest()[:10]
 
     def __str__(self):
-        return f"{self.room.room}|{self.number}|{self.hash}"
+        return f"{self.room.room}|{self.seatnumber}|{self.hash}"
 
     def __repr__(self):
         return self.__str__()

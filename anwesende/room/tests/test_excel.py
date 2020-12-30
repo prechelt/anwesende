@@ -96,9 +96,9 @@ def test_create_seats_from_excel():
     assert arm.Seat.objects.count() == 20
     qs_room055_seats = arm.Seat.objects.filter(room=room055)
     assert qs_room055_seats.count() == 14
-    assert set(s.number for s in qs_room055_seats) == set(range(1, 14 + 1))
+    assert set(s.seatnumber for s in qs_room055_seats) == set(range(1, 14 + 1))
     myseat2 = qs_room055_seats[2]
     myseat5 = qs_room055_seats[5]
-    assert myseat2.number != myseat5.number
+    assert myseat2.seatnumber != myseat5.seatnumber
     assert myseat2.hash != myseat5.hash
     assert re.fullmatch(r"[0-9a-f]{10}", myseat2.hash)

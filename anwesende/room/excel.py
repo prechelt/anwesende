@@ -139,7 +139,7 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]) \
     for room in rooms:
         for seatnum in range(room.seat_min, room.seat_max + 1):
             seat, created = arm.Seat.objects.get_or_create(
-                number=seatnum,
+                seatnumber=seatnum,
                 room=room,
                 defaults=dict(hash=arm.Seat.seathash(room, seatnum))
             )
@@ -261,6 +261,6 @@ def _as_vgrouprows(visits) -> tg.List[tg.Optional[VGroupRow]]:
                 aud.dtstring(v.present_to_dt, date=False, time=True),
                 v.seat.room.organization, v.seat.room.department, 
                 v.seat.room.building, v.seat.room.room,
-                v.seat.number)
+                v.seat.seatnumber)
         vgrouprows.append(row)
     return vgrouprows

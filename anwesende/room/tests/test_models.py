@@ -18,7 +18,8 @@ def test_get_overlapping_visits():
                         importstep=importstep)
         room.save()
         for i in range(numseats):
-            seat = arm.Seat(hash=arm.Seat.seathash(room, i), number=i, room=room)
+            seat = arm.Seat(hash=arm.Seat.seathash(room, i), 
+                            seatnumber=i, room=room)
             seat.save()
             results.append(seat)
         return tuple(results)

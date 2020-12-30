@@ -62,7 +62,7 @@ def _make_seats(importstep: arm.Importstep, roomname: str,
                     importstep=importstep)
     room.save()
     for i in range(numseats):
-        seat = arm.Seat(hash=arm.Seat.seathash(room, i), number=i,
+        seat = arm.Seat(hash=arm.Seat.seathash(room, i), seatnumber=i,
                         room=room)
         seat.save()
         seats.append(seat)
