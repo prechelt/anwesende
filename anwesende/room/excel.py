@@ -139,6 +139,7 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]) \
     for room in rooms:
         for seatnum in range(room.seat_min, room.seat_max + 1):
             seat, created = arm.Seat.objects.get_or_create(
+                rownumber=1,
                 seatnumber=seatnum,
                 room=room,
                 defaults=dict(hash=arm.Seat.seathash(room, seatnum))

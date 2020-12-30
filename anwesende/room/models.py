@@ -1,6 +1,8 @@
 import datetime as dt
 import hashlib
+import math
 import re
+import typing as tg
 
 import django.core.validators as djcv
 import django.db.models as djdm
@@ -80,8 +82,10 @@ class Seat(djdm.Model):
     """
     One seat in a Room. Each QR code refers to one Seat.
     """
+    SEATDISTANCE_in_m = 1.4  # how far seats are assumed to be spaced apart
     # ----- Fields:
     seatnumber = djdm.IntegerField(null=False)
+    rownumber = djdm.IntegerField(null=False)
     hash = djdm.CharField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
@@ -97,6 +101,13 @@ class Seat(djdm.Model):
     def by_hash(cls, hash: str):
         return cls.objects.select_related('room').get(hash=hash)
     
+    def distance_in_m(self, otherseat: 'Seat') -> float:
+        # Seats are assumed to be on an exact cartesian grid, 
+        # which is a slightly optimistic assumption.
+        rowdiff = self.rownumber - otherseat.rownumber
+        seatdiff = self.seatnumber - otherseat.seatnumber
+        return math.sqrt(rowdiff**2 + seatdiff**2) * self.SEATDISTANCE_in_m
+
     @classmethod
     def get_dummy_seat(cls) -> 'Seat':
         all_dummyseats = cls.objects.filter(room__organization=settings.DUMMY_ORG)
@@ -107,7 +118,8 @@ class Seat(djdm.Model):
 
     @classmethod
     def _make_dummyseat(cls, dummyorg: str) -> 'Seat':
-        DUMMYSEAT_NUM = 1
+        DUMMYSEAT_NAME = "r1s1"
+        rownumber, seatnumber = cls.split_seatname(DUMMYSEAT_NAME)
         user = aum.User.objects.create(name="dummy", username="dummy", 
                                        first_name="D.", last_name="dummy", email="",
                                        is_active=False)
@@ -118,16 +130,30 @@ class Seat(djdm.Model):
                                    building="dummybldg", 
                                    room="dummyroom", seat_max=1, seat_min=1,
                                    importstep=step)
-        dummyseat = cls.objects.create(room=room, seatnumber=DUMMYSEAT_NUM,
-                                       hash=cls.seathash(room, DUMMYSEAT_NUM))
+        dummyseat = cls.objects.create(room=room, 
+                rownumber=rownumber, seatnumber=seatnumber,
+                hash=cls.seathash(room, DUMMYSEAT_NAME))
         return dummyseat
     
     @classmethod
-    def seathash(cls, room: Room, seatnumber: int) -> str:
+    def seathash(cls, room: Room, seatname: int) -> str:
         make_unguessable = settings.SEAT_KEY
         seat_id = (f"{room.organization}|{room.department}|{room.building}|"
-                   f"{room.room}|{seatnumber}|{make_unguessable}")
+                   f"{room.room}|{seatname}|{make_unguessable}")
         return hashlib.sha256(seat_id.encode()).hexdigest()[:10]
+
+    @property
+    def seatname(self) -> str:
+        return f"r{self.rownumber}s{self.seatnumber}"
+    
+    @classmethod
+    def split_seatname(cls, seatname: str) -> tg.Tuple[int, int]:
+        mm = re.fullmatch(r"r(\d+)s(\d+)", seatname)
+        if not mm:
+            msg1 = f"Falsche Sitznummber '{seatname}': "
+            msg2 = "Richtiges Format ist 'r1s3' für Reihe 1, Sitz 3 etc."
+            raise ValueError(msg1 + msg2)
+        return (int(mm.group(1)), int(mm.group(2)))
 
     def __str__(self):
         return f"{self.room.room}|{self.seatnumber}|{self.hash}"

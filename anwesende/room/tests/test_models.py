@@ -1,3 +1,5 @@
+import copy
+import math
 import typing as tg
 
 import django.utils.timezone as djut
@@ -19,7 +21,7 @@ def test_get_overlapping_visits():
         room.save()
         for i in range(numseats):
             seat = arm.Seat(hash=arm.Seat.seathash(room, i), 
-                            seatnumber=i, room=room)
+                            rownumber=1, seatnumber=i, room=room)
             seat.save()
             results.append(seat)
         return tuple(results)
@@ -73,5 +75,25 @@ def test_get_overlapping_visits():
 def test_get_dummy_seat():
     dummy1 = arm.Seat.get_dummy_seat()
     dummy2 = arm.Seat.get_dummy_seat()
-    assert dummy1 == dummy2
+    assert dummy1 == dummy2  # from DB query, hence not necessarily also 'is' 
     assert arm.Seat.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_split_seatname():
+    dummy = arm.Seat.get_dummy_seat()
+    dummy.seatnumber = 3
+    assert dummy.seatname == "r1s3"
+    assert (1, 3) == dummy.split_seatname(dummy.seatname)
+
+
+@pytest.mark.django_db
+def test_distance_in_m():
+    dummy = arm.Seat.get_dummy_seat()
+    other = copy.copy(dummy)
+    other.rownumber = 2
+    other.seatnumber = 3
+    dist_is = dummy.distance_in_m(other)
+    dist_should = math.sqrt(5) * arm.Seat.SEATDISTANCE_in_m
+    assert abs(dist_is - dist_should) < 0.0001
+
