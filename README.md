@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-12-16 (see "Implementation status" at the bottom)
+Lutz Prechelt, 2020-12-17
 
 [![coverage report](https://git.imp.fu-berlin.de/anwesende/anwesende/badges/master/coverage.svg)](https://git.imp.fu-berlin.de/anwesende/anwesende/-/commits/master)
 
@@ -116,11 +116,14 @@ Datenverwalter/in.
    - `room`: Raumbezeichnung, in der Regel eine Raumnummer, z.B.
      `055` für den Seminarraum 055 im Erdgeschoss.  
      Dies sollte zur Beschriftung an der Eingangstür des Raums passen.
-   - `seat_min`: Kleinste Sitznummer, in aller Regel `1`.
-   - `seat_max`: Größte Sitznummer, z.B. `14`.  
-     Diese Sitznummern sind fortlaufend und werden auf den QR-Code-Schildern
-     gut lesbar mit ausgedruckt.  
-     In diesem beiden Feldern sind nur ganze Zahlen möglich.
+   - `seat_last`: Letzter Sitz, z.B. `r2s7` für Reihe 2, Sitz 7 in einem
+     Raum mit 14 Sitzen in zwei Reihen. Der erste Sitz ist immer `r1s1`.  
+     Diese Sitznummern werden auf den QR-Code-Schildern
+     gut lesbar mit ausgedruckt.
+     Wenn Reihen unterschiedlich viele Sitze haben, muss die maximale Anzahl
+     für die letzte Reihe angegeben werden (auch wenn die in Wirklichkeit
+     kürzer ist) und manche QR-Codes werden dann
+     nicht mit aufgeklebt.
 2. Die Mitarbeiter/in schickt die Excel-Datei per Email an
    die Datenverwalter/in.
 3. Die Datenverwalter/in prüft die Daten auf Plausibilität,
@@ -336,7 +339,10 @@ few calls to a script called `anw.sh`.
    `$VOLUME_SERVERDIR_TRAEFIK_SSL/certs/anwesende.pem`
    and your private key at 
    `$VOLUME_SERVERDIR_TRAEFIK_SSL/private/anwesende-key.pem`.
-   Make directory `private` readable for root only.
+   Make directory `private` readable for root only.  
+   (Alternatively, you can pre-create these directories yourself before
+   you start the traefik container. Anybody can be the owner then; traefik does
+   not care.)
 6. For `DEPLOYMODE=GUNICORN` only:
    - The django container runs the Gunicorn application server, which will
      expect requests via http (and only http) on port GUNICORN_PORT as
@@ -370,12 +376,17 @@ that this will delete your settings in `.envs` as well).
   repeat step 4 above. Congratulations!  
 - Does not work?  
   Then consider the following ideas for your debugging:
-- Step 4 has substeps that you can call independently.
-  Execute `./anw.sh - help` to see them.  
-  You can teach your bash autocompletion of these substep names by executing
-  `./anw.sh - completions` (which prints a long command) 
-  and then executing the command that it printed.
-  (Backticks do not work properly for this for some reason.)
+- Step 4 has substep commands that you can call independently.
+  - Execute `./anw.sh - help` to see them.  
+  - Look into the file `anw.sh` how they are used in `install()`.
+  - You can teach your bash autocompletion of these command names by executing
+    `./anw.sh - completions` (which prints a long command) 
+    and then executing the command that it printed.
+    (Backticks do not work properly for this for some reason.)
+  - In a `REMOTE=1` setting, be aware that you can thoroughly confuse yourself
+    with these commands if you fail to include `onserver` with 
+    `docker-compose` or `docker`, because your local docker will comply with
+    them gladly, but not change anything on the server. 
 - In `DEPLOYMODE=LETSENCRYPT`, you may have to wait 2 minutes for
   the certificates to arrive.
 - Consult the logs, either from remote (if `REMOTE=1`) by 
@@ -394,7 +405,7 @@ that this will delete your settings in `.envs` as well).
   work, try that.
    
    
-## 4.5 Final steps
+## 4.5 Cronjob, Load test
 
 1. Create a cronjob with the following script (insert the proper reference dir):
    ```

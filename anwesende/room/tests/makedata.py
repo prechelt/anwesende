@@ -8,7 +8,7 @@ import anwesende.room.models as arm
 import anwesende.users.models as aum
 
 
-def make_user_rooms_seats_visits(seatsN: int, visitsN: int) -> \
+def make_user_rooms_seats_visits(seat_last: str, visitsN: int) -> \
         tg.Tuple[tg.Sequence[arm.Room], tg.Sequence[tg.Sequence[arm.Seat]]]:
     """
     Creates 2 Rooms, each with seatsN Seats, and visitsN Visits for each Room,
@@ -28,7 +28,7 @@ def make_user_rooms_seats_visits(seatsN: int, visitsN: int) -> \
     for roomI in range(2):
         when = djut.localtime() - dt.timedelta(hours=24) + dt.timedelta(minutes=roomI * 10)
         visitI = 0
-        room, seats = _make_seats(importstep, f"room{roomI+1}", seatsN)
+        room, seats = _make_seats(importstep, f"room{roomI+1}", seat_last)
         rooms.append(room)
         seatgroups.append(seats)
         while visitI < visitsN:
@@ -54,19 +54,22 @@ def make_datenverwalter_user(username=None, password=None) -> aum.User:
 
 
 def _make_seats(importstep: arm.Importstep, roomname: str,
-                numseats: int) -> tg.Tuple[arm.Room, tg.Sequence[arm.Seat]]:
+                seat_last: str) -> tg.Tuple[arm.Room, tg.Sequence[arm.Seat]]:
     seats = []
     room = arm.Room(organization=f"org{random.randint(1000,9999)}",
                     department="dep", building="bldg",
-                    room=roomname, seat_min=1, seat_max=numseats,
+                    room=roomname, seat_last=seat_last,
                     importstep=importstep)
     room.save()
-    for i in range(numseats):
-        seat = arm.Seat(hash=arm.Seat.seathash(room, i), 
-                        rownumber=1, seatnumber=i,
-                        room=room)
-        seat.save()
-        seats.append(seat)
+    maxrow, maxseat = arm.Seat.split_seatname(seat_last)
+    for r in range(1, maxrow + 1):
+        for s in range(1, maxseat + 1):
+            seatname = arm.Seat.form_seatname(r, s)
+            seat = arm.Seat(hash=arm.Seat.seathash(room, seatname), 
+                            rownumber=r, seatnumber=s,
+                            room=room)
+            seat.save()
+            seats.append(seat)
     return (room, seats)
 
 

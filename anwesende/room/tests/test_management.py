@@ -20,11 +20,11 @@ def test_make_base_data():
 def test_delete_outdated_data(freezer, caplog):
     # --- make batch 1 of visits:
     freezer.move_to("2020-10-01")
-    artm.make_user_rooms_seats_visits(seatsN=5, visitsN=25)
+    artm.make_user_rooms_seats_visits(seat_last="r1s5", visitsN=25)
     assert arm.Visit.objects.count() == 2 * 25
     # --- make later batch 2:
     freezer.move_to("2020-11-01")
-    artm.make_user_rooms_seats_visits(seatsN=4, visitsN=33)
+    artm.make_user_rooms_seats_visits(seat_last="r2s2", visitsN=33)
     assert arm.Room.objects.count() == 2 + 2
     assert arm.Visit.objects.count() == 2 * (25 + 33)
     # --- delete batch 1 and check:

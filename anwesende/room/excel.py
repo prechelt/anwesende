@@ -44,8 +44,7 @@ def _validate_room_declarations(columndict: aue.Columnsdict):
 
 
 def _validate_columnlist(columndict: aue.Columnsdict):
-    expected = ('organization', 'department', 'building', 'room',
-                'seat_min', 'seat_max')
+    expected = ('organization', 'department', 'building', 'room', 'seat_last')
     found = columndict.keys()
     missing = set(expected) - set(found)
     if missing:
@@ -71,31 +70,21 @@ def _validate_single_department(columndict: aue.Columnsdict):
 
 
 def _validate_seatrange(columndict: aue.Columnsdict):
-    mins = columndict['seat_min']
-    maxs = columndict['seat_max']
-    for index in range(len(columndict['seat_min'])):
+    last_seats = columndict['seat_last']
+    for index in range(len(last_seats)):
         excel_row_number = index + 2
         try:
-            _min = int(mins[index])
-        except ValueError:
-            _excelerror(row=excel_row_number, column='seat_min',
-                        found=f"Not an integer number: {mins[index]}")
-        try:
-            _max = int(maxs[index])
-        except ValueError:
-            _excelerror(row=excel_row_number, column='seat_max',
-                        found=f"Not an integer number: {maxs[index]}")
-        if _min > _max:
-            _excelerror(row=excel_row_number, column="seat_min/seat_max",
-                        expected="seat_max is larger than seat_min",
-                        found=f"seat_min={_min}, seat_max={_max}")
-        seatsN = _max - _min
-        if seatsN > 200:
-            remark = ("if you are serious, use several lines with "
-                      "sub-rooms left/center/right or so")
-            _excelerror(row=excel_row_number,
-                        expected="No room has more than 200 seats in pandemic times",
-                        found=f"{seatsN} seats, from {_min} to {_max} ({remark})")
+            entry = last_seats[index]
+            maxrow, maxseat = arm.Seat.split_seatname(entry)
+            if maxrow not in range(1,100):
+                _excelerror(row=excel_row_number, column='seat_last',
+                            found=f"{entry}: row r must be in range 1 to 99")
+            if maxseat not in range(1, 100):
+                _excelerror(row=excel_row_number, column='seat_last',
+                            found=f"{entry}: seat s must be in range 1 to 99")
+        except ValueError as ex:
+            _excelerror(row=excel_row_number, column='seat_last',
+                        found=str(ex))
 
 
 def _create_importstep(user: aum.User) -> arm.Importstep:
@@ -118,8 +107,7 @@ def _find_or_create_rooms(
             department=col('department'),
             building=col('building'),
             room=col('room'),
-            defaults=dict(seat_min=col('seat_min'),
-                          seat_max=col('seat_max'),
+            defaults=dict(seat_last=col('seat_last'),
                           importstep=importstep)
         )
         result.append(room)
@@ -137,12 +125,15 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]) \
     result = []
     newN = existingN = 0
     for room in rooms:
-        for seatnum in range(room.seat_min, room.seat_max + 1):
-            seat, created = arm.Seat.objects.get_or_create(
-                rownumber=1,
-                seatnumber=seatnum,
-                room=room,
-                defaults=dict(hash=arm.Seat.seathash(room, seatnum))
+        maxrow, maxseat = arm.Seat.split_seatname(room.seat_last)
+        for rownum in range(1, maxrow + 1):
+            for seatnum in range(1, maxseat + 1):
+                seat, created = arm.Seat.objects.get_or_create(
+                    rownumber=rownum,
+                    seatnumber=seatnum,
+                    room=room,
+                    defaults=dict(hash=arm.Seat.seathash(
+                        room, arm.Seat.form_seatname(rownum, seatnum)))
             )
             result.append(seat)
             if created:
@@ -189,7 +180,7 @@ explanations = [
     Expl("Die Spalten beschreiben die Person, dann die Zeit, dann den Ort."),
     Expl("Leere Zeilen trennen Gruppen von Personen, die sich "
          "laut ihren Angaben mindestens "
-         f"{settings.MIN_OVERLAP_MINUTES} Minuten lang begegnet sind."),
+         f"{settings.MIN_OVERLAP_MINUTES} Minuten im gleichen Raum begegnet sind."),
     Expl(""),
     Expl("**cookie**: Die Daten enthalten meist viele Personen mehrfach."),
     Expl("Um diese Duplikate zu überblicken, kann man nach Spalte "
@@ -205,9 +196,7 @@ explanations = [
     Expl("**when**: Spalte 'when' enthält den Zeitpunkt der Meldung und "),
     Expl("'from' und 'to' die vom Besucher manuell eingegebenen Werte "
          "für den Zeitraum."),
-    Expl(""),
-    Expl(""),
-    Expl(""),
+    Expl("**distance**: Abstand vom Sitzplatz der infizierten Person"),
     Expl(""),
 ]
 
@@ -262,6 +251,6 @@ def _as_vgrouprows(visits) -> tg.List[tg.Optional[VGroupRow]]:
                 aud.dtstring(v.present_to_dt, date=False, time=True),
                 v.seat.room.organization, v.seat.room.department, 
                 v.seat.room.building, v.seat.room.room,
-                v.seat.seatnumber)
+                v.seat.seatname)
         vgrouprows.append(row)
     return vgrouprows

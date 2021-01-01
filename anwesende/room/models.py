@@ -64,8 +64,8 @@ class Room(djdm.Model):
         max_length=FIELDLENGTH,
         db_index=True,
     )
-    seat_min = djdm.IntegerField(null=False)
-    seat_max = djdm.IntegerField(null=False)
+    seat_last = djdm.CharField(blank=False, null=False, max_length=FIELDLENGTH,
+            help_text="e.g. 'r2s7' for row 2, seat 7 (14 seats total in the room)")
     # ----- References:
     importstep = djdm.ForeignKey(   # set on create or overwrite
         to=Importstep,
@@ -118,7 +118,7 @@ class Seat(djdm.Model):
 
     @classmethod
     def _make_dummyseat(cls, dummyorg: str) -> 'Seat':
-        DUMMYSEAT_NAME = "r1s1"
+        DUMMYSEAT_NAME = cls.form_seatname(1, 1)  # "r1s1"
         rownumber, seatnumber = cls.split_seatname(DUMMYSEAT_NAME)
         user = aum.User.objects.create(name="dummy", username="dummy", 
                                        first_name="D.", last_name="dummy", email="",
@@ -128,7 +128,7 @@ class Seat(djdm.Model):
                                          user=user)
         room = Room.objects.create(organization=dummyorg, department="dummydept", 
                                    building="dummybldg", 
-                                   room="dummyroom", seat_max=1, seat_min=1,
+                                   seat_last=cls.form_seatname(1, 1),
                                    importstep=step)
         dummyseat = cls.objects.create(room=room, 
                 rownumber=rownumber, seatnumber=seatnumber,
@@ -136,7 +136,7 @@ class Seat(djdm.Model):
         return dummyseat
     
     @classmethod
-    def seathash(cls, room: Room, seatname: int) -> str:
+    def seathash(cls, room: Room, seatname: str) -> str:
         make_unguessable = settings.SEAT_KEY
         seat_id = (f"{room.organization}|{room.department}|{room.building}|"
                    f"{room.room}|{seatname}|{make_unguessable}")
@@ -146,6 +146,11 @@ class Seat(djdm.Model):
     def seatname(self) -> str:
         return f"r{self.rownumber}s{self.seatnumber}"
     
+    @classmethod
+    def form_seatname(cls, rownum: int, seatnum: int) -> str:
+        assert rownum > 0 and seatnum > 0
+        return f"r{rownum}s{seatnum}"
+
     @classmethod
     def split_seatname(cls, seatname: str) -> tg.Tuple[int, int]:
         mm = re.fullmatch(r"r(\d+)s(\d+)", seatname)

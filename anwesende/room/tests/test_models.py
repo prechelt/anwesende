@@ -16,7 +16,7 @@ def test_get_overlapping_visits():
                     numseats: int) -> tg.Tuple[arm.Seat, ...]:
         results = []
         room = arm.Room(organization="org", department="dep", building="bldg",
-                        room=roomname, seat_min=1, seat_max=numseats, 
+                        room=roomname, seat_last=arm.Seat.form_seatname(1, numseats), 
                         importstep=importstep)
         room.save()
         for i in range(numseats):
@@ -84,6 +84,7 @@ def test_split_seatname():
     dummy = arm.Seat.get_dummy_seat()
     dummy.seatnumber = 3
     assert dummy.seatname == "r1s3"
+    assert dummy.seatname == arm.Seat.form_seatname(1, 3)
     assert (1, 3) == dummy.split_seatname(dummy.seatname)
 
 

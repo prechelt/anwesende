@@ -60,19 +60,28 @@ def test_validate_rooms_with_mixed_organizations():
 def test_validate_rooms_with_wrong_seats():
     
     def patcher1(example):
-        example['seat_min'][1] = "abc"
+        example['seat_last'][1] = "Z1S3"
+
     check_error_w_patched_example(patcher1, 
-            ("seat_min", "number", "abc"))
-    
+            ("seat_last", "Format", "Z1S3"))
+
     def patcher2(example):
-        example['seat_max'][1] = "def"
-    check_error_w_patched_example(patcher2, 
-            ("seat_max", "number", "def"))
-    
+        example['seat_last'][1] = "r0s1"
+
+    check_error_w_patched_example(patcher2,
+                                  ("seat_last", "row r must", "r0s1"))
+
     def patcher3(example):
-        example['seat_min'][1] = "7"
-    check_error_w_patched_example(patcher3, 
-            ("larger", "seat_min=7", "seat_max"))
+        example['seat_last'][1] = "r100s1"
+
+    check_error_w_patched_example(patcher3,
+                                  ("seat_last", "row r must", "r100s1"))
+
+    def patcher4(example):
+        example['seat_last'][1] = "r2s0"
+
+    check_error_w_patched_example(patcher4,
+                                  ("seat_last", "seat s must", "r2s0"))
 
 
 @pytest.mark.django_db
@@ -96,9 +105,11 @@ def test_create_seats_from_excel():
     assert arm.Seat.objects.count() == 20
     qs_room055_seats = arm.Seat.objects.filter(room=room055)
     assert qs_room055_seats.count() == 14
-    assert set(s.seatnumber for s in qs_room055_seats) == set(range(1, 14 + 1))
+    assert set(s.seatname for s in qs_room055_seats) == set((
+        "r1s1", "r1s2", "r1s3", "r1s4", "r1s5", "r1s6", "r1s7",
+        "r2s1", "r2s2", "r2s3", "r2s4", "r2s5", "r2s6", "r2s7"))
     myseat2 = qs_room055_seats[2]
     myseat5 = qs_room055_seats[5]
-    assert myseat2.seatnumber != myseat5.seatnumber
+    assert myseat2.seatname != myseat5.seatname
     assert myseat2.hash != myseat5.hash
     assert re.fullmatch(r"[0-9a-f]{10}", myseat2.hash)
