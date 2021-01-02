@@ -118,12 +118,15 @@ Datenverwalter/in.
      Dies sollte zur Beschriftung an der Eingangstür des Raums passen.
    - `seat_last`: Letzter Sitz, z.B. `r2s7` für Reihe 2, Sitz 7 in einem
      Raum mit 14 Sitzen in zwei Reihen. Der erste Sitz ist immer `r1s1`.  
-     Diese Sitznummern werden auf den QR-Code-Schildern
+     Diese Sitznamen werden auf den QR-Code-Schildern
      gut lesbar mit ausgedruckt.
      Wenn Reihen unterschiedlich viele Sitze haben, muss die maximale Anzahl
-     für die letzte Reihe angegeben werden (auch wenn die in Wirklichkeit
-     kürzer ist) und manche QR-Codes werden dann
-     nicht mit aufgeklebt.
+     auch für die letzte Reihe angegeben werden (selbst wenn die in Wirklichkeit
+     kürzer sein sollte) und manche QR-Codes werden dann
+     nicht mit aufgeklebt; hier ein 
+     [Beispiel mit `seat_last` r5s4](anwesende/static/images/seatname-example.png).  
+     Die Software nimmt je 1,4m Sitzabstand an und gibt 
+     im Schritt "Anwesenheitsdaten abrufen" resultierende Abstände mit aus.
 2. Die Mitarbeiter/in schickt die Excel-Datei per Email an
    die Datenverwalter/in.
 3. Die Datenverwalter/in prüft die Daten auf Plausibilität,
