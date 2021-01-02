@@ -11,11 +11,12 @@ import anwesende.users.models as aum
 def make_user_rooms_seats_visits(seat_last: str, visitsN: int) -> \
         tg.Tuple[tg.Sequence[arm.Room], tg.Sequence[tg.Sequence[arm.Seat]]]:
     """
-    Creates 2 Rooms, each with seatsN Seats, and visitsN Visits for each Room,
-    of which groups of seatsN overlap and the next group is an hour later.
-    seatsN different people are used round-robin for these Visits.
-    The first Visit is 24h ago, each visit is 30 minutes and starts one minute
-    after the previous one in the group.
+    Creates 2 Rooms, each with #seats Seats from 'r1s1' to seat_last, and 
+    visitsN 30-minute Visits for each Room,
+    of which groups of #seats overlap and the next group is an hour later.
+    #seats different people are used round-robin for these Visits.
+    The first Visit is 24h ago, 
+    each visit starts one minute after the previous one in the group.
     In room2, everything happens 10 minutes later than in room1.
     """
     MINUTE = dt.timedelta(minutes=1)

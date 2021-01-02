@@ -8,6 +8,8 @@ import anwesende.room.models as arm
 import anwesende.users.models as aum
 import anwesende.utils.excel
 
+import anwesende.room.tests.makedata as artm
+
 # #### scaffolding:
 
 excel_example_filename = "anwesende/room/tests/data/rooms1.xlsx"
@@ -113,3 +115,21 @@ def test_create_seats_from_excel():
     assert myseat2.seatname != myseat5.seatname
     assert myseat2.hash != myseat5.hash
     assert re.fullmatch(r"[0-9a-f]{10}", myseat2.hash)
+
+
+@pytest.mark.django_db
+def test_collect_visitgroups():
+    artm.make_user_rooms_seats_visits("r2s2", visitsN=4)
+    targetvisit = arm.Visit.objects.filter(pk=arm.Visit.objects.first().pk)
+    vrows = are._as_vgrouprows(are.collect_visitgroups(targetvisit))
+    result = set()
+    for vr in vrows:
+        vrowstr = f"{vr.familyname}: {vr.room}.{vr.seat}{vr.distance}"
+        result.add(vrowstr)
+    should = set([
+        "Visitor0: room1.r1s1  0.0m",
+        "Visitor1: room1.r1s2  1.4m",
+        "Visitor2: room1.r2s1  1.4m",
+        "Visitor3: room1.r2s2  2.0m",
+    ])
+    assert result == should

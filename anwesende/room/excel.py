@@ -165,6 +165,7 @@ def _excelerror(row: int = None, column: str = None,
 VGroupRow = collections.namedtuple('VGroupRow',  # noqa
     'familyname givenname email phone street_and_nr zipcode town '
     'cookie '
+    'distance '
     'when from_time to_time '
     'organization department building room seat ')
 
@@ -207,10 +208,12 @@ def collect_visitgroups(primary_visits: djdmq.QuerySet
     visit_pks_seen = set()  # all contacts of primary visits
     primary_visit_pks_seen = set()  # only primary visits
     for pvisit in primary_visits:
+        pvisit.distance = pvisit.seat.distance_in_m(pvisit.seat)  # add attr
         primary_visit_pks_seen.add(pvisit.pk)
         visit_pks_seen.add(pvisit.pk)
         group = pvisit.get_overlapping_visits()
         for visit in group:
+            visit.distance = visit.seat.distance_in_m(pvisit.seat)  # add attr
             must_not_be_suppressed = (visit.pk == pvisit.pk)
             is_new = visit.pk not in visit_pks_seen
             if is_new or must_not_be_suppressed:
@@ -245,7 +248,8 @@ def _as_vgrouprows(visits) -> tg.List[tg.Optional[VGroupRow]]:
         else:
             row = VGroupRow(
                 v.familyname, v.givenname, v.email, v.phone,
-                v.street_and_number, v.zipcode, v.town, v.cookie,
+                v.street_and_number, v.zipcode, v.town, 
+                v.cookie, "%5.1fm" % v.distance,
                 aud.dtstring(v.submission_dt, time=True), 
                 aud.dtstring(v.present_from_dt, date=False, time=True),
                 aud.dtstring(v.present_to_dt, date=False, time=True),
