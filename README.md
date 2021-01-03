@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2020-12-17
+Lutz Prechelt, 2021-01-02
 
 [![coverage report](https://git.imp.fu-berlin.de/anwesende/anwesende/badges/master/coverage.svg)](https://git.imp.fu-berlin.de/anwesende/anwesende/-/commits/master)
 
@@ -481,7 +481,7 @@ perform the following steps once:
 Done!
 
 
-# 5. Implementation status
+# 5. Versions / Releases
 
 The application is **complete, but not yet field-tested: ready for pilot use only!**
 
@@ -490,22 +490,25 @@ and a PostgreSQL database.
 It is open-source (with an MIT license) in order to
 provide maximal transparency.
 
-- DONE 2020-10-06: Use case descriptions (will need update later)
-- DONE 2020-10-08: Reading Excel files and creating master data
-- DONE 2020-10-09: Generating QR codes 
-- DONE 2020-10-12: Visitor input form and writing visit data
-- DONE 2020-10-13: Retrieving visit data by person
-- DONE 2020-10-15: Retrieving visit groups (contact groups)
-- DONE 2020-10-15: Writing Excel file
-- DONE 2020-10-19: Cleaning up code structure
-- DONE 2020-10-21: homepage, privacy info
-- DONE 2020-10-21: login, datenverwalter group, authorization checks
-- DONE 2020-10-26: User-visible process documentation, DUMMY_ORG for demo mode.
-- DONE 2020-10-28: Automatic purging of visit data after retention time
-- DONE 2020-10-29: Pilot deployment
-- DONE 2020-11-04: Automated system test of the whole workflow
-- DONE 2020-11-05: Load testing (about 1000 visits/minute: fast enough)
-- DONE 2020-11-06: Added logging
-- DONE 2020-11-06: Deployment description
-- DONE 2020-12-16: Added anw.sh install script
-- TODO: Pilot testing
+- 2020-10-06, Version 0.1: 
+  - Started development: Use case descriptions
+- 2020-10-21, Version 0.6: 
+  - Basic functionality is complete:
+    Login, reading Excel files, generating QR codes, visitor registration form,
+    retrieving visit groups and writing Excel file
+- 2020-10-28, Versison 0.7: 
+  - User-visible process documentation
+  - Demo mode
+  - Automatic purging of visit data after retention time
+- 2020-11-06, Version 0.8: 
+  - Pilot deployment, deployment description
+  - Load testing (about 1000 visits/minute: fast enough)
+  - Logging
+- 2020-12-29, Version 1.0: 
+  - `anw.sh` install script for mostly automated deployment
+- 2021-01-02, Version 2.0:
+  - introduced 2-dimensional seat numbering and distance calculation
+  - This is a semi-incompatible change: Existing pasted QR codes
+    will show e.g. seat 14, but will in fact now refer to seat r1s14;
+    existing importstep objects will lose their seats.
+
