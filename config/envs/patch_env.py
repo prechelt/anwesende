@@ -35,4 +35,4 @@ def patched(line: str) -> str:
 
 if __name__ == '__main__':
     first = 2 if sys.argv[1].endswith('.py') else 1  # call: python patch_env.py in out 
-    patch_file(sys.argv[first], sys.argv[first+1])
+    patch_file(sys.argv[first], sys.argv[first + 1])

@@ -76,7 +76,7 @@ def _validate_seatrange(columndict: aue.Columnsdict):
         try:
             entry = last_seats[index]
             maxrow, maxseat = arm.Seat.split_seatname(entry)
-            if maxrow not in range(1,100):
+            if maxrow not in range(1, 100):
                 _excelerror(row=excel_row_number, column='seat_last',
                             found=f"{entry}: row r must be in range 1 to 99")
             if maxseat not in range(1, 100):
@@ -134,7 +134,7 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]) \
                     room=room,
                     defaults=dict(hash=arm.Seat.seathash(
                         room, arm.Seat.form_seatname(rownum, seatnum)))
-            )
+                )
             result.append(seat)
             if created:
                 newN += 1
@@ -249,7 +249,7 @@ def _as_vgrouprows(visits) -> tg.List[tg.Optional[VGroupRow]]:
             row = VGroupRow(
                 v.familyname, v.givenname, v.email, v.phone,
                 v.street_and_number, v.zipcode, v.town, 
-                v.cookie, "%5.1fm" % v.distance,
+                v.cookie, "%5.1fm" % v.distance,  # type: ignore
                 aud.dtstring(v.submission_dt, time=True), 
                 aud.dtstring(v.present_from_dt, date=False, time=True),
                 aud.dtstring(v.present_to_dt, date=False, time=True),

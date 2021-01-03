@@ -52,11 +52,12 @@ def make_seats(importstep: arm.Importstep, roomname: str,
                     importstep=importstep)
     room.save()
     for i in range(numseats):
-        seat = arm.Seat(hash=arm.Seat.seathash(room, i),
+        seat = arm.Seat(hash=arm.Seat.seathash(room, arm.Seat.form_seatname(1, i)),
                         rownumber=1, seatnumber=i, room=room)
         seat.save()
         results.append(seat)
     return tuple(results)
+
 
 def make_visit(seat: arm.Seat, person: str, tfrom: str, tto: str) -> arm.Visit:
     now = djut.localtime()
@@ -99,4 +100,3 @@ def test_distance_in_m():
     dist_is = dummy.distance_in_m(other)
     dist_should = math.sqrt(5) * arm.Seat.SEATDISTANCE_in_m
     assert abs(dist_is - dist_should) < 0.0001
-

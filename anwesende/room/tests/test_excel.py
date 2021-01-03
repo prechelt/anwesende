@@ -5,10 +5,9 @@ import pytest
 
 import anwesende.room.excel as are
 import anwesende.room.models as arm
+import anwesende.room.tests.makedata as artm
 import anwesende.users.models as aum
 import anwesende.utils.excel
-
-import anwesende.room.tests.makedata as artm
 
 # #### scaffolding:
 
@@ -120,11 +119,11 @@ def test_create_seats_from_excel():
 @pytest.mark.django_db
 def test_collect_visitgroups():
     artm.make_user_rooms_seats_visits("r2s2", visitsN=4)
-    targetvisit = arm.Visit.objects.filter(pk=arm.Visit.objects.first().pk)
+    targetvisit = arm.Visit.objects.filter(pk=arm.Visit.objects.first().pk)  # type: ignore
     vrows = are._as_vgrouprows(are.collect_visitgroups(targetvisit))
     result = set()
     for vr in vrows:
-        vrowstr = f"{vr.familyname}: {vr.room}.{vr.seat}{vr.distance}"
+        vrowstr = f"{vr.familyname}: {vr.room}.{vr.seat}{vr.distance}"  # type: ignore
         result.add(vrowstr)
     should = set([
         "Visitor0: room1.r1s1  0.0m",
