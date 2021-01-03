@@ -6,6 +6,8 @@ app_name = "room"
 urlpatterns = [
     path("",
          view=arv.HomeView.as_view(), name="home"),
+    path("faq",
+         view=arv.FAQView.as_view(), name="faq"),
     path("import",
          view=arv.ImportView.as_view(), name="import"),
     path("qrcodes/<pk>",

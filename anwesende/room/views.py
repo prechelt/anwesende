@@ -46,6 +46,10 @@ class SettingsMixin:
         return context
 
 
+class FAQView(SettingsMixin, vv.TemplateView):
+    template_name = "room/faq.html"
+
+
 class HomeView(SettingsMixin, vv.TemplateView):
     template_name = "room/home.html"
 
