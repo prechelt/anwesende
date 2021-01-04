@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-01-02
+Lutz Prechelt, 2021-01-04
 
 [![coverage report](https://git.imp.fu-berlin.de/anwesende/anwesende/badges/master/coverage.svg)](https://git.imp.fu-berlin.de/anwesende/anwesende/-/commits/master)
 
@@ -35,7 +35,7 @@ Rollen:
   Anwesenheitsdaten hat und anderen Berechtigten selektiv Zugang verschafft.
 
 Schritte des Gesamtablaufs:
-1. Eine teilnehmende Hochschule übermittelt der Datenverwalter/in 
+1. Eine Einheit einer teilnehmenden Hochschule übermittelt der Datenverwalter/in 
    eine Liste von Räumen und Sitzplätzen, 
    siehe `Räume übermitteln` unten.
 2. Sie erhält im Gegenzug eine PDF-Datei mit einem QR-Code für
@@ -511,4 +511,11 @@ provide maximal transparency.
   - This is a semi-incompatible change: Existing pasted QR codes
     will show e.g. seat 14, but will in fact now refer to seat r1s14;
     existing importstep objects will lose their seats.
+- (N.N., Version 2.1):
+  - added FAQ page
+  - updated /import (which had outdated documentation in version 2.0)
 
+
+TO DO:
+- FAQ part 4
+- more info on the QR code snippets: URL, instruction

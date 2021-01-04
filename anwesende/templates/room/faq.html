@@ -38,7 +38,7 @@
   <hr>
   <h2 id="besucher">2. Für Raumbesucher_innen / For Room Visitors</h2>
   
-  <h3>
+  <h3 id="smartphone">
     2.1 Ich habe kein Smartphone / I don't have a smartphone
   </h3>
   <p>
@@ -56,7 +56,7 @@
     Or type the URL into your browser on a notebook computer.
   </p>
 
-  <h3>
+  <h3 id="zeiten">
     2.2 Ich gehe früher oder später weg als ich angegeben habe / 
     I'm leaving before or after the end time I gave upon registration 
   </h3>
@@ -73,7 +73,7 @@
     an unnecessary warning later.
   </p>
 
-  <h3>
+  <h3 id="platzwechsel">
     2.3 Ich bin zwischendurch an einem anderen Sitzplatz /
     I'll also spend some time at a different seat
   </h3>
@@ -93,7 +93,7 @@
     have not really happened.
   </p>
 
-  <h3>
+  <h3 id="vergessen">
     2.4 Ich habe vorhin vergessen, mich zu registrieren /
     I forgot to register earlier today
   </h3>
@@ -113,43 +113,71 @@
   <hr>
   <h2 id="einheiten">3. Für Raumverwalter_innen / For Room Administration staff (German only)</h2>
   
-  <h3>
-    3.1  / 
-    
+  <p>
+    Raumverwalter_innen heißen hier die Personen, die an einer Hochschuleinheit
+    für die Organisation der Anwesenheitserfassung zuständig sind,
+    sowie für die Meldungen an das Gesundheitsamt und ggf. eigene 
+    (Vor)Warnaktivitäten an die Kontaktpersonen einer infizierten oder
+    möglicherweise infizierten Person.
+  </p>
+  
+  <h3 id="raeumemelden">
+    3.1 Wie funktioniert der Prozess?
   </h3>
   <p>
     <span class="languagemark">DE</span>:
-  
-  </p>
-  <p>
-    <span class="languagemark">EN</span>:
-  
+    <ul>
+      <li>Sie übermitteln der Datenverwalter_in eine Liste von Räumen
+        und Sitzplätzen. (Einzelheiten siehe auf der Seite 
+        '<a href="/import">import</a>')
+      </li>
+      <li>
+        Sie erhalten als Antwort eine PDF-Datei mit einem QR-Code für
+        jeden Sitzplatz (Einzelheiten siehe Frage 3.2 unten)
+        und kleben den QR-Code dauerhaft am zugehörigen Sitzplatz auf.
+      </li>
+      <li>
+        Über diese QR-Codes erfassen nun die Raumbesucher_innen ihre 
+        Anwesenheit an einem bestimmten Sitzplatz in einem bestimmten Raum.
+      </li>
+      <li>
+        Wird Ihnen eine Infektion oder ein Infektionsverdacht gemeldet,
+        fragen Sie bei der Datenverwalter_in die Anwesenheitsdaten für die
+        Kontaktgruppen (selber Raum) der betreffenden Person im passenden Zeitfenster 
+        (z.B. 3 Tage) ab,
+        um sie dem Gesundheitsamt zu übermitteln oder ggf. eine sinnvoll
+        nach eigenen Kriterien daraus ausgewählte Teilmenge von genügend eng
+        erscheinenden Kontakten direkt zu warnen.
+      </li>
+    </ul>
   </p>
 
-  <h3>
-    3.2  / 
-    
+  <h3 id="sitzplaetze">
+    3.2 Wie funktioniert die Abstandsberechnung?
   </h3>
   <p>
     <span class="languagemark">DE</span>:
-  
+    a.nwesen.de gibt zu jeder Kontaktperson einen ungefähren Abstand 
+    von der infizierten Person an.<br>
+    Dieser basiert auf der Annahme, dass die Sitzplätze in einem Raster
+    von 1,4m angeordnet sind. Dies muss eine vorsichtige Annahme sein,
+    d.h. tatsächlich müssen die Sitzplätze <i>mindestens</i> so weit 
+    auseinander liegen.<br>
+    Bei Sitzen, die nicht in einem solchen Raster angeordnet sind, müssen Sie
+    entsprechend "runden" und/oder Sitzplatznummern weglassen, um die
+    beste Annäherung zu erreichen. Beispiel für einen Seminarraum mit 
+    lose verschieblichen Tischen:
+  </p>
+  <img src="{% static 'images/seatname-example.png' %} width="100%>
+  <p>
+    Hier wurden also die verschobenen Sitzreihen nach links ins Raster
+    eingeordnet und die Sitznummern r1s1, r1s3, r1s4, r3s4 und r5s4
+    einfach weggelassen (d.h. diese QR-Codes wurden weggeworfen statt aufgeklebt).
   </p>
   <p>
-    <span class="languagemark">EN</span>:
-  
-  </p>
-
-  <h3>
-    3.3  /  
-    
-  </h3>
-  <p>
-    <span class="languagemark">DE</span>:
-  
-  </p>
-  <p>
-    <span class="languagemark">EN</span>:
-  
+    Zu der Frage, wie man mit den daraus errechneten Abstandsangaben weiter verfährt,
+    verhält sich die Software völlig neutral; das muss jede Hochschule
+    selbst entscheiden.
   </p>
 
 

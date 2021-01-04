@@ -6,6 +6,7 @@
   <h1>Raumdaten einlesen und QR-Codes erzeugen</h1>
 
   <h2>Für Mitglieder von Hochschuleinheiten</h2>
+  
   <ul>
     <li>
       <b>Teilnahme:</b>
@@ -61,15 +62,13 @@
         nicht Raumnummern.
       </li>
       <li>
-        <var>seat_min</var>: Kleinste Sitznummer, für Lehre-Räume in aller Regel 1.
-      </li>
-      <li>
-        <var>seat_max</var>: Größte Sitznummer, z.B. 14.  
-        Diese Sitznummern sind fortlaufend und werden auf den QR-Code-Schildern
-        gut lesbar mit ausgedruckt.  <br/>
-        Im Bürobereich sollte man hier hohe Fantasienummern wählen, die nicht
-        mit offiziellen Raumnummern verwechselt werden können.<br/>
-        In diesen beiden Feldern sind nur ganze Zahlen möglich.
+        <var>seat_last</var>: 
+        Letzter Sitz, z.B. <var>r2s7</var> für Reihe 2, Sitz 7 in einem
+        Raum mit 14 Sitzen in zwei Reihen. Der erste Sitz ist immer </var>r1s1</var>.
+        Diese Sitznummern werden auf den QR-Code-Schildern
+        gut lesbar mit ausgedruckt. <br/>
+        Zum Umgang mit diesem Sitzraster siehe 
+        <a href="/faq#sitzplaetze">FAQ 3.2</a>.
       </li>
       <li>
         Alle Zellen der Datei haben das Zellenformat <i>Text</i>.
@@ -85,7 +84,7 @@
     <li>
       Wenn alles klappt, kommt sehr bald die entsprechende <b>PDF-Datei</b> 
       mit den QR-Codes per Email an Sie zurück.<br>
-      Wenn es Unstimmitgkeiten in den Raumdaten gibt, kommt statt dessen eine
+      Wenn es Unstimmigkeiten in den Raumdaten gibt, kommt statt dessen eine
       Rückfrage.
     </li>
     <li>
@@ -101,8 +100,9 @@
       praktischer ist.)
     </li>
   </ul>
-
+  
   <h2>Für Datenverwalter_innen</h2>
+  
   <p>Bitte prüfen Sie zugesandte Raumdaten vor dem Einlesen, insbesondere:</p>
   <ul>
     <li>
