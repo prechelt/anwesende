@@ -287,8 +287,7 @@ and the Python code is structured Django-style.
 
 ## 4.2 Deployment overview
 
-(The LETSENCRYPT case not yet been tested. 
-If you find errors anywhere, please speak up!)
+(If you find errors anywhere, please speak up!)
 
 The deployment procedure assumes an existing infrastructure of
 Linux, bash, ssh, rsync, and Docker 18.09 or younger 
@@ -370,7 +369,7 @@ few calls to a script called `anw.sh`.
      and then perform
      `a2enconf anwesende_proxy; systemctl reload apache2`.
 
-Steps 2 to 6 can be repeated as needed with no harm. 
+Steps 3 to 6 can be repeated as needed with no harm. 
 To start over from step 1, remove the reference directory (and beware
 that this will delete your settings in `.envs` as well).
 
@@ -381,7 +380,7 @@ that this will delete your settings in `.envs` as well).
   Let's assume it is called `anwesende.some-university.de`.
   Start a web browser and visit `https://anwesende.some-university.de`.  
 - Works?    
-  Then now set `DJANGO_HTTPS_INSIST=True` in `.envs/production.sh` and
+  Then now set `PATCH_DJANGO_HTTPS_INSIST=True` in `.envs/production.sh` and
   repeat step 4 above. Congratulations!  
 - Does not work?  
   Then consider the following ideas for your debugging:
