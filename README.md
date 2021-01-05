@@ -2,6 +2,7 @@
 
 Lutz Prechelt, 2021-01-05
 
+https://github.com/prechelt/anwesende
 
 Simple attendance registration for universities having pandemics.
 "anwesende" is German for "people that are being present".
@@ -15,10 +16,11 @@ um die Software einfach und den Gebrauch flexibel zu halten.
 at universities.
 Makes heavy use of human judgment and manual operations 
 to keep the software simple and its use flexible.  
-Alas, the remainder of the documentation is mostly German only.
+Designed for universities in the German-language area, so parts
+of the application are German+English, parts are German-language only.
+The code and technical documentation (Sections 4 and 5) are in English.
 
-
-# 1. Abläufe
+# 1. Abläufe / Business processes (German only)
 
 ## 1.1. Überblick
 
@@ -57,6 +59,9 @@ die Beschreibung der Schritte 1, 3 und 5 in
 [anwesende/templates/room/import.html](anwesende/templates/room/import.html),
 [anwesende/templates/room/privacy.html](anwesende/templates/room/privacy.html) und
 [anwesende/templates/room/search.html](anwesende/templates/room/search.html).
+
+Weitere Informationen finden sich in den FAQs unter
+[anwesende/templates/room/faq.html](anwesende/templates/room/faq.html)).
 
 
 ## 1.2 Besucher/innen/sicht
@@ -208,7 +213,7 @@ Datenverwalter/in
    Gesundheitsamt.
    
 
-# 2. Vor- und Nachteile
+# 2. Vor- und Nachteile / Pros and cons (German only)
 
 im Vergleich zu papierbasierter Erfassung der Anwesenheit
 
@@ -245,7 +250,7 @@ Risiken:
   an Ort und Stelle zu entdecken.
 
 
-# 3. Der/Die Datenverwalter/in
+# 3. Der/Die Datenverwalter/in / The main administrator role (German only)
 
 - Benötigt eine Einweisung (ca. 1 Stunde).
 - Muss Mitglied einer teilnehmenden Hochschule sein.
@@ -263,9 +268,11 @@ Risiken:
 
 Everything beyond this point is technical information, therefore in English.
 
-The application is meant to be deployed separately in many organizations
+The application is meant to be deployed locally in most organizations
 (to simplify the situation regarding privacy protection)
-and allows some configuration to adopt to local needs.
+and allows some configuration to adopt to local needs.  
+It is designed such that one installation can serve several smaller
+organizations together, though.
 
 
 ## 4.1 Architecture
@@ -480,9 +487,12 @@ perform the following steps once:
 Done!
 
 
-# 5. Versions / Releases
+# 5. Release versions
 
-The application is **complete, but not yet field-tested: ready for pilot use only!**
+<b>
+The application is complete and tested (with 95% code coverage), 
+but not yet field-tested: ready for pilot use only!
+</b>
 
 The application is written in Python using the Django framework
 and a PostgreSQL database. 
@@ -510,10 +520,13 @@ provide maximal transparency.
   - This is a semi-incompatible change: Existing pasted QR codes
     will show e.g. seat 14, but will in fact now refer to seat r1s14;
     existing importstep objects will lose their seats.
-- (in development, Version 2.1):
+- 2021-01-05, Version 2.1:
   - added FAQ page
   - updated `/import` (which had outdated documentation in version 2.0)
+  - more info on the QR code snippets: URL, instruction
+  - published at GitHub
 
 
 TO DO:
-- more info on the QR code snippets: URL, instruction
+- update the primary live instance http://a.nwesen.de, 
+  which is still running version 0.8.
