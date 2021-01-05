@@ -13,11 +13,11 @@ DEPLOYMODE=CERTS
 REMOTE=1
 # shorter name for 'production', used for image names and path names:
 ENV_SHORTNAME=prod
+# Name by which the web server will be known to its users:
+SERVERNAME=anwesende.example.com
 
 # Settings required for DEPLOYMODE=LETSENCRYPT only
 # -------------------------------------------------
-# Name by which the web server will be known to its users:
-SERVERNAME=anwesende.example.com
 # Email address how let's encrypt can reach the server admin:
 LETSENCRYPTEMAIL=anwesende-admin@myuniversity.de
 
