@@ -289,7 +289,7 @@ make_traefik_yml()  # internal
 {
   # ugly function due to inline documents violating the indentation
   announce $FUNCNAME internal
-  cat >$TRAEFIK_YML <<ENDOFFILE1
+  cat >$TRAEFIK_YML <<ENDOFentrypoints
 # https://doc.traefik.io/traefik/v2.0/providers/file/
 # Quote: "Go Templating only works with dedicated dynamic configuration files.
 #         Templating does not work in the Traefik main static configuration file."
@@ -305,9 +305,9 @@ entryPoints:
     # https
     address: ":443"
 
-ENDOFFILE1
+ENDOFentrypoints
   if [ $DEPLOYMODE == LETSENCRYPT ]; then
-      cat >>$TRAEFIK_YML <<ENDOFFILE2
+      cat >>$TRAEFIK_YML <<ENDOFcertresolver
 certificatesResolvers:
   letsencrypt:
     # https://docs.traefik.io/master/https/acme/#lets-encrypt
@@ -317,10 +317,10 @@ certificatesResolvers:
       # https://docs.traefik.io/master/https/acme/#httpchallenge
       httpChallenge:
         entryPoint: web
-ENDOFFILE2
+ENDOFcertresolver
   fi
   echo $TRAEFIK_YML
-  cat >>$TRAEFIK_YML <<"ENDOFFILE3"
+  cat >>$TRAEFIK_YML <<"ENDOFrouters1"
 http:
   routers:
     web-router:
@@ -336,16 +336,26 @@ http:
 
     web-secure-router:
       # https://doc.traefik.io/traefik/routing/routers/#rule
-ENDOFFILE3
+ENDOFrouters1
   echo "      rule: \"Host(\`$SERVERNAME\`) && PathPrefix(\`/\`)\""  >>$TRAEFIK_YML
-  cat >>$TRAEFIK_YML <<"ENDOFFILE4"
+  cat >>$TRAEFIK_YML <<ENDOFrouters2
       entryPoints:
         - web-secure
       # middlewares:
       #   - csrf
       service: django
+ENDOFrouters2
+  if [ $DEPLOYMODE == LETSENCRYPT ]; then
+      cat >>$TRAEFIK_YML <<ENDOFcertresolver2
       tls:
         certResolver: letsencrypt
+ENDOFcertresolver2
+  elif [ $DEPLOYMODE == CERTS ]; then
+      cat >>$TRAEFIK_YML <<ENDOFtlsbare
+      tls: {}
+ENDOFtlsbare
+  fi
+  cat >>$TRAEFIK_YML <<"ENDOFredirects"
 
   middlewares:
     # https://doc.traefik.io/traefik/master/middlewares/overview/
@@ -374,16 +384,16 @@ ENDOFFILE3
         servers:
           - url: http://django:5000
 tls:
-ENDOFFILE4
+ENDOFredirects
   if [ $DEPLOYMODE == CERTS ]; then
-    cat >>$TRAEFIK_YML <<ENDOFFILE5
+    cat >>$TRAEFIK_YML <<ENDOFcerts
   # https://docs.traefik.io/master/routing/routers/#certresolver
   certificates:
     - certFile: /etc/traefik/myssl/certs/anwesende.pem
       keyFile: /etc/traefik/myssl/private/anwesende-key.pem
-ENDOFFILE5
+ENDOFcerts
   fi
-  cat >>$TRAEFIK_YML <<ENDOFFILE6
+  cat >>$TRAEFIK_YML <<ENDOFoptions
   options:
     default:
       minVersion: VersionTLS12
@@ -403,7 +413,7 @@ providers:
     filename: /etc/traefik/traefik.yml
     watch: true
 
-ENDOFFILE6
+ENDOFoptions
 }  # END make_traefik_yml
 
 
