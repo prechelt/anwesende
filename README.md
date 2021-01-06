@@ -456,22 +456,25 @@ your installation can use URLs like `http://a.nwesen.de/z/S12345abcde`
 which will simply redirect to the corresponding one above.  
 How? 
 - You send me your installation URL such as 
-  `https://anwesende.some-university.de` and ask me for a 
-  SHORTURL_PREFIX.
-- I assign a prefix, such as `http://a.nwesen.de/z`,
+  `https://anwesende.some-university.de` or
+  `https://www.some-university.de/services/anwesende` 
+  or whatever it may be and ask me for a 
+  `SHORTURL_PREFIX`.
+- I assign a prefix, such as `http://a.nwesen.de/p`,
   enter it into the configuration of the central installation,
-  and tell you about it. (Don't get confused by the contents of
-  `compose/production/traefik/traefik.yml`: All parts talking about
-  `a.nwesen.de` are relevant only for the host that actually serves
-  that hostname, not for yours. 
-  They are present in the public repository for transparency only.)
-- You enter it into your settings file at `.envs/production.sh`
-  (for instance `SHORTURL_PREFIX=http://a.nwesen.de/z`) and
-  repeat step 4.
+  and tell you about it. 
+- You enter it into your settings file at `.envs/myenv.env`
+  (for instance `SHORTURL_PREFIX=http://a.nwesen.de/p`) and
+  repeat `./anw.sh production install`.
 
 If you do not want to use the short URL service,
 simply set SHORTURL_PREFIX to your installation URL instead,
-e.g. `https://anwesende.some-university.de`
+e.g. `https://anwesende.some-university.de`.
+
+If you have created QR codes previously, make sure the URLs they
+show continue to work.
+(Please do not try to guess what `SHORTURL_PREFIX` you are going
+to get; race conditions may occur.)
 
 Your service is now ready to be used.
 Time to create the Datenverwalter accounts!
