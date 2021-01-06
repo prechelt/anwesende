@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-01-05
+Lutz Prechelt, 2021-01-06
 
 https://github.com/prechelt/anwesende
 
@@ -413,17 +413,31 @@ that this will delete your settings in `.envs` as well).
   work, try that.
    
    
-## 4.5 Cronjob, Load test
+## 4.5 Cronjob, DB-Backup/Restore, Identify, Load test
 
-1. Create a cronjob with the following script (insert the proper reference dir):
+1. Create a cronjob with the following script (insert the proper directory name).
+   It serves two purposes: Delete data after the retention period and
+   make database backups.
    ```
    #!/bin/bash
-   cd $the_reference_dir  # where the source code is (we need two config files)
+   cd /home/thedeployer/anw/prod  # adjust this! We need docker-compose.yml
    set -a; source .envs/production.sh; 
    docker-compose run --rm django python manage.py delete_outdated_data  # to obey DATA_RETENTION_DAYS
    docker-compose exec postgres backup
    ```
-2. Optional:
+   Add a suitable `logrotate` call to avoid accumulating too many backups.
+2. If you ever need to restore a backup:
+   - Copy the backup file to directory `$VOLUME_SERVERDIR_POSTGRES_BACKUP`.
+     Let us assume it is called `mybackup.sql.gz`.
+   - Go to the directory where your `docker-compose.yml` is and perform 
+     ```
+     docker-compose kill django
+     docker-compose exec postgres restore mybackup.sql.gz
+     docker-compose restart django
+     ```
+3. If you ever wonder what version you are running, try this:  
+   `docker inspect anw_prod_django | grep anwesende.build`
+4. Purely optional:
    There is a simple, stand-alone load testing script in
    `anwesende/room/tests/loadtest.py`
    with which you can get a rough estimate of 
@@ -524,8 +538,10 @@ provide maximal transparency.
   - updated `/import` (which had outdated documentation in version 2.0)
   - more info on the QR code snippets: URL, instruction
   - published at GitHub
+- 2021-01-06, Version 2.2:
+  - README now also describes DB restore and deployment identification
 
 
 TO DO:
-- update the primary live instance http://a.nwesen.de, 
-  which is still running version 0.8.
+- introduce `DEPLOYMODE=DEV` for development
+- remove outdated deployment-related stuff
