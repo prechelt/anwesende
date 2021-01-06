@@ -82,6 +82,9 @@ install()   # args:        (step 3, the rest are substeps:)
 build_images()   # args: 
 {
   announce $FUNCNAME
+  export BUILD_WHAT=`git log -1 --oneline`
+  export BUILD_WHEN=`date --iso=seconds`
+  export BUILD_WHO=$(echo `whoami`@`hostname`)
   create_files_on_the_fly
   docker-compose build
   announce $FUNCNAME end
@@ -206,7 +209,7 @@ make_docker_compose_yml()  # internal
   # ugly function due to inline documents violating the indentation
   announce $FUNCNAME internal
   cat >$DOCKER_COMPOSE_YML <<ENDOFFILE1
-version: '2'
+version: '2.1'
 # https://docs.docker.com/compose/compose-file/
 
 services:
@@ -218,6 +221,10 @@ services:
       args:
         - "DJANGO_UID=${DJANGO_UID}"
         - "DJANGO_GID=${DJANGO_GID}"
+      labels:
+        - "anwesende.build.what=${BUILD_WHAT}"
+        - "anwesende.build.when=${BUILD_WHEN}"
+        - "anwesende.build.who=${BUILD_WHO}"
     image: anw_${ENV_SHORTNAME}_django
     container_name: c_anw_${ENV_SHORTNAME}_django
     volumes:
