@@ -1,4 +1,6 @@
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import path
+from django.views.generic.base import RedirectView
 
 import anwesende.room.views as arv
 
@@ -22,4 +24,6 @@ urlpatterns = [
          view=arv.UncookieView.as_view(), name="uncookie"),
     path("search",
          view=arv.SearchView.as_view(), name="search"),
+    path('favicon.ico', RedirectView.as_view(
+        url=staticfiles_storage.url('images/favicon.ico')))
 ]
