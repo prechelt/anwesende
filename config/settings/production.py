@@ -58,7 +58,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = DJANGO_HTTPS_INSIST
 
 # STATIC and MEDIA
 # ------------------------
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
