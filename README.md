@@ -195,7 +195,7 @@ Infiziertes Mitglied der Hochschule,
 Mitarbeiter/in der Hochschuleinheit,
 Datenverwalter/in
 
-1. 1. Ist ein Mitglied (oder ein/e Besucher/in) der Hochschule infiziert, 
+1. Ist ein Mitglied (oder ein/e Besucher/in) der Hochschule infiziert, 
    so informiert es die betreffenden Hochschuleinheit(en) darüber,
    an welchen Tagen eine Infektiösität bestanden haben kann.
 2. Die Mitarbeiter/in der Hochschuleinheit, die bei der Datenverwalter/in
@@ -398,7 +398,7 @@ that this will delete your settings in `.envs` as well).
 - In `DEPLOYMODE=LETSENCRYPT`, you may have to wait 2 minutes for
   the certificates to arrive.
 - Consult the logs, either from remote (if `REMOTE=1`) by 
-   `./anw.sh production.sh onserver docker-compose logs`
+   `./anw.sh production onserver docker-compose logs`
    or right on the server by `dcoker-compose logs`.
 - In `DEPLOYMODE=CERTS`, traefik will ignore your certificate if it does
   not match the request (different fully-qualified domain name).
@@ -421,7 +421,6 @@ that this will delete your settings in `.envs` as well).
    ```
    #!/bin/bash
    cd /home/thedeployer/anw/prod  # adjust this! We need docker-compose.yml
-   set -a; source .envs/production.sh; 
    docker-compose run --rm django python manage.py delete_outdated_data  # to obey DATA_RETENTION_DAYS
    docker-compose exec postgres backup
    ```
@@ -486,7 +485,7 @@ Once the server is running and you can retrieve the homepage properly,
 perform the following steps once:
 
 - Perform  
-  `./anw.sh production.sh onserver docker-compose run --rm django python manage.py createsuperuser --username superuser`.
+  `./anw.sh production onserver docker-compose run --rm django python manage.py createsuperuser --username superuser`.
   You could use a different username if you prefer.
   Enter a (near-irrelevant) email address and password for the superuser.
 - In a browser, visit
