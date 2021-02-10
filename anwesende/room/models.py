@@ -7,6 +7,7 @@ import typing as tg
 import django.core.validators as djcv
 import django.db.models as djdm
 import django.db.models.query as djdmq
+import django.utils.timezone as djut
 import strgen
 from django.conf import settings
 from django.db.models.query import F
@@ -261,6 +262,15 @@ class Visit(djdm.Model):
     def __repr__(self):
         return self.__str__()
 
+    @classmethod
+    def current_unique_visitorsN(cls, room: Room) -> int:
+        now = djut.localtime()
+        return cls.objects.filter(
+                seat__room=room,
+                present_from_dt__lte=now,
+                present_to_dt__gte=now
+                ).order_by('email').distinct('email').count()
+    
     def get_overlapping_visits(self) -> djdmq.QuerySet:
         """
         All visits that overlap self by at least MIN_OVERLAP_MINUTES.
