@@ -501,6 +501,32 @@ perform the following steps once:
   
 Done!
 
+## 4.8 `DEPLOYMODE=DEVELOPMENT`
+
+The `anw.sh` script supports a seventh mode: `DEPLOYMODE=DEVELOPMENT`.
+It uses only a single docker container for the database (with a 
+data volume that is internal to docker) and
+runs tests or the Django development webserver directly in a local shell.
+
+The configuration file `development.sh` for it will look more or less like this:
+
+    source .envs/production.sh
+    DEPLOYMODE=DEVELOPMENT
+    REMOTE=0
+    PATCH_DJANGO_SETTINGS_MODULE=config.settings.local
+    PATCH_DJANGO_HTTPS_INSIST=False
+    PATCH_POSTGRES_HOST=localhost
+    LOCAL_POSTGRES_PORT=5432
+
+To use it, 
+- execute `./anw.sh development build_images` once (and then
+   probably never again, 
+- turn the database server on and off as needed by
+  `./anw.sh development server_up` and `./anw.sh development server_down`,
+  respectively,
+- run tests by `pytest` (with arguments as needed), and
+- run the development webserver by `python manage.py runserver`.
+
 
 # 5. Release versions
 
