@@ -46,7 +46,6 @@ target/
 venv/
 ENV/
 .envs
-.env
 
 
 ### VisualStudioCode template
