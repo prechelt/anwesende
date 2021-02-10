@@ -15,7 +15,6 @@ class User(djcam.AbstractUser):
 
     def assign_datenverwalter_group(self) -> None:
         group = self.get_datenverwalter_group()
-        assert group.id == 1
         self.groups.add(group)
 
     def is_datenverwalter(self) -> bool:
