@@ -8,6 +8,7 @@ import django.utils.timezone as djut
 import pytest
 import webtest as wt
 from django.urls import reverse
+from freezegun import freeze_time
 
 import anwesende.room.models as arm
 import anwesende.room.tests.makedata as artm
@@ -29,6 +30,8 @@ def test_workflow_happy_path(django_app: wt.TestApp):
     resp = django_app.get("/")
     _search_and_download(django_app, resp.text)
 
+def freeze_at(daytime_string: str):
+    return freeze_time(aud.make_dt('now', daytime_string))
 
 def _log_in(django_app: wt.TestApp, username: str, password: str) -> wt.TestResponse:
     # base.html: <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">Datenverwaltung</a>
@@ -86,12 +89,14 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
     # --- fill visit form once:
     visit_page = django_app.get(visit_url)
     _fill_with(visit_page.form, data)
-    resp = visit_page.form.submit()
-    # resp.showbrowser()  # activate if follow fails
-    # print("container:", _find(resp.text, name="div", class_="container"))
-    resp = resp.follow()
-
-    assert resp.request.path == reverse('room:thankyou')
+    with freeze_at("11:00"):
+        resp = visit_page.form.submit()
+        # resp.showbrowser()  # activate if follow fails
+        # print("container:", _find(resp.text, name="div", class_="container"))
+        resp = resp.follow()
+        
+    assert resp.request.path == reverse('room:thankyou', 
+                                        kwargs=dict(emails_presentN='1'))
     # --- check DB contents:
     visit = arm.Visit.objects.last()
     assert visit.email == "a@fam.de"  # type: ignore[union-attr]
@@ -107,7 +112,11 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
                         email="b@fam.de",
                         present_from_dt="11:20", present_to_dt="12:00")
     _fill_with(visit_page_with_cookie.form, changed_data)
-    resp = visit_page_with_cookie.form.submit().follow()
+    with freeze_at("11:20"):
+        resp = visit_page_with_cookie.form.submit().follow()
+    assert resp.request.path == reverse('room:thankyou', 
+                                        kwargs=dict(emails_presentN='2'))
+
     # --- fill visit form again (same device, later time):
     visit_page3 = django_app.get(visit_url)
     del changed_data['present_from_dt']  # not stored in cookie

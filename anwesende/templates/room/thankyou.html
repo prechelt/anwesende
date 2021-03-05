@@ -3,4 +3,9 @@
 {% block content %}
   <h1>Danke für's Anmelden!</h1>
   <h1>Thank you for registering!</h1>
+  
+  <p>
+    In diesem Raum ist/sind aktuell {{ view.kwargs.emails_presentN }}
+    Person(en) (bzw. Emailadressen) angemeldet.
+  </p>
 {% endblock content %}

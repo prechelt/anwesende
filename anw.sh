@@ -25,7 +25,7 @@ anw env cmd args...
   args  are cmd-dependent arguments, most often none.
   Install script, see README.md for a description.
   Will read the files 
-    ${MYENV_ENV} and $ENVSDIR/{env}
+    ${MYENV_ENV} and $ENVSDIR/{env}.sh
   and use the settings therein to generate the following files on the fly:
     $DOCKER_COMPOSE_YML  (which configures docker)
     $DOCKERENV_ENV  (used to hand environment into the docker containers)

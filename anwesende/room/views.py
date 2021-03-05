@@ -132,7 +132,12 @@ class VisitView(SettingsMixin, vv.CreateView):
     model = arm.Visit
     form_class = arf.VisitForm
     template_name = "room/visit.html"
-    success_url = dju.reverse_lazy('room:thankyou')
+
+    def get_success_url(self):
+        room = self.object.seat.room
+        emails_presentN = arm.Visit.current_unique_visitorsN(room)
+        return dju.reverse('room:thankyou', 
+                           kwargs=dict(emails_presentN=emails_presentN))
     
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -162,14 +167,14 @@ class VisitView(SettingsMixin, vv.CreateView):
         return arf.VisitForm(initial=initial)
         
     def form_valid(self, form: arf.VisitForm):
-        response = djh.HttpResponseRedirect(self.get_success_url())
-        response.set_cookie(key=COOKIENAME, value=self.get_cookiejson(form), 
-                            max_age=3600 * 24 * 90)
         self.object = form.save(commit=False)
         self.object.seat = arm.Seat.by_hash(self.kwargs['hash'])
         self.object.save()
         o = self.object
         logging.info(f"VisitView({o.seat.hash}): {o.givenname}; {o.email}; {o.zipcode}; {o.cookie}")
+        response = djh.HttpResponseRedirect(self.get_success_url())
+        response.set_cookie(key=COOKIENAME, value=self.get_cookiejson(form), 
+                            max_age=3600 * 24 * 90)
         return response
 
     def get_cookiejson(self, form):
