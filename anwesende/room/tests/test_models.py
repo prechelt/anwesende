@@ -100,9 +100,8 @@ def test_current_unique_visitorsN():
     person4_otherroom = make_visit(rm2s1, "p4", "03:00", "04:00")  # noqa
     person3_changed = make_visit(rm1s1, "p3", "03:30", "04:00")  # noqa
     # --- now look at different times how many are in rm1:
-    now = djut.localtime()
     def freeze_at(ts: str):
-        return freeze_time(aud.make_dt(now, ts))
+        return freeze_time(aud.make_dt('now', ts))
     with freeze_at("02:50"):
         show_them()
         assert arm.Visit.current_unique_visitorsN(room) == 0

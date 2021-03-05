@@ -1,5 +1,6 @@
 import datetime as dt
 import re
+import typing as tg
 
 import django.utils.timezone as djut
 
@@ -21,13 +22,17 @@ def nowstring(date=True, time=False) -> str:
     return dtstring(now, date, time)
 
 
-def make_dt(dto: dt.datetime, timestr: str = None) -> dt.datetime:
+def make_dt(dto: tg.Union[dt.date, str], timestr: str = None) -> dt.datetime:
+    """Return a datetime with dto date (today if "now") and timestr hour/minute."""
     # 1. Must never use dt.datetime(..., tzinfo=...) with pytz,
     # because it will often end up with a historically outdated timezone.
     # see http://pytz.sourceforge.net/
     # 2. We must not rely on a naive datetime_obj.day etc. because it may be off
     # wrt the server's TIME_ZONE, which we use for interpreting timestr.
     # 3. Django uses UTC timezone on djut.now()! Use djut.localtime().
+    if dto == 'now':
+        dto = djut.localtime()
+    assert isinstance(dto, dt.date)
     assert dto.tzinfo is not None  # reject naive input: we need a tz
     if timestr:
         mm = re.match(r"^(\d\d):(\d\d)$", timestr)
