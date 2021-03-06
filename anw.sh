@@ -122,7 +122,7 @@ onserver()   # args: other_anw_cmd args...
 {
   if [ $REMOTE ]; then
     announce $FUNCNAME
-    ssh -t $TUTH  ${ANW}/$ENV_SHORTNAME/anw.sh  $which_env  $@
+    ssh -t $TUTH  ONSERVER=1 ${ANW}/$ENV_SHORTNAME/anw.sh  $which_env  $@
     announce $FUNCNAME end
   else
     $@
@@ -150,7 +150,9 @@ pull_image()   # args: servicename
 server_up()   # args: 
 {
   announce $FUNCNAME
-  create_files_on_the_fly
+  if [ ! ${ONSERVER:-0} ]; then
+    create_files_on_the_fly
+  fi
   docker-compose up -d
   announce $FUNCNAME end
 }
@@ -158,7 +160,9 @@ server_up()   # args:
 server_down()   # args: 
 {
   announce $FUNCNAME
-  create_files_on_the_fly
+  if [ ! ${ONSERVER:-0} ]; then
+    create_files_on_the_fly
+  fi
   docker-compose down
   announce $FUNCNAME end
 }
