@@ -22,7 +22,7 @@ def nowstring(date=True, time=False) -> str:
     return dtstring(now, date, time)
 
 
-def make_dt(dto: tg.Union[dt.date, str], timestr: str = None) -> dt.datetime:
+def make_dt(dto: tg.Union[dt.datetime, str], timestr: str = None) -> dt.datetime:
     """Return a datetime with dto date (today if "now") and timestr hour/minute."""
     # 1. Must never use dt.datetime(..., tzinfo=...) with pytz,
     # because it will often end up with a historically outdated timezone.
