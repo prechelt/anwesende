@@ -1,6 +1,11 @@
 services:
   - "postgres:12.3"
 
+variables:
+  - POSTGRES_DB: anwesende
+  - POSTGRES_USER: anwesende
+  - POSTGRES_PASSWORD: anwesende
+
 stages:
   - test
 
