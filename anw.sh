@@ -150,7 +150,7 @@ pull_image()   # args: servicename
 server_up()   # args: 
 {
   announce $FUNCNAME
-  if [ ! ${ONSERVER:-0} ]; then
+  if [ ${ONSERVER:-0} = 0 ]; then
     create_files_on_the_fly
   fi
   docker-compose up -d
@@ -206,6 +206,7 @@ create_files_on_the_fly()   # internal
   if [ $files_are_created ]; then
     return
   fi
+  announce $FUNCNAME internal
   make_dockerenv_env
   if [ $DEPLOYMODE == DEVELOPMENT ]; then
     make_docker_compose_yml_development
