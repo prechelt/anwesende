@@ -1,3 +1,6 @@
+services:
+  - "postgres:12.3"
+
 stages:
   - test
 
@@ -8,4 +11,4 @@ pytest:
     - pip install -r requirements/local.txt
   script:
     - mypy anwesende
-
+    - pytest
