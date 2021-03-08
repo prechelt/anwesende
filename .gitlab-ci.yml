@@ -2,6 +2,8 @@ services:
   - "postgres:12.3"
 
 variables:
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: 5432
   POSTGRES_DB: anwesende
   POSTGRES_USER: anwesende
   POSTGRES_PASSWORD: anwesende
