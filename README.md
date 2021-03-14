@@ -568,8 +568,10 @@ provide maximal transparency.
   - published at GitHub
 - 2021-01-06, Version 2.2:
   - README now also describes DB restore and deployment identification
-
-
-TO DO:
-- introduce `DEPLOYMODE=DEV` for development
-- remove outdated deployment-related stuff
+- 2021-03-14, Version 2.3:
+  - now shows number of people in room after one has registered
+  - introduced `DEPLOYMODE=DEVELOPMENT` for development
+    and removed some outdated deployment-related stuff 
+  - fixed mistakes in `anw.sh` script, install instructions, FAQ.
+  - updated Python to 3.9
+    

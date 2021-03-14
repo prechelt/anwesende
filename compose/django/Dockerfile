@@ -1,5 +1,5 @@
 
-FROM python:3.8-slim-buster
+FROM python:3.9-slim-buster
 
 ARG DJANGO_UID
 ARG DJANGO_GID
