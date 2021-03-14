@@ -116,6 +116,6 @@ fabric.properties
 
 anwesende/media/
 anwesende/static/pdf
-compose/production/traefik/traefik.yml
+compose/traefik/traefik.yml
 docker-compose.yml
 Makefile
