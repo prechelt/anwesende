@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-01-06
+Lutz Prechelt, 2021-03-14
 
 https://github.com/prechelt/anwesende
 
@@ -573,5 +573,5 @@ provide maximal transparency.
   - introduced `DEPLOYMODE=DEVELOPMENT` for development
     and removed some outdated deployment-related stuff 
   - fixed mistakes in `anw.sh` script, install instructions, FAQ.
-  - updated Python to 3.9
+  - updated Python to 3.9 and removed Pillow dependency 
     
