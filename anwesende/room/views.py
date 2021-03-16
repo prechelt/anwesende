@@ -65,7 +65,7 @@ class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.is_datenverwalter:
-            interval = dt.timedelta(hours=36)
+            interval = dt.timedelta(days=8)
             imports = arm.Importstep.displayable_importsteps(interval)
             show_imports = imports.count() > 0
         else:

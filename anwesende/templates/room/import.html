@@ -125,15 +125,19 @@
 
   {% crispy form %}
   <hr>
-  <p>Importe der letzten 36 Stunden:</p>
+  <p>Importe der letzten 8 Tage:</p>
   {% if show_imports %}
     <ol>
       {% for o in imports %}
         <li>
-          <a href="{% url "room:qrcodes" o.pk %}">{{ o.when | date:"Y-m-d H:i" }}</a>, 
-          {{ o.user.username }}, {{ o.user.name }}<br>
-          {{ o.organization }}, {{ o.department }}
-          ({{ o.num_new_rooms }}/{{ o.num_new_seats }} neue Räume/Sitzplätze)
+          {{ o.when | date:"Y-m-d H:i" }} durch 
+          <i>{{ o.user.username }}</i> ({{ o.user.name }})<br>
+          {{ o.organization }}, {{ o.department }}<br>
+          {{ o.num_new_rooms }}/{{ o.num_new_seats }} neue Räume/Sitzplätze,
+          <a href="{% url "room:qrcodes" o.pk %}">{{ o.num_qrcodes }} QR-Codes</a>
+          {% if o.num_qrcodes_moved %}
+            ({{ o.num_qrcodes_moved }} sind in jüngeren Import gewandert)
+          {% endif %}
         </li>
       {% endfor %}
     </ol>
