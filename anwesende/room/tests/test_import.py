@@ -55,13 +55,13 @@ def test_displayable_importsteps():
     # ----- check displayable importstep1 again:
     steps2 = arm.Importstep.displayable_importsteps(dt.timedelta(days=1))
     assert len(steps2) == 2
-    step1b = steps2[1]  # order is youngest first
+    step1b = steps2[0]  # order is oldest first
     assert step1b.num_new_seats == 20
     # first room is untouched, second room was updated:
     assert step1b.num_qrcodes == 14  # type: ignore[attr-defined]
     assert step1b.num_qrcodes_moved == 6  # type: ignore[attr-defined]
     # ----- check displayable importstep2:
-    step2 = steps2[0]  # order is youngest first
+    step2 = steps2[1]
     assert step2.num_existing_rooms == 1
     assert step2.num_existing_seats == 6
     assert step2.num_new_rooms == 0
