@@ -110,13 +110,14 @@ def _find_or_create_rooms(
             defaults=dict(seat_last=col('seat_last'),
                           importstep=importstep)
         )
-        result.append(room)
         if created:
             newN += 1
         else:
             existingN += 1
             room.importstep = importstep
+            room.seat_last = col('seat_last')
             room.save()
+        result.append(room)
     return (result, newN, existingN)
 
 
@@ -135,11 +136,11 @@ def _find_or_create_seats(rooms: tg.Sequence[arm.Room]) \
                     defaults=dict(hash=arm.Seat.seathash(
                         room, arm.Seat.form_seatname(rownum, seatnum)))
                 )
-            result.append(seat)
-            if created:
-                newN += 1
-            else:
-                existingN += 1
+                result.append(seat)
+                if created:
+                    newN += 1
+                else:
+                    existingN += 1
     return (result, newN, existingN)
 
 

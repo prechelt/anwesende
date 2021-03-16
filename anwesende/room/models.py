@@ -10,6 +10,7 @@ import django.db.models.query as djdmq
 import django.utils.timezone as djut
 import strgen
 from django.conf import settings
+from django.db.models import Count, Max
 from django.db.models.query import F
 
 import anwesende.users.models as aum
@@ -33,6 +34,18 @@ class Importstep(djdm.Model):
                 + f"by {self.user.username}, "        
                 + f"{self.num_existing_rooms}+{self.num_existing_seats} pre-existing")
 
+    @classmethod
+    def displayable_importsteps(cls, interval: dt.timedelta) -> tg.List['Importstep']:
+        steps = cls.objects.filter(
+            when__gt=djut.localtime() - interval) \
+            .annotate(organization=Max('room__organization')) \
+            .annotate(department=Max('room__department')) \
+            .annotate(num_qrcodes=Count('room__seat'))
+        for step in steps:
+            step.num_qrcodes_moved = (step.num_new_seats + 
+                                      step.num_existing_seats - 
+                                      step.num_qrcodes)
+        return steps
 
 class Room(djdm.Model):
     """
@@ -162,7 +175,7 @@ class Seat(djdm.Model):
         return (int(mm.group(1)), int(mm.group(2)))
 
     def __str__(self):
-        return f"{self.room.room}|{self.seatnumber}|{self.hash}"
+        return f"{self.room.room}|{self.seatname}|{self.hash}"
 
     def __repr__(self):
         return self.__str__()

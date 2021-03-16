@@ -9,7 +9,6 @@ import django.urls as dju
 import django.utils.timezone as djut
 import vanilla as vv  # Django vanilla views
 from django.conf import settings
-from django.db.models import Max
 
 import anwesende.room.excel as are
 import anwesende.room.forms as arf
@@ -67,10 +66,7 @@ class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
         context = super().get_context_data(**kwargs)
         if self.is_datenverwalter:
             interval = dt.timedelta(hours=36)
-            imports = arm.Importstep.objects.filter(
-                when__gt=djut.localtime() - interval) \
-                .annotate(organization=Max('room__organization')) \
-                .annotate(department=Max('room__department'))
+            imports = arm.Importstep.displayable_importsteps(interval)
             show_imports = imports.count() > 0
         else:
             room = arm.Seat.get_dummy_seat().room

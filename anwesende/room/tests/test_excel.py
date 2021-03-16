@@ -11,12 +11,13 @@ import anwesende.utils.excel
 
 # #### scaffolding:
 
-excel_example_filename = "anwesende/room/tests/data/rooms1.xlsx"
+excel_rooms1_filename = "anwesende/room/tests/data/rooms1.xlsx"
+excel_rooms2_filename = "anwesende/room/tests/data/rooms2.xlsx"
 
 
 def excel_example_columnsdict():
     # knowledge about file contents is hardcoded in many places
-    return anwesende.utils.excel.read_excel_as_columnsdict(excel_example_filename)
+    return anwesende.utils.excel.read_excel_as_columnsdict(excel_rooms1_filename)
 
 
 def check_error_w_patched_example(patcher, msg_elements):
@@ -88,10 +89,8 @@ def test_validate_rooms_with_wrong_seats():
 @pytest.mark.django_db
 def test_create_seats_from_excel():
     user = aum.User.objects.create(name="x")
-    stuff = are.create_seats_from_excel(excel_example_filename, user)
+    stuff = are.create_seats_from_excel(excel_rooms1_filename, user)
     print(stuff)
-    # ----- check importstep:
-    assert arm.Importstep.objects.all().count() == 1
     importstep = arm.Importstep.objects.first()
     # ----- check rooms:
     all_rooms = arm.Room.objects.filter(organization="fu-berlin.de")
