@@ -38,12 +38,20 @@ class UploadFileForm(djf.Form):
         
     def clean(self):
         self.cleaned_data = super().clean()
-        uploadedfile = self.cleaned_data['file']
-        excelfile = self._store_excelfile(uploadedfile)
+        try:
+            uploadedfile = self.cleaned_data['file']
+        except KeyError:
+            raise djce.ValidationError("Dateiname fehlt")
+        try:
+            excelfile = self._store_excelfile(uploadedfile)
+        except Exception:
+            raise djce.ValidationError(f"Kann die Datei {{uploadedfile}} nicht öffnen")
         try:
             are.validate_excel_importfile(excelfile)  # stores models iff valid
         except are.InvalidExcelError as err:
             raise djce.ValidationError(err)
+        except Exception:
+            raise djce.ValidationError("Das ist keine gültige XLSX-Datei, oder?")
         self.cleaned_data['excelfile'] = excelfile
         
     def _store_excelfile(self, uploadedfile):
