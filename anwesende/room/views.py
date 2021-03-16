@@ -67,16 +67,13 @@ class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
         if self.is_datenverwalter:
             interval = dt.timedelta(days=8)
             imports = arm.Importstep.displayable_importsteps(interval)
-            show_imports = imports.count() > 0
         else:
             room = arm.Seat.get_dummy_seat().room
             importstep = room.importstep
             importstep.organization = room.organization  # type: ignore[attr-defined]
             importstep.department = room.department  # type: ignore[attr-defined]
-            imports = [importstep]  # type: ignore[assignment]
-            show_imports = True
+            imports = [importstep] 
         context['imports'] = imports
-        context['show_imports'] = show_imports
         context['settings'] = settings
         return context
 

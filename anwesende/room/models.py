@@ -36,12 +36,12 @@ class Importstep(djdm.Model):
 
     @classmethod
     def displayable_importsteps(cls, interval: dt.timedelta) -> tg.List['Importstep']:
-        steps = cls.objects.filter(
+        steps = list(cls.objects.filter(
             when__gt=djut.localtime() - interval) \
             .annotate(organization=Max('room__organization')) \
             .annotate(department=Max('room__department')) \
             .annotate(num_qrcodes=Count('room__seat')) \
-            .order_by('when')
+            .order_by('when'))
         for step in steps:
             step.num_qrcodes_moved = (step.num_new_seats + 
                                       step.num_existing_seats - 

@@ -126,7 +126,7 @@
   {% crispy form %}
   <hr>
   <p>Importe der letzten 8 Tage:</p>
-  {% if show_imports %}
+  {% if imports|length > 0 %}
     <ol>
       {% for o in imports %}
         <li>

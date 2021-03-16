@@ -23,6 +23,7 @@ def test_displayable_importsteps():
     # ----- check importstep1:
     assert arm.Importstep.objects.all().count() == 1
     importstep1 = arm.Importstep.objects.first()
+    assert importstep1
     assert importstep1.num_existing_rooms == 0
     assert importstep1.num_existing_seats == 0
     assert importstep1.num_new_rooms == 2
@@ -35,14 +36,15 @@ def test_displayable_importsteps():
     assert step1.num_existing_seats == 0
     assert step1.num_new_rooms == 2
     assert step1.num_new_seats == 20
-    assert step1.num_qrcodes == 20
-    assert step1.num_qrcodes_moved == 0
+    assert step1.num_qrcodes == 20  # type: ignore[attr-defined]
+    assert step1.num_qrcodes_moved == 0  # type: ignore[attr-defined]
     # ----- create importstep2:
     stuff2 = are.create_seats_from_excel(excel_rooms2_filename, user)
     print(stuff2)
     # ----- check importstep2:
     assert arm.Importstep.objects.all().count() == 2
     importstep2 = arm.Importstep.objects.order_by('when').last()
+    assert importstep2
     assert importstep2.num_existing_rooms == 1
     assert importstep2.num_existing_seats == 6
     assert importstep2.num_new_rooms == 0
@@ -55,13 +57,14 @@ def test_displayable_importsteps():
     assert len(steps2) == 2
     step1b = steps2[1]  # order is youngest first
     assert step1b.num_new_seats == 20
-    assert step1b.num_qrcodes == 14  # first room is untouched
-    assert step1b.num_qrcodes_moved == 6  # second room was updated
+    # first room is untouched, second room was updated:
+    assert step1b.num_qrcodes == 14  # type: ignore[attr-defined]
+    assert step1b.num_qrcodes_moved == 6  # type: ignore[attr-defined]
     # ----- check displayable importstep2:
     step2 = steps2[0]  # order is youngest first
     assert step2.num_existing_rooms == 1
     assert step2.num_existing_seats == 6
     assert step2.num_new_rooms == 0
     assert step2.num_new_seats == 2
-    assert step2.num_qrcodes == 8
-    assert step2.num_qrcodes_moved == 0
+    assert step2.num_qrcodes == 8  # type: ignore[attr-defined]
+    assert step2.num_qrcodes_moved == 0  # type: ignore[attr-defined]
