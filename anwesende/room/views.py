@@ -186,6 +186,18 @@ class ThankyouView(SettingsMixin, vv.TemplateView):
     template_name = "room/thankyou.html"
 
 
+class UsageStatisticsView(IsDatenverwalterMixin, vv.TemplateView):
+    template_name = "room/stats.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.is_datenverwalter:
+            context['stats'] = arm.Room.usage_statistics()
+        else:
+            context['stats'] = []
+        return context
+
+
 class UncookieView(vv.GenericView):
     def get(self, request, *args, **kwargs):
         response = djh.HttpResponse("Cookie expired")

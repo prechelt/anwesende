@@ -1,5 +1,6 @@
 import copy
 import math
+from pprint import pprint
 import typing as tg
 
 import django.utils.timezone as djut
@@ -11,10 +12,29 @@ import anwesende.users.models as aum
 import anwesende.utils.date as aud
 
 
+def make_organizations(descr) -> None:
+    persons = ("p1", "p2", "p3", "p4")
+    personindex = 0
+    user = aum.User.objects.create(name="x")
+    importstep = arm.Importstep(user=user)
+    importstep.save()
+    for orgname, orgdescr in descr.items():
+        for depname, depdescr in orgdescr.items():
+            for roomname, roomdescr in depdescr.items():
+                numseats, numvisits = roomdescr
+                seats = make_seats(importstep, roomname, numseats,
+                                   organization=orgname, department=depname)
+                for i in range(numvisits):
+                    make_visit(seats[i % len(seats)], 
+                               persons[personindex % len(persons)])
+                    personindex += 1
+    
 def make_seats(importstep: arm.Importstep, roomname: str,
-               numseats: int) -> tg.Tuple[arm.Seat, ...]:
+               numseats: int,
+               organization="org", department="dep") -> tg.Tuple[arm.Seat, ...]:
     results = []
-    room = arm.Room(organization="org", department="dep", building="bldg",
+    room = arm.Room(organization=organization, department=department, 
+                    building="bldg",
                     room=roomname,
                     seat_last=arm.Seat.form_seatname(1, numseats),
                     importstep=importstep)
@@ -27,7 +47,7 @@ def make_seats(importstep: arm.Importstep, roomname: str,
     return tuple(results)
 
 
-def make_visit(seat: arm.Seat, person: str, tfrom: str, tto: str) -> arm.Visit:
+def make_visit(seat: arm.Seat, person: str, tfrom="03:00", tto="04:00") -> arm.Visit:
     now = djut.localtime()
     present_from = aud.make_dt(now, tfrom)
     present_to = aud.make_dt(now, tto)
@@ -40,6 +60,34 @@ def make_visit(seat: arm.Seat, person: str, tfrom: str, tto: str) -> arm.Visit:
                   seat=seat)
     v.save()
     return v
+
+
+@pytest.mark.django_db
+def test_usage_statistics():
+   descr = dict(org1=
+                dict(dep1=
+                     dict(room1=(1,1),
+                          room2=(2,2)),
+                     dep2=
+                     dict(room3=(3,4))),
+                org2=
+                dict(dep3=
+                     dict(room4=(4,9),
+                          room5=(5,16))))
+   make_organizations(descr)
+   assert arm.Room.objects.count() == 5
+   assert arm.Seat.objects.count() == 15
+   assert arm.Visit.objects.count() == 32
+   result = list(arm.Room.usage_statistics())
+   pprint(result)
+   should = [
+       {'organization': 'org1', 'department': 'dep1',
+          'rooms': 2,  'seats': 3,  'visits': 3},
+       {'organization': 'org1', 'department': 'dep2',
+          'rooms': 1,  'seats': 3,  'visits': 4},
+       {'organization': 'org2', 'department': 'dep3',
+          'rooms': 2,  'seats': 9,  'visits': 25} ]
+   assert result == should
 
 
 @pytest.mark.django_db

@@ -92,6 +92,15 @@ class Room(djdm.Model):
     def __repr__(self):
         return self.__str__()
     
+    @classmethod
+    def usage_statistics(cls) -> tg.List[tg.Mapping[str,str]]:
+        return list(cls.objects.order_by('organization', 'department')
+                .values('organization', 'department')
+                .annotate(rooms=Count("id", distinct=True))
+                .annotate(seats=Count("seat", distinct=True))
+                .annotate(visits=Count("seat__visit", distinct=True))
+               )
+
 
 class Seat(djdm.Model):
     """

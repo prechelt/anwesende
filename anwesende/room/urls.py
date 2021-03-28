@@ -18,12 +18,14 @@ urlpatterns = [
          view=arv.QRcodeView.as_view(), name="qrcode"),
     path("S<hash>",
          view=arv.VisitView.as_view(), name="visit"),
+    path("search",
+         view=arv.SearchView.as_view(), name="search"),
+    path("stats",
+         view=arv.UsageStatisticsView.as_view(), name="stats"),
     path("thankyou/emails_presentN=<emails_presentN>",
          view=arv.ThankyouView.as_view(), name="thankyou"),
     path("uncookie",
          view=arv.UncookieView.as_view(), name="uncookie"),
-    path("search",
-         view=arv.SearchView.as_view(), name="search"),
     path('favicon.ico', RedirectView.as_view(
         url=staticfiles_storage.url('images/favicon.ico')))
 ]

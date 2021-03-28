@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Benutzungsstatistik</h1>
+  <p>Aktueller Stand der Benutzung:</p>
+  <table class="table table-sm table-hover">
+    <thead class="thead-light">
+      <tr>
+        <th scope="col">Organization</th>
+        <th scope="col">Department</th>
+        <th scope="col">#Räume</th>
+        <th scope="col">#Sitze</th>
+        <th scope="col">#Besuche</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for stat in stats %}
+      <tr>
+        <td>{{ stat.organization }}</td>
+        <td>{{ stat.department }}</td>
+        <td>{{ stat.rooms }}</td>
+        <td>{{ stat.seats }}</td>
+        <td>{{ stat.visits }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock content %}
