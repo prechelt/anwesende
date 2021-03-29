@@ -2,6 +2,7 @@ import datetime as dt
 import re
 import typing as tg
 
+import arrow
 import django.utils.timezone as djut
 
 
@@ -40,5 +41,5 @@ def make_dt(dto: tg.Union[dt.datetime, str], timestr: str = None) -> dt.datetime
         hour, minute = (int(mm.group(1)), int(mm.group(2)))
     else:
         hour, minute = (dto.hour, dto.minute)
-    naive = dt.datetime(*(dto.year, dto.month, dto.day, hour, minute))
-    return naive.replace(tzinfo=djut.get_current_timezone())
+    return arrow.Arrow(*(dto.year, dto.month, dto.day, hour, minute),
+                       tzinfo=djut.get_current_timezone()).datetime

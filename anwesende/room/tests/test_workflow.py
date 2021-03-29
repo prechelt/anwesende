@@ -87,14 +87,15 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
                 email="a@fam.de",
                 present_from_dt="11:00", present_to_dt="12:00")
     # --- fill visit form once:
-    visit_page = django_app.get(visit_url)
-    _fill_with(visit_page.form, data)
-    with freeze_at("11:00"):
+    with freeze_at("11:01"):
+        visit_page = django_app.get(visit_url)
+        _fill_with(visit_page.form, data)
         resp = visit_page.form.submit()
         # resp.showbrowser()  # activate if follow fails
         # print("container:", _find(resp.text, name="div", class_="container"))
         resp = resp.follow()
-        
+        who = arm.Visit.objects.all()
+        print([str(v) for v in who])
     assert resp.request.path == reverse('room:thankyou', 
                                         kwargs=dict(emails_presentN='1'))
     # --- check DB contents:
@@ -112,7 +113,7 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
                         email="b@fam.de",
                         present_from_dt="11:20", present_to_dt="12:00")
     _fill_with(visit_page_with_cookie.form, changed_data)
-    with freeze_at("11:20"):
+    with freeze_at("11:21"):
         resp = visit_page_with_cookie.form.submit().follow()
     assert resp.request.path == reverse('room:thankyou', 
                                         kwargs=dict(emails_presentN='2'))

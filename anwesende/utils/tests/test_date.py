@@ -1,10 +1,9 @@
 import datetime as dt
 import re
 
+import arrow
 import django.utils.timezone as djut
 import pytest
-import pytz
-from django.conf import settings
 
 import anwesende.utils.date as aud
 
@@ -19,15 +18,15 @@ def test_nowstring():
            f"wrong t_only nowstring '{t_only}'"
     assert re.match(r"^\d\d\d\d-\d\d-\d\d \d\d:\d\d$", both),\
            f"wrong both nowstring '{both}'"
-    
+
 
 def test_make_dt_with_tz():
     tzname = djut.get_current_timezone_name()
     now = djut.localtime()
     result = aud.make_dt(now, "12:34")
-    print(tzname, now.tzname(), result.tzname())
-    assert result.tzinfo.utcoffset(result) == \
-           pytz.timezone(settings.TIME_ZONE).utcoffset(result)
+    print(f"TZ:{tzname}, now:{now.tzname()}, result:{result.tzname()}")
+    print(result.isoformat())
+    assert result.tzname() == now.tzname()
     assert result.day == now.day
     assert result.hour == 12
     assert result.minute == 34
