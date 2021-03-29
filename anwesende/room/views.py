@@ -186,7 +186,7 @@ class ThankyouView(SettingsMixin, vv.TemplateView):
     template_name = "room/thankyou.html"
 
 
-class UsageStatisticsView(IsDatenverwalterMixin, vv.TemplateView):
+class UsageStatisticsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
     template_name = "room/stats.html"
 
     def get_context_data(self, **kwargs):
