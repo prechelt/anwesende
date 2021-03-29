@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-03-14
+Lutz Prechelt, 2021-03-29
 
 https://github.com/prechelt/anwesende
 
@@ -54,14 +54,18 @@ Schritte des Gesamtablaufs:
 
 Große Teile dieser Beschreibung sind auch in der Software selbst enthalten:
 Der Überblick in 
-[anwesende/templates/room/home.html](anwesende/templates/room/home.html)),
+[anwesende/templates/room/home.html](anwesende/templates/room/home.html)
+([Homepage](https://anwesende.imp.fu-berlin.de/)),
 die Beschreibung der Schritte 1, 3 und 5 in 
-[anwesende/templates/room/import.html](anwesende/templates/room/import.html),
+[anwesende/templates/room/import.html](anwesende/templates/room/import.html)
+([Raum-Import](https://anwesende.imp.fu-berlin.de/import)),
 [anwesende/templates/room/privacy.html](anwesende/templates/room/privacy.html) und
 [anwesende/templates/room/search.html](anwesende/templates/room/search.html).
+([Datenabfrage](https://anwesende.imp.fu-berlin.de/search)).
 
 Weitere Informationen finden sich in den FAQs unter
 [anwesende/templates/room/faq.html](anwesende/templates/room/faq.html)).
+([FAQs](https://anwesende.imp.fu-berlin.de/faq)),
 
 
 ## 1.2 Besucher/innen/sicht
@@ -530,11 +534,6 @@ To use it,
 
 # 5. Release versions
 
-<b>
-The application is complete and tested (with 95% code coverage), 
-but not yet field-tested: ready for pilot use only!
-</b>
-
 The application is written in Python using the Django framework
 and a PostgreSQL database. 
 It is open-source (with an MIT license) in order to
@@ -574,4 +573,14 @@ provide maximal transparency.
     and removed some outdated deployment-related stuff 
   - fixed mistakes in `anw.sh` script, install instructions, FAQ.
   - updated Python to 3.9 and removed Pillow dependency 
+- 2021-03-29, Version 2.4:
+  - fixed and improved import statistics display
+  - added a usage statistics (data status) table page:  
+    Organization, Department, #rooms, #seats, #visits
+  - fixed a timezone issue
+- next version:
+  - ...
     
+
+TODO:
+  - ?

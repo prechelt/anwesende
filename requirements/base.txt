@@ -1,4 +1,5 @@
 pytz==2020.1  # https://github.com/stub42/pytz
+arrow==1.0.3  # https://arrow.readthedocs.io/en/latest/
 python-slugify==4.0.1  # https://github.com/un33k/python-slugify
 argon2-cffi==20.1.0  # https://github.com/hynek/argon2_cffi
 whitenoise==5.2.0  # https://github.com/evansd/whitenoise
