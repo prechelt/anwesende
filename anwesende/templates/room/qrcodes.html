@@ -20,7 +20,6 @@
   </p>
   <hr>
     {% for seat in seats %}
-    <div class="container">
       <div class="row align-items-center">
         <div class="col-sm-6 col-xs-12 col-md-7 col-lg-5">
           <img class="qrcode" src="{% url 'room:qrcode' seat.hash %}" aria-roledescription="QR Code">
@@ -49,9 +48,6 @@
           <span class="qrb-largeitem">{{seat.seatname}}</span>
         </div>
       </div>
-    </div>
-
-
     {% endfor %}
   </table>
 {% endblock content %}
