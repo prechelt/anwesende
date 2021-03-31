@@ -62,6 +62,7 @@ a:visited {
 
 .qrcode {
   width: 100mm;
+  max-width: 100%;
 }
 
 sup {
