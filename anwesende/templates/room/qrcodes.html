@@ -19,13 +19,12 @@
     {% endif %}
   </p>
   <hr>
-  <table> <!-- only a table makes Adobe PDF printer behave OK -->
     {% for seat in seats %}
-      <tr>
-        <td>
-          <img class="qrcode" src="{% url 'room:qrcode' seat.hash %}">
-        </td>
-        <td class="qrblock">
+      <div class="row align-items-center">
+        <div class="col-sm-6 col-xs-12 col-md-7 col-lg-5">
+          <img class="qrcode" src="{% url 'room:qrcode' seat.hash %}" aria-roledescription="QR Code">
+        </div>
+        <div class="col-sm-6 col-xs-12 col-md-5 col-lg-5" aria-roledescription="QR Code Information">
           <span class="qrb-item">Please scan QR code and register your presence.</span>
           <br>
           <span class="qrb-item">{{ settings.SHORTURL_PREFIX }}{% url 'room:visit' seat.hash %}</span>
@@ -47,8 +46,8 @@
           <br>
           <span class="qrb-label"> </span>
           <span class="qrb-largeitem">{{seat.seatname}}</span>
-        </td>
-      </tr>
+        </div>
+      </div>
     {% endfor %}
   </table>
 {% endblock content %}
