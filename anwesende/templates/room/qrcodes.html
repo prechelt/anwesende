@@ -21,10 +21,10 @@
   <hr>
     {% for seat in seats %}
       <div class="row align-items-center">
-        <div class="col-sm-6 col-xs-12 col-md-7 col-lg-5">
+        <div>
           <img class="qrcode" src="{% url 'room:qrcode' seat.hash %}" aria-roledescription="QR Code">
         </div>
-        <div class="col-sm-6 col-xs-12 col-md-5 col-lg-5" aria-roledescription="QR Code Information">
+        <div style="padding-left: 1pc;" aria-roledescription="QR Code Information">
           <span class="qrb-item">Please scan QR code and register your presence.</span>
           <br>
           <span class="qrb-item">{{ settings.SHORTURL_PREFIX }}{% url 'room:visit' seat.hash %}</span>
