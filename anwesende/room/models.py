@@ -152,6 +152,7 @@ class Seat(djdm.Model):
                                          user=user)
         room = Room.objects.create(organization=dummyorg, department="dummydept", 
                                    building="dummybldg", 
+                                   room="dummyroom",
                                    seat_last=cls.form_seatname(1, 1),
                                    importstep=step)
         dummyseat = cls.objects.create(room=room, 
