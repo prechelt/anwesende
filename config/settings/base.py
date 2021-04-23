@@ -289,6 +289,7 @@ SOCIALACCOUNT_ADAPTER = "anwesende.users.adapters.SocialAccountAdapter"
 # Environment variables
 # ------------------------------------------------------------------------------
 
+COOKIE_WITH_RANDOMSTRING = env.bool('COOKIE_WITH_RANDOMSTRING', True)
 DATA_CONTACT = env('DATA_CONTACT')
 DATA_RETENTION_DAYS = env.int('DATA_RETENTION_DAYS', 28)
 DUMMY_ORG = "uni-dummy.de"
