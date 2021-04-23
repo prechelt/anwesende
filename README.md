@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-03-29
+Lutz Prechelt, 2021-04-23
 
 https://github.com/prechelt/anwesende
 
@@ -274,7 +274,7 @@ Everything beyond this point is technical information, therefore in English.
 
 The application is meant to be deployed locally in most organizations
 (to simplify the situation regarding privacy protection)
-and allows some configuration to adopt to local needs.  
+and allows some configuration to adapt to local needs.  
 It is designed such that one installation can serve several smaller
 organizations together, though.
 
@@ -578,9 +578,19 @@ provide maximal transparency.
   - added a usage statistics (data status) table page:  
     Organization, Department, #rooms, #seats, #visits
   - fixed a timezone issue
+- 2021-04-23, Version 3.0:
+  - introduced setting COOKIE_WITH_RANDOMSTRING for optionally turning off
+    the unique cookie identifier that is normally included in the data
+  - introduced setting USE_EMAIL_FIELD for optionally excluding the
+    email address from the registration form (because some states do
+    not mention this in their Infektionsschutzverordnung).
+    Note that not having email adresses _greatly_ reduces the value of
+    running a.nwesen.de in the first place. Not recommended!
+  - created space for smartphone keyboard below the registration form
+    to accomodate some ill-behaving browsers
+  - Page `/qrcodes/x` now formats vertically on smartphones.
 - next version:
-  - ...
-    
+  - ...    
 
 TODO:
   - ?
