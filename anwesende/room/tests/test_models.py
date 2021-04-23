@@ -54,7 +54,7 @@ def make_visit(seat: arm.Seat, person: str, tfrom="03:00", tto="04:00") -> arm.V
     assert present_from < present_to
     v = arm.Visit(givenname=person, familyname="fn",
                   street_and_number="sn", zipcode="12345", town="t",
-                  phone="tel", email=f"{person}@fn.de",
+                  phone=person, email=f"{person}@fn.de",
                   submission_dt=now,
                   present_from_dt=present_from, present_to_dt=present_to,
                   seat=seat)
@@ -130,14 +130,8 @@ def test_current_unique_visitorsN():
     user = aum.User.objects.create(name="x")
     importstep = arm.Importstep(user=user)
     importstep.save()
-    def show_them():
-        import datetime as dt
-        now = djut.localtime()
-        them = arm.Visit.objects.filter(
-            seat__room=room,
-            present_from_dt__lte=now,
-            present_to_dt__gte=now
-        ).order_by('email').distinct('email')
+    def show_them(room):
+        them = arm.Visit._current_unique_visitors_qs(room)
         print ([v.email for v in them])
     rm1s1, rm1s2, rm1s3 = make_seats(importstep, "room1", 3)
     rm2s1, = make_seats(importstep, "room2", 1)
@@ -151,22 +145,22 @@ def test_current_unique_visitorsN():
     def freeze_at(ts: str):
         return freeze_time(aud.make_dt('now', ts))
     with freeze_at("02:50"):
-        show_them()
+        show_them(room)
         assert arm.Visit.current_unique_visitorsN(room) == 0
     with freeze_at("02:59"):
-        show_them()
+        show_them(room)
         assert arm.Visit.current_unique_visitorsN(room) == 1
     with freeze_at("03:01"):
-        show_them()
+        show_them(room)
         assert arm.Visit.current_unique_visitorsN(room) == 2
     with freeze_at("03:06"):
-        show_them()
+        show_them(room)
         assert arm.Visit.current_unique_visitorsN(room) == 3
     with freeze_at("03:33"):
-        show_them()
+        show_them(room)
         assert arm.Visit.current_unique_visitorsN(room) == 3
     with freeze_at("05:00"):
-        show_them()
+        show_them(room)
         assert arm.Visit.current_unique_visitorsN(room) == 0
 
 

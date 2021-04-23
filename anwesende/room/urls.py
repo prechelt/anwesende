@@ -22,7 +22,7 @@ urlpatterns = [
          view=arv.SearchView.as_view(), name="search"),
     path("stats",
          view=arv.UsageStatisticsView.as_view(), name="stats"),
-    path("thankyou/emails_presentN=<emails_presentN>",
+    path("thankyou/visitors_presentN=<visitors_presentN>",
          view=arv.ThankyouView.as_view(), name="thankyou"),
     path("uncookie",
          view=arv.UncookieView.as_view(), name="uncookie"),

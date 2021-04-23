@@ -6,6 +6,7 @@ import time
 
 import crispy_forms.helper as cfh
 import crispy_forms.layout as cfl
+from django.conf import settings
 import django.core.exceptions as djce
 import django.forms as djf
 import django.forms.widgets as djfw
@@ -104,6 +105,10 @@ class VisitForm(djf.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if settings.USE_EMAIL_FIELD:
+            self.fields['email'].required = True
+        else:
+            del self.fields['email']
         self.helper = cfh.FormHelper()
         self.helper.form_id = 'VisitForm'
         self.helper.form_method = 'post'
@@ -120,6 +125,8 @@ class VisitForm(djf.ModelForm):
 
 
 class SearchForm(djf.Form):
+    emailwarning = ("ABGESCHALTET. Die Daten enthalten keine Emailadressen. "
+                    "Sie können also per Emailadresse nichts finden!")
     organization = djf.CharField(label="Organization",
             initial="%", required=True, )
     department = djf.CharField(label="Department",
@@ -132,10 +139,13 @@ class SearchForm(djf.Form):
             initial="%", required=True, )
     familyname = djf.CharField(label="Nachname / Family name",
             initial="%", required=True, )
-    # phone = djf.CharField(label="Telefonnummer",
-    #         initial="+491%", required=True, )
+    phone = djf.CharField(label="Telefonnummer",
+            initial="+49%1%", required=True, 
+            help_text="Mögliche Leerzeichen durch '%' tolerierbar machen!")
     email = djf.CharField(label="Emailadresse",
-            initial="%@%", required=True, )
+            initial="%@%" if settings.USE_EMAIL_FIELD else "%", 
+            required=True, 
+            help_text="" if settings.USE_EMAIL_FIELD else emailwarning)
     from_date = djf.DateField(label="von Datum (jjjj-mm-tt)",
             initial="", required=True, )
     to_date = djf.DateField(label="bis Datum (jjjj-mm-tt)",

@@ -128,9 +128,9 @@ class VisitView(SettingsMixin, vv.CreateView):
 
     def get_success_url(self):
         room = self.object.seat.room
-        emails_presentN = arm.Visit.current_unique_visitorsN(room)
+        visitors_presentN = arm.Visit.current_unique_visitorsN(room)
         return dju.reverse('room:thankyou', 
-                           kwargs=dict(emails_presentN=emails_presentN))
+                           kwargs=dict(visitors_presentN=visitors_presentN))
     
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -247,7 +247,9 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same vie
             return djut.make_aware(dt.datetime(d.year, d.month, d.day))
         f = self.form.cleaned_data
         secure_organization = f['organization'] if self.is_datenverwalter \
-            else settings.DUMMY_ORG 
+            else settings.DUMMY_ORG
+        if not settings.USE_EMAIL_FIELD:
+            f['email'] = '%'  # insert dummy so we can use the full search
         return (arm.Visit.objects
                 .filter(seat__room__organization__like=secure_organization)
                 .filter(seat__room__department__like=f['department'])
@@ -255,7 +257,7 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same vie
                 .filter(seat__room__room__like=f['room'])
                 .filter(givenname__like=f['givenname'])
                 .filter(familyname__like=f['familyname'])
-                # .filter(phone__like=f['phone'])
+                .filter(phone__like=f['phone'])
                 .filter(email__like=f['email'])
                 .filter(present_to_dt__gt=fdt(f['from_date']))  # left after from
                 .filter(present_from_dt__lt=fdt(f['to_date']))  # came before to

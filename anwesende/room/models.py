@@ -252,7 +252,7 @@ class Visit(djdm.Model):
                 flags=re.ASCII)],
     )
     email = djdm.EmailField(
-        blank=False, null=False,
+        blank=True, null=False,
         max_length=FIELDLENGTH,
         db_index=True,
         verbose_name="Emailadresse / Email address",
@@ -286,14 +286,18 @@ class Visit(djdm.Model):
         return self.__str__()
 
     @classmethod
-    def current_unique_visitorsN(cls, room: Room) -> int:
+    def _current_unique_visitors_qs(cls, room: Room) -> djdmq.QuerySet:
         now = djut.localtime()
         return cls.objects.filter(
-                seat__room=room,
-                present_from_dt__lte=now,
-                present_to_dt__gte=now
-                ).order_by('email').distinct('email').count()
-    
+            seat__room=room,
+            present_from_dt__lte=now,
+            present_to_dt__gte=now
+        ).order_by('phone').distinct('phone')
+
+    @classmethod
+    def current_unique_visitorsN(cls, room: Room) -> int:
+        return cls._current_unique_visitors_qs(room).count()
+
     def get_overlapping_visits(self) -> djdmq.QuerySet:
         """
         All visits that overlap self by at least MIN_OVERLAP_MINUTES.

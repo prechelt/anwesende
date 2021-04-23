@@ -4,6 +4,7 @@ import tempfile
 import typing as tg
 
 import bs4
+from django.conf import settings
 import django.utils.timezone as djut
 import pytest
 import webtest as wt
@@ -97,10 +98,11 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
         who = arm.Visit.objects.all()
         print([str(v) for v in who])
     assert resp.request.path == reverse('room:thankyou', 
-                                        kwargs=dict(emails_presentN='1'))
+                                        kwargs=dict(visitors_presentN='1'))
     # --- check DB contents:
     visit = arm.Visit.objects.last()
-    assert visit.email == "a@fam.de"  # type: ignore[union-attr]
+    if settings.USE_EMAIL_FIELD:
+        assert visit.email == "a@fam.de"  # type: ignore[union-attr]
     mytime = djut.localtime(value=visit.present_from_dt).strftime("%H:%M")  # type: ignore[arg-type,union-attr]
     assert mytime == "11:00"
     # --- fill visit form again (same device, overlapping time):
@@ -116,7 +118,7 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
     with freeze_at("11:21"):
         resp = visit_page_with_cookie.form.submit().follow()
     assert resp.request.path == reverse('room:thankyou', 
-                                        kwargs=dict(emails_presentN='2'))
+                                        kwargs=dict(visitors_presentN='2'))
 
     # --- fill visit form again (same device, later time):
     visit_page3 = django_app.get(visit_url)
@@ -143,15 +145,23 @@ def _search_and_download(django_app: wt.TestApp, current_html: str):
     _fill_with(search1.form, data)
     search2 = search1.form.submit('visit')
     # print("container:", _find(search2.text, name="div", class_="container"))
-    assert "a@fam.de" in search2.text
-    assert "b@fam.de" not in search2.text
-    assert "c@fam.de" not in search2.text
+    if settings.USE_EMAIL_FIELD:
+        assert "a@fam.de" in search2.text
+        assert "b@fam.de" not in search2.text
+        assert "c@fam.de" not in search2.text
+    assert "A." in search2.text
+    assert "B." not in search2.text
+    assert "C." not in search2.text
     # --- find contacts:
     search3 = search2.form.submit('visitgroup')
     # print("searchhits:", _find(search3.text, name="ol", class_="searchhits"))
-    assert "a@fam.de" in search3.text
-    assert "b@fam.de" in search3.text
-    assert "c@fam.de" not in search3.text
+    if settings.USE_EMAIL_FIELD:
+        assert "a@fam.de" in search3.text
+        assert "b@fam.de" in search3.text
+        assert "c@fam.de" not in search3.text
+    assert "A." in search3.text
+    assert "B." in search3.text
+    assert "C." not in search3.text
     # --- download Excelfile:
     search4 = search3.form.submit('xlsx')
     excelbytes = search4.body
@@ -174,18 +184,25 @@ def _validate_excel(excelbytes: bytes) -> None:
         fp.close()
         coldict = aue.read_excel_as_columnsdict(fp.name)
         os.remove(fp.name)
-        assert coldict['email'] == ["a@fam.de", "b@fam.de"]
+        if settings.USE_EMAIL_FIELD:
+            assert coldict['email'] == ["a@fam.de", "b@fam.de"]
+        assert coldict['givenname'] == ["A.", "B."]
+
 
 # ========== helpers:
 
 
 def _fill_with(form: wt.Form, data: dict):
     for k, v in data.items():
+        if k == 'email' and not settings.USE_EMAIL_FIELD:
+            continue  # skip field 'email' 
         form[k] = v
 
 
 def _check_against(form: wt.Form, data: dict):
     for k, v in data.items():
+        if k == 'email' and not settings.USE_EMAIL_FIELD:
+            continue  # skip field 'email' 
         assert form[k].value == v
 
 

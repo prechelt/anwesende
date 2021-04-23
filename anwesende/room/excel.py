@@ -180,9 +180,11 @@ Expl = collections.namedtuple('Expl', ("Erklaerung", ))
 explanations = [
     Expl("Jede Zeile im Tabellenblatt 'Daten' ist ein Besuch einer Person."),
     Expl("Die Spalten beschreiben die Person, dann die Zeit, dann den Ort."),
-    Expl("Leere Zeilen trennen Gruppen von Personen, die sich "
-         "laut ihren Angaben mindestens "
-         f"{settings.MIN_OVERLAP_MINUTES} Minuten im gleichen Raum begegnet sind."),
+    Expl("" if settings.USE_EMAIL_FIELD
+         else "(Spalte 'email' ist abgeschaltet.)"),
+    Expl("Leere Zeilen trennen Gruppen von Personen. Die Mitglieder einer Gruppe "
+         "sind einander laut ihren Angaben mindestens "
+         f"{settings.MIN_OVERLAP_MINUTES} Minuten im gleichen Raum begegnet."),
     Expl(""),
     Expl("**cookie**: Die Daten enthalten meist viele Personen mehrfach."),
     Expl("Um diese Duplikate zu überblicken, kann man nach Spalte "
@@ -194,7 +196,8 @@ explanations = [
          "ihr Gerät verleiht."),
     Expl("Wenn viele Personen mit fragwürdigen Angaben das selbe Cookie "
          "haben, sind die Daten vielleicht Fantasie-Angaben."),
-    Expl(""),
+    Expl("" if settings.COOKIE_WITH_RANDOMSTRING
+         else "(Die Funktion ist abgeschaltet)"),
     Expl("**when**: Spalte 'when' enthält den Zeitpunkt der Meldung und "),
     Expl("'from' und 'to' die vom Besucher manuell eingegebenen Werte "
          "für den Zeitraum."),
