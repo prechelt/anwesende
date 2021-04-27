@@ -341,4 +341,4 @@ class Visit(djdm.Model):
         if settings.COOKIE_WITH_RANDOMSTRING:
             return strgen.StringGenerator('[a-z]{10}').render()
         else:
-            return ""
+            return "none"
