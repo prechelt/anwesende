@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-04-23
+Lutz Prechelt, 2021-05-21
 
 https://github.com/prechelt/anwesende
 
@@ -589,6 +589,8 @@ provide maximal transparency.
   - created space for smartphone keyboard below the registration form
     to accomodate some ill-behaving browsers
   - Page `/qrcodes/x` now formats vertically on smartphones.
+- 2021-05-21, Version 3.1:
+  - now properly converted times from UTC to localtime in the Excel output.
 - next version:
   - ...    
 

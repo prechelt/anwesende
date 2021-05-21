@@ -7,6 +7,7 @@ import django.utils.timezone as djut
 
 
 def dtstring(dtobj, date=True, time=False) -> str:
+    local_dt = djut.localtime(dtobj)
     if date and time:
         format = "%Y-%m-%d %H:%M"
     elif date:
@@ -15,7 +16,7 @@ def dtstring(dtobj, date=True, time=False) -> str:
         format = "%H:%M"
     else:
         assert False, "You don't want an empty nowstring, do you?"
-    return dtobj.strftime(format)
+    return local_dt.strftime(format)
 
 
 def nowstring(date=True, time=False) -> str:
