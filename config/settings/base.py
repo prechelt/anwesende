@@ -10,7 +10,7 @@ ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = ROOT_DIR / "anwesende"
 env = environ.Env()
 
-READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
+READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=True)
 if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from env file
     env.read_env(
@@ -43,17 +43,16 @@ USE_L10N = False
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
 
-
 # DATABASES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
-DATABASES = {"default": 
-             env.db("DATABASE_URL",
-               "postgres://%s:%s@%s:%s/%s" %
-               (env.str("POSTGRES_USER"), env.str("POSTGRES_PASSWORD"),
-                env.str("POSTGRES_HOST"), env.str("POSTGRES_PORT"),
-                env.str("POSTGRES_DB")
-            ))}
+DATABASES = {"default":
+                 env.db("DATABASE_URL",
+                        "postgres://%s:%s@%s:%s/%s" %
+                        (env.str("POSTGRES_USER"), env.str("POSTGRES_PASSWORD"),
+                         env.str("POSTGRES_HOST"), env.str("POSTGRES_PORT"),
+                         env.str("POSTGRES_DB")
+                         ), engine='django.db.backends.postgresql_psycopg2')}
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
 # URLS
@@ -236,7 +235,6 @@ EMAIL_SUBJECT_PREFIX = quoted("EMAIL_SUBJECT_PREFIX")
 DEFAULT_FROM_EMAIL = quoted("DEFAULT_FROM_EMAIL")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-
 # ADMIN
 # ------------------------------------------------------------------------------
 # Django Admin URL.
@@ -257,7 +255,7 @@ LOGGING = {
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
-            "%(process)d %(thread)d %(message)s"
+                      "%(process)d %(thread)d %(message)s"
         }
     },
     "handlers": {
@@ -269,7 +267,6 @@ LOGGING = {
     },
     "root": {"level": "INFO", "handlers": ["console"]},
 }
-
 
 # django-allauth
 # ------------------------------------------------------------------------------
@@ -284,7 +281,6 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_ADAPTER = "anwesende.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 SOCIALACCOUNT_ADAPTER = "anwesende.users.adapters.SocialAccountAdapter"
-
 
 # Environment variables
 # ------------------------------------------------------------------------------
@@ -303,4 +299,4 @@ MIN_OVERLAP_MINUTES = env.int('MIN_OVERLAP_MINUTES', 15)
 SEAT_KEY = env('SEAT_KEY')
 SHORTURL_PREFIX = env('SHORTURL_PREFIX')
 TECH_CONTACT = env('TECH_CONTACT')
-USE_EMAIL_FIELD = env.bool('USE_EMAIL_FIELD', True) 
+USE_EMAIL_FIELD = env.bool('USE_EMAIL_FIELD', True)
