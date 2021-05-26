@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Vorhandene Räume</h1>
+  <p>Aktueller Stand der korrekt registrierten Räume:</p>
+  <table class="table table-sm table-hover">
+    <thead class="thead-light">
+      <tr>
+        <th scope="col">Organisation</th>
+        <th scope="col">Abteilung</th>
+        <th scope="col">Gebäude</th>
+        <th scope="col">Raum</th>
+        <th scope="col">Importschritt-Link</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for room in rooms %}
+      <tr>
+        <td>{{ room.organization }}</td>
+        <td>{{ room.department }}</td>
+        <td>{{ room.building }}</td>
+        <td>{{ room.room }}</td>
+        <td><a href="{{ settings.SHORTURL_PREFIX }}{% url 'room:qrcodes' room.importstep %}">
+          Importschritt {{ room.importstep }}</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock content %}

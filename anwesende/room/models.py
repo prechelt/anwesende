@@ -101,6 +101,14 @@ class Room(djdm.Model):
                 .annotate(visits=Count("seat__visit", distinct=True))
                )
 
+    @classmethod
+    def get_rooms(cls) -> tg.List[tg.Mapping[str, str]]:
+        return list(cls.objects.order_by('organization', 'building')
+                    .values('organization', 'department', 'building', 'room',
+                            'importstep')
+                    .exclude(organization="uni-dummy.de")
+                    )
+
 
 class Seat(djdm.Model):
     """

@@ -92,6 +92,19 @@ class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
         return dju.reverse('room:qrcodes', kwargs=dict(pk=self.importstep.pk))
 
 
+class QRoverView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
+    template_name = "room/qroverview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.is_datenverwalter:
+            context['rooms'] = arm.Room.get_rooms()
+        else:
+            context['rooms'] = []
+
+        return context
+
+
 class QRcodesView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
     model = arm.Importstep
     template_name = "room/qrcodes.html"

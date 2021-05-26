@@ -12,6 +12,8 @@ urlpatterns = [
          view=arv.FAQView.as_view(), name="faq"),
     path("import",
          view=arv.ImportView.as_view(), name="import"),
+    path("qroverview",
+         view=arv.QRoverView.as_view(), name="qroverview"),
     path("qrcodes/<pk>",
          view=arv.QRcodesView.as_view(), name="qrcodes"),
     path("qrcode/<hash>",
