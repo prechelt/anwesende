@@ -243,8 +243,8 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same vie
         return ctx
 
     def get_queryset(self):
-        def fdt(d: dt.date):
-            return djut.make_aware(dt.datetime(d.year, d.month, d.day))
+        def fdt(d: dt.datetime):
+            return djut.make_aware(dt.datetime(d.year, d.month, d.day, d.hour, d.minute))
         f = self.form.cleaned_data
         secure_organization = f['organization'] if self.is_datenverwalter \
             else settings.DUMMY_ORG

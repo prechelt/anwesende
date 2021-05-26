@@ -23,7 +23,7 @@ def mytxt(width: int) -> djfw.TextInput:
 
 class UploadFileForm(djf.Form):
     """
-    This form will also read the uploaded Excel file, validate it, and 
+    This form will also read the uploaded Excel file, validate it, and
     create the Rooms and Seats,
     because validation is not considered complete until that is successful.
     (This is a departure from normal Django application architecture.)
@@ -36,7 +36,7 @@ class UploadFileForm(djf.Form):
         self.helper.form_id = 'UploadForm'
         self.helper.form_method = 'post'
         self.helper.add_input(cfl.Submit('submit', 'Hochladen'))
-        
+
     def clean(self):
         self.cleaned_data = super().clean()
         try:
@@ -54,7 +54,7 @@ class UploadFileForm(djf.Form):
         except Exception:
             raise djce.ValidationError("Das ist keine gültige XLSX-Datei, oder?")
         self.cleaned_data['excelfile'] = excelfile
-        
+
     def _store_excelfile(self, uploadedfile):
         fh, filename = tempfile.mkstemp(prefix="rooms", suffix=".xlsx")
         fd = os.fdopen(fh, mode='wb')
@@ -80,20 +80,20 @@ class VisitForm(djf.ModelForm):
     class Meta:
         model = arm.Visit
         fields = (
-            'givenname', 'familyname', 
+            'givenname', 'familyname',
             'street_and_number', 'zipcode', 'town',
             'phone', 'email',
             'present_from_dt', 'present_to_dt', 'cookie',
         )
         widgets = {
             'givenname': mytxt(25), 'familyname': mytxt(25),
-            'street_and_number': mytxt(25), 
+            'street_and_number': mytxt(25),
             'zipcode': mytxt(6), 'town': mytxt(20),
             'phone': mytxt(15), 'email': mytxt(25),
             'present_from_dt': mytxt(6), 'present_to_dt': mytxt(6),
             'cookie': djfw.HiddenInput()
         }
-    
+
     present_from_dt = TimeOnlyDateTimeField(
         label="Anwesenheit von / Present from",
         help_text="Uhrzeit im Format hh:mm, z.B. 16:15 / time of day, e.g. 14:45",
@@ -117,9 +117,9 @@ class VisitForm(djf.ModelForm):
     def clean(self):
         self.cleaned_data = super().clean()
         cd = self.cleaned_data  # short alias
-        if ('present_from_dt' in cd and 'present_to_dt' in cd 
-                and cd['present_from_dt'] > cd['present_to_dt']):
-            self.add_error('present_to_dt', 
+        if ('present_from_dt' in cd and 'present_to_dt' in cd
+            and cd['present_from_dt'] > cd['present_to_dt']):
+            self.add_error('present_to_dt',
                            "'von'-Zeit muss vor 'bis'-Zeit liegen / "
                            + "'from' must be before 'until'")
 
@@ -128,48 +128,78 @@ class SearchForm(djf.Form):
     emailwarning = ("ABGESCHALTET. Die Daten enthalten keine Emailadressen. "
                     "Sie können also per Emailadresse nichts finden!")
     organization = djf.CharField(label="Organization",
-            initial="%", required=True, )
+                                 initial="%", required=True, )
     department = djf.CharField(label="Department",
-            initial="%", required=True, )
+                               initial="%", required=True, )
     building = djf.CharField(label="Building",
-            initial="%", required=True, )
+                             initial="%", required=True, )
     room = djf.CharField(label="Room",
-            initial="%", required=True, )
+                         initial="%", required=True, )
     givenname = djf.CharField(label="Vorname / Given name",
-            initial="%", required=True, )
+                              initial="%", required=True, )
     familyname = djf.CharField(label="Nachname / Family name",
-            initial="%", required=True, )
+                               initial="%", required=True, )
     phone = djf.CharField(label="Telefonnummer",
-            initial="+49%1%", required=True, 
-            help_text="Mögliche Leerzeichen durch '%' tolerierbar machen!")
+                          initial="+49%1%", required=True,
+                          help_text="Mögliche Leerzeichen durch '%' tolerierbar machen!")
     email = djf.CharField(label="Emailadresse",
-            initial="%@%" if settings.USE_EMAIL_FIELD else "%", 
-            required=True, 
-            help_text="" if settings.USE_EMAIL_FIELD else emailwarning)
-    from_date = djf.DateField(label="von Datum (jjjj-mm-tt)",
-            initial="", required=True, )
-    to_date = djf.DateField(label="bis Datum (jjjj-mm-tt)",
-            initial=aud.nowstring(time=False), required=True, )
+                          initial="%@%" if settings.USE_EMAIL_FIELD else "%",
+                          required=True,
+                          help_text="" if settings.USE_EMAIL_FIELD else emailwarning)
+    from_date = djf.SplitDateTimeField(label="von Datum (jjjj-mm-tt) und Uhrzeit (hh:mm)",
+                                       widget=djf.SplitDateTimeWidget(
+                                           date_attrs={'value': aud.nowstring(time=False),
+                                                       'class': 'form-control',
+                                                       'placeholder': 'jjjj-mm-tt'},
+                                           time_attrs={'value': "08:00",
+                                                       'class': 'form-control',
+                                                       'placeholder': 'hh:mm'}),
+                                       help_text='Bitte das Eingabeformat beachten',
+                                       required=True)
+    from_date_hidden = djf.CharField(widget=djf.TextInput(attrs={'style': 'display: none'}),
+                                     label="",
+                                     initial=True,
+                                     disabled=True,
+                                     required=True)
+    to_date = djf.SplitDateTimeField(label="bis Datum (jjjj-mm-tt) und Uhrzeit (hh:mm)",
+                                     widget=djf.SplitDateTimeWidget(
+                                         date_attrs={'value': aud.nowstring(time=False),
+                                                     'class': 'form-control',
+                                                     'placeholder': 'jjjj-mm-tt'},
+                                         time_attrs={'value': "19:00",
+                                                     'class': 'form-control',
+                                                     'placeholder': 'hh:mm'}),
+                                     help_text='Bitte das Eingabeformat beachten',
+                                     required=True)
+    to_date_hidden = djf.CharField(widget=djf.TextInput(attrs={'style': 'display: none'}),
+                                   label="",
+                                   initial=True,
+                                   disabled=True,
+                                   required=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = cfh.FormHelper()
         self.helper.form_id = 'SearchForm'
         self.helper.form_method = 'post'
-        self.helper.add_input(cfl.Submit('visit', 
+        self.helper.add_input(cfl.Submit('visit',
                                          '1. Besuche finden'))
-        self.helper.add_input(cfl.Submit('visitgroup', 
+        self.helper.add_input(cfl.Submit('visitgroup',
                                          '2. Kontaktgruppen finden'))
-        self.helper.add_input(cfl.Submit('xlsx', 
+        self.helper.add_input(cfl.Submit('xlsx',
                                          '3. Kontaktgruppen-Excel herunterladen'))
 
     def clean(self):
         self.cleaned_data = super().clean()
         cd = self.cleaned_data  # short alias
-        if ('from_date' in cd and 'to_date' in cd 
-                and cd['from_date'] > cd['to_date']):
-            self.add_error('to_date', 
-                           "'von Datum' muss vor oder auf 'bis Datum' liegen")
-        if 'to_date' in cd:
-            cd['to_date'] += dt.timedelta(hours=24)  # is time 0:00, should be 24:00
+        if ('from_date' in cd and 'to_date' in cd
+            and cd['from_date'] > cd['to_date']):
+            self.add_error('to_date_hidden',
+                           "'von Datum und Uhrzeit' muss vor 'bis Datum und Uhrzeit' liegen")
+        if not ('from_date' in cd):
+            self.add_error('from_date_hidden',
+                           "Bitte das richtige Format verwenden")
+        if not ('to_date' in cd):
+            self.add_error('to_date_hidden',
+                           "Bitte das richtige Format verwenden")
         return cd
