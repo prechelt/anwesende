@@ -10,7 +10,7 @@
         <th scope="col">Abteilung</th>
         <th scope="col">Gebäude</th>
         <th scope="col">Raum</th>
-        <th scope="col">Importschritt-Link</th>
+        <th scope="col">QR-Codes</th>
       </tr>
     </thead>
     <tbody>
@@ -20,8 +20,8 @@
         <td>{{ room.department }}</td>
         <td>{{ room.building }}</td>
         <td>{{ room.room }}</td>
-        <td><a href="{{ settings.SHORTURL_PREFIX }}{% url 'room:qrcodes' room.importstep %}">
-          Importschritt {{ room.importstep }}</a></td>
+        <td><a href="{{ settings.SHORTURL_PREFIX }}{% url 'room:qrcodesdep' room.id %}">
+          QR-Codes der Abteilung {{ room.department }}</a></td>
       </tr>
     {% endfor %}
     </tbody>

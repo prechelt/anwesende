@@ -16,6 +16,8 @@ urlpatterns = [
          view=arv.QRoverView.as_view(), name="qroverview"),
     path("qrcodes/<pk>",
          view=arv.QRcodesView.as_view(), name="qrcodes"),
+    path("qrcodes-department/<pk>",
+         view=arv.QRcodesDepView.as_view(), name="qrcodesdep"),
     path("qrcode/<hash>",
          view=arv.QRcodeView.as_view(), name="qrcode"),
     path("S<hash>",

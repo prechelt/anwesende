@@ -101,7 +101,6 @@ class QRoverView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
             context['rooms'] = arm.Room.get_rooms()
         else:
             context['rooms'] = []
-
         return context
 
 
@@ -118,6 +117,24 @@ class QRcodesView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
     def get_object(self):
         object = super().get_object()
         if self.is_datenverwalter or object == arm.Seat.get_dummy_seat().room.importstep:
+            return object
+        else:
+            raise djh.Http404
+
+
+class QRcodesDepView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
+    model = arm.Room
+    template_name = "room/qrcodesdep.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        seats = arm.Seat.objects.filter(room__department=self.object.department)
+        context['seats'] = seats
+        return context
+
+    def get_object(self):
+        object = super().get_object()
+        if self.is_datenverwalter or object == arm.Seat.get_dummy_seat().room.department:
             return object
         else:
             raise djh.Http404

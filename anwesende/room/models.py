@@ -104,7 +104,7 @@ class Room(djdm.Model):
     @classmethod
     def get_rooms(cls) -> tg.List[tg.Mapping[str, str]]:
         return list(cls.objects.order_by('organization', 'building')
-                    .values('organization', 'department', 'building', 'room',
+                    .values('id', 'organization', 'department', 'building', 'room',
                             'importstep')
                     .exclude(organization="uni-dummy.de")
                     )
