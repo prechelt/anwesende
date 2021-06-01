@@ -141,7 +141,10 @@ def _search_and_download(django_app: wt.TestApp, current_html: str):
     # the following is hardcoded against data values in _make_visits:
     # --- search:
     data = dict(givenname="A.",
-                from_date=aud.nowstring(), to_date=aud.nowstring())
+                from_date_0=aud.nowstring(date=True, time=False),
+                from_date_1=aud.nowstring(date=False, time=True),
+                to_date_0=aud.nowstring(date=True, time=False),
+                to_date_1=aud.nowstring(date=False, time=True))
     _fill_with(search1.form, data)
     search2 = search1.form.submit('visit')
     # print("container:", _find(search2.text, name="div", class_="container"))
