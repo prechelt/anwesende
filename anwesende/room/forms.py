@@ -140,7 +140,7 @@ class SearchForm(djf.Form):
     familyname = djf.CharField(label="Nachname / Family name",
                                initial="%", required=True, )
     phone = djf.CharField(label="Telefonnummer",
-                          initial="+49%1%", required=True,
+                          initial="%", required=True,
                           help_text="Mögliche Leerzeichen durch '%' tolerierbar machen!")
     email = djf.CharField(label="Emailadresse",
                           initial="%@%" if settings.USE_EMAIL_FIELD else "%",
