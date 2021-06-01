@@ -350,3 +350,29 @@ class Visit(djdm.Model):
             return strgen.StringGenerator('[a-z]{10}').render()
         else:
             return "none"
+
+
+class SearchProtocol(djdm.Model):
+    """
+    protocol the Searches made by the "Datenverwalter" to know when they query visits
+    """
+
+    # ---- Fields
+    user = djdm.ForeignKey(
+        to=aum.User,
+        on_delete=djdm.PROTECT
+    )
+    search_type = djdm.CharField(
+        blank=False, null=False,
+        max_length=FIELDLENGTH,
+        db_index=True
+    )
+    when = djdm.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.user}|{self.search_type}|{self.when}"
+
+    def __repr__(self):
+        return self.__str__()

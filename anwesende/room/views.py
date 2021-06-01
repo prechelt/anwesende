@@ -309,6 +309,7 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same vie
         self.form = self.get_form(data=request.POST)
         context = self.get_context_data(is_post=True)
         self._log_post(context)
+        self.log_search(context)
         if context['display_switch'] == 'xlsx':
             return self.excel_download_response(context['visits'])
         else:
@@ -323,6 +324,13 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same vie
         if 'form' in logcontext:
             logcontext['form'] = logcontext['form'].data
         logging.info(f"SearchView({logcontext}")
+
+    def log_search(self, context):
+        user = context['user']
+        search_type = context['display_switch']
+        search_protocol = arm.SearchProtocol(
+            user=user, search_type=search_type)
+        search_protocol.save()
 
     def excel_download_response(self, visits: tg.List[tg.Optional[arm.Visit]]) -> djh.HttpResponse:
         # https://stackoverflow.com/questions/4212861
