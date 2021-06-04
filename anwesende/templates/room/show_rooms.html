@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>QR-Codes für vorhandene Räume</h1>
+
+  {% if type == "overview" %}
+    
+    <h2>Hochschuleinheiten (departments)</h2>
+    
+    <table class="table table-sm table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Organization</th>
+          <th scope="col">Department</th>
+          <th scope="col">#Buildings</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for dpt in departments %}
+        <tr>
+          <td>{{ dpt.organization }}</td>
+          <td>{{ dpt.department }}</td>
+          <td><a href="{% url 'room:show-rooms-department' organization=dpt.organization department=dpt.department %}"
+              >{{ dpt.buildings }} Gebäude</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p><a href="/">Zurück</a></p>
+
+  {% elif type == "department" %}
+
+    <h2>Gebäude von {{ view.department }}</h2>
+    
+    <table class="table table-sm table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Building</th>
+          <th scope="col">#Rooms</th>
+          <th scope="col">QR codes</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for bldg in buildings %}
+        <tr>
+          <td>{{ bldg.building }}</td>
+          <td><a href="{% url 'room:show-rooms-building' organization=view.organization department=view.department building=bldg.building %}"
+              >{{ bldg.rooms }} Räume</a></td>
+          <td><a href="{% url 'room:qrcodes-byorgdepbld' organization=view.organization department=view.department building=bldg.building %}"
+              >((alle))</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p><a href="{% url 'room:show-rooms' %}">Zurück</a></p>
+    
+  {% elif type == "building" %}
+
+    <h2>Räume von Gebäude {{ view.building }}</h2>
+    
+    <table class="table table-sm table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Room</th>
+          <th scope="col">seat_last</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for room in rooms %}
+        <tr>
+          <td><a href="{% url 'room:qrcodes-byorgdepbldrm' organization=view.organization department=view.department building=view.building room=room.room %}"
+              >{{ room.room }}</a></td>
+          <td>{{ room.seat_last }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p><a href="{% url 'room:show-rooms-department' organization=view.organization department=view.department %}">Zurück</a></p>
+    
+  {% else %}
+    
+    <p><code>type = "{{ type }}"</code>. Wie, bitte?</p>
+  
+  {% endif %}
+
+{% endblock content %}

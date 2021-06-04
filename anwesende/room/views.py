@@ -4,6 +4,7 @@ import logging
 import os
 import typing as tg
 
+from django.db.models import Count
 import django.http as djh
 import django.urls as dju
 import django.utils.timezone as djut
@@ -59,6 +60,7 @@ class HomeView(SettingsMixin, vv.TemplateView):
 
 
 class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
+    """Import-Excel-for-QR-code-creation dialog."""
     form_class = arf.UploadFileForm
     template_name = "room/import.html"
 
@@ -89,10 +91,11 @@ class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return dju.reverse('room:qrcodes', kwargs=dict(pk=self.importstep.pk))
+        return dju.reverse('room:qrcodes-byimport', kwargs=dict(pk=self.importstep.pk))
 
 
-class QRcodesView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
+class QRcodesByImportView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
+    """Show printable QR codes created in one Importstep."""
     model = arm.Importstep
     template_name = "room/qrcodes.html"
 
@@ -100,6 +103,7 @@ class QRcodesView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
         context = super().get_context_data(**kwargs)
         seats = arm.Seat.objects.filter(room__importstep=self.object)
         context['seats'] = seats
+        context['listtype'] = 'importstep'
         return context
 
     def get_object(self):
@@ -110,7 +114,36 @@ class QRcodesView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
             raise djh.Http404
 
 
+class QRcodesByRoomsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
+    """Show printable QR codes for one room or one building."""
+    template_name = "room/qrcodes.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['seats'] = self.get_queryset().all()
+        context['listtype'] = 'byrooms'
+        return context
+
+    def get(self, request, *args, **kwargs):
+        self.organization = self.kwargs.pop('organization')
+        self.department = self.kwargs.pop('department')
+        self.building = self.kwargs.pop('building')
+        self.room = self.kwargs.pop('room', "")
+        return super().get(request, *args, **kwargs)
+        
+    def get_queryset(self):
+        qs = arm.Seat.objects.filter(
+                room__organization=self.organization,
+                room__department=self.department,
+                room__building=self.building)
+        if self.room:
+            return qs.filter(room__room=self.room)
+        else:
+            return qs
+
+
 class QRcodeView(IsDatenverwalterMixin, SettingsMixin, vv.View):
+    """Render one QR code as SVG."""
     def get(self, request, *args, **kwargs):
         if not self.is_datenverwalter \
                 and kwargs['hash'] != arm.Seat.get_dummy_seat().hash:
@@ -121,7 +154,43 @@ class QRcodeView(IsDatenverwalterMixin, SettingsMixin, vv.View):
         return djh.HttpResponse(qrcode_bytes, content_type="image/svg+xml")
 
 
+class ShowRoomsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
+    """Browse list of departments, buildings, rooms; navigate to QR codes."""
+    template_name = "room/show_rooms.html"
+
+    def get(self, request, *args, **kwargs):
+        self.organization = self.kwargs.pop('organization', "")
+        self.department = self.kwargs.pop('department', "")
+        self.building = self.kwargs.pop('building', "")
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        if self.building:
+            context['type'] = "building"
+            context['rooms'] = arm.Room.objects.filter(
+                    organization=self.organization,
+                    department=self.department,
+                    building=self.building)
+        elif self.department:
+            context['type'] = "department"
+            context['buildings'] = (arm.Room.objects
+                    .filter(organization=self.organization, 
+                            department=self.department)
+                    .order_by('building')
+                    .values('building')
+                    .annotate(rooms=Count("id", distinct=True)))
+        else:
+            context['type'] = "overview"
+            context['departments'] = (arm.Room.objects
+                    .order_by('organization', 'department')
+                    .values('organization', 'department')
+                    .annotate(buildings=Count("building", distinct=True)))
+        return context
+
+
 class VisitView(SettingsMixin, vv.CreateView):
+    """Centerpiece: The registration dialog for room visitors."""
     model = arm.Visit
     form_class = arf.VisitForm
     template_name = "room/visit.html"
@@ -187,6 +256,7 @@ class ThankyouView(SettingsMixin, vv.TemplateView):
 
 
 class UsageStatisticsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
+    """Show table of #rooms and #visits per department."""
     template_name = "room/stats.html"
 
     def get_context_data(self, **kwargs):
@@ -199,13 +269,18 @@ class UsageStatisticsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView)
 
 
 class UncookieView(vv.GenericView):
+    """Get rid of the cookie that stores the person data entered in VisitView."""
     def get(self, request, *args, **kwargs):
         response = djh.HttpResponse("Cookie expired")
         response.set_cookie(COOKIENAME, "", max_age=0)  # expire now
         return response
 
 
-class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same view for valid and invalid form
+class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):
+    """
+    Dialog by which Datenverwalters retrieve contact group data.
+    Kludge: Uses the same view for a valid form (instead of redirecting). 
+    """
     form_class = arf.SearchForm
     template_name = "room/search.html"
 

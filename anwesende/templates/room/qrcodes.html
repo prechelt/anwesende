@@ -1,23 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <p>{{ settings.SHORTURL_PREFIX }}{% url 'room:qrcodes' object.pk %}</p>
-  <p>
-    Dieser Importschritt hat
-    {{ object.num_new_rooms }} 
-    {{ object.num_new_rooms|pluralize:"neuen Raum,neue Räume" }} und
-    {{ object.num_new_seats }}
-    {{ object.num_new_seats|pluralize:"neuen Sitzplatz,neue Sitzplätze" }}
-    erzeugt.
-    {% if object.num_existing_seats %}
-      In der Liste der QR-Codes unten finden sich außerdem
-      {{ object.num_existing_rooms }} schon vorher 
-      vorhanden{{ object.num_existing_rooms|pluralize:"er Raum,e Räume" }}
-      und 
-      {{ object.num_existing_seats }} schon vorher
-      vorhanden{{ object.num_existing_seats|pluralize:"er Sitzplatz,e Sitzplätze" }}.
-    {% endif %}
-  </p>
+  {% if listtype == "importstep" %}
+    <p>{{ settings.SHORTURL_PREFIX }}{% url 'room:qrcodes-byimport' object.pk %}</p>
+    <p>
+      Dieser Importschritt hat
+      {{ object.num_new_rooms }} 
+      {{ object.num_new_rooms|pluralize:"neuen Raum,neue Räume" }} und
+      {{ object.num_new_seats }}
+      {{ object.num_new_seats|pluralize:"neuen Sitzplatz,neue Sitzplätze" }}
+      erzeugt.
+      {% if object.num_existing_seats %}
+        In der Liste der QR-Codes unten finden sich außerdem
+        {{ object.num_existing_rooms }} schon vorher 
+        vorhanden{{ object.num_existing_rooms|pluralize:"er Raum,e Räume" }}
+        und 
+        {{ object.num_existing_seats }} schon vorher
+        vorhanden{{ object.num_existing_seats|pluralize:"er Sitzplatz,e Sitzplätze" }}.
+      {% endif %}
+    </p>
+  {% elif listtype == "byrooms" %}
+    <code>organization</code>: {{ view.organization }}; 
+    <code>department</code>: {{ view.department }};
+    <code>building</code>: {{ view.building }};
+    <code>room</code>: {{ view.room }}
+  {% endif %}
   <hr>
     {% for seat in seats %}
       <div class="row align-items-center">

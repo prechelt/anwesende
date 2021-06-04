@@ -9,6 +9,9 @@
         <a href="{% url 'room:import' %}">QR-Codes erzeugen</a>
       </li>
       <li>
+        <a href="{% url 'room:show-rooms' %}">Räume und QR-Codes ansehen</a>
+      </li>
+      <li>
         <a href="{% url 'room:stats' %}">Aktuelle Benutzungsstatistik</a>
       </li>
       <li>
@@ -27,7 +30,7 @@
         <a href="{% url 'room:import' %}">registrieren ihre Räume</a><sup>*</sup>, 
         erhalten für jeden
         Sitzplatz einen QR-Code 
-        (<a href="{% url 'room:qrcodes' dummyseat.room.importstep.pk %}">Beispiel</a><sup>*</sup>)
+        (<a href="{% url 'room:qrcodes-byimport' dummyseat.room.importstep.pk %}">Beispiel</a><sup>*</sup>)
         und kleben diesen auf.
       </li>
       <li>
