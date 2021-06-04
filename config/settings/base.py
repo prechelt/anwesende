@@ -52,7 +52,7 @@ DATABASES = {"default":
                         (env.str("POSTGRES_USER"), env.str("POSTGRES_PASSWORD"),
                          env.str("POSTGRES_HOST"), env.str("POSTGRES_PORT"),
                          env.str("POSTGRES_DB")
-                         ), engine='django.db.backends.postgresql_psycopg2')}
+                         ))}
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
 # URLS
