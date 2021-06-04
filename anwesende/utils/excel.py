@@ -38,7 +38,8 @@ def write_excel_from_rowslists(filename: str, rowslists: RowsListsType,
     for sheetname, rows in rowslists.items():
         sheet = workbook.create_sheet(sheetname)
         indexdigits = len(str(len(rows))) if indexcolumn else 0
-        _write_column_headings(sheet, rows[0], 1, indexdigits)
+        if len(rows) > 0:
+            _write_column_headings(sheet, rows[0], 1, indexdigits)
         for rownum, row in enumerate(rows, start=2):
             _write_row(sheet, row, rownum, indexdigits)
     del workbook["Sheet"]  # get rid of initial default sheet

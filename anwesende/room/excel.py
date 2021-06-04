@@ -223,7 +223,8 @@ def collect_visitgroups(primary_visits: djdmq.QuerySet
             if is_new or must_not_be_suppressed:
                 result.append(visit)
         result.append(None)  # empty row as separator
-    del result[-1]  # remove trailing empty row
+    if len(result) > 0:
+        del result[-1]  # remove trailing empty row
     return result
 
 

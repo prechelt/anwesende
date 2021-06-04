@@ -234,7 +234,7 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same vie
                 ctx['display_switch'] = 'too_many_results'
         elif mode == 'visitgroup' or mode == 'xlsx':
             ctx['visits'] = are.collect_visitgroups(self.get_queryset())
-            ctx['LIMIT'] = 1000
+            ctx['LIMIT'] = 10000
             ctx['NUMRESULTS'] = len(ctx['visits'])
             if ctx['NUMRESULTS'] > ctx['LIMIT']:
                 ctx['display_switch'] = 'too_many_results'
