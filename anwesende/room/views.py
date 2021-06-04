@@ -72,7 +72,7 @@ class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
             importstep = room.importstep
             importstep.organization = room.organization  # type: ignore[attr-defined]
             importstep.department = room.department  # type: ignore[attr-defined]
-            imports = [importstep] 
+            imports = [importstep]
         context['imports'] = imports
         context['settings'] = settings
         return context
@@ -92,6 +92,18 @@ class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
         return dju.reverse('room:qrcodes', kwargs=dict(pk=self.importstep.pk))
 
 
+class QRoverView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
+    template_name = "room/qroverview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.is_datenverwalter:
+            context['rooms'] = arm.Room.get_rooms()
+        else:
+            context['rooms'] = []
+        return context
+
+
 class QRcodesView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
     model = arm.Importstep
     template_name = "room/qrcodes.html"
@@ -105,6 +117,24 @@ class QRcodesView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
     def get_object(self):
         object = super().get_object()
         if self.is_datenverwalter or object == arm.Seat.get_dummy_seat().room.importstep:
+            return object
+        else:
+            raise djh.Http404
+
+
+class QRcodesDepView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
+    model = arm.Room
+    template_name = "room/qrcodesdep.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        seats = arm.Seat.objects.filter(room__department=self.object.department)
+        context['seats'] = seats
+        return context
+
+    def get_object(self):
+        object = super().get_object()
+        if self.is_datenverwalter or object == arm.Seat.get_dummy_seat().room.department:
             return object
         else:
             raise djh.Http404
@@ -129,9 +159,9 @@ class VisitView(SettingsMixin, vv.CreateView):
     def get_success_url(self):
         room = self.object.seat.room
         visitors_presentN = arm.Visit.current_unique_visitorsN(room)
-        return dju.reverse('room:thankyou', 
+        return dju.reverse('room:thankyou',
                            kwargs=dict(visitors_presentN=visitors_presentN))
-    
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         hashvalue = self.kwargs['hash']
@@ -145,7 +175,7 @@ class VisitView(SettingsMixin, vv.CreateView):
 
     def _no_such_seat(self, hashvalue):
         return arm.Seat.objects.filter(hash=hashvalue).count() == 0
-    
+
     def get_form(self, data=None, files=None, **kwargs):
         if data:  # POST
             data = {k: v for k, v in data.items()}  # extract ordinary dict
@@ -158,7 +188,7 @@ class VisitView(SettingsMixin, vv.CreateView):
             logging.info(f"VisitView: new {initial}")
         initial['present_from_dt'] = aud.nowstring(date=False, time=True)
         return arf.VisitForm(initial=initial)
-        
+
     def form_valid(self, form: arf.VisitForm):
         self.object = form.save(commit=False)
         self.object.seat = arm.Seat.by_hash(self.kwargs['hash'])
@@ -166,7 +196,7 @@ class VisitView(SettingsMixin, vv.CreateView):
         o = self.object
         logging.info(f"VisitView({o.seat.hash}): {o.givenname}; {o.email}; {o.zipcode}; {o.cookie}")
         response = djh.HttpResponseRedirect(self.get_success_url())
-        response.set_cookie(key=COOKIENAME, value=self.get_cookiejson(form), 
+        response.set_cookie(key=COOKIENAME, value=self.get_cookiejson(form),
                             max_age=3600 * 24 * 90)
         return response
 
@@ -212,14 +242,14 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same vie
     def get_context_data(self, **ctx):
         def _key(postdata_key):  # key or None
             return postdata_key if postdata_key in self.form.data else None
-    
+
         ctx = super().get_context_data(
             environ=os.environ,
             form=self.form,
             **ctx)
         valid = ctx['valid'] = ctx['is_post'] and self.form.is_valid()
         # print(self.form.data)
-        # if valid: 
+        # if valid:
         #     print(self.form.cleaned_data)
         mode = _key('visit') or _key('visitgroup') or _key('xlsx')
         ctx['display_switch'] = mode
@@ -243,20 +273,20 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same vie
         return ctx
 
     def get_queryset(self):
-        def fdt(d: dt.date):
-            return djut.make_aware(dt.datetime(d.year, d.month, d.day))
+        def fdt(d: dt.datetime):
+            return djut.make_aware(dt.datetime(d.year, d.month, d.day, d.hour, d.minute))
         f = self.form.cleaned_data
         secure_organization = f['organization'] if self.is_datenverwalter \
             else settings.DUMMY_ORG
         if not settings.USE_EMAIL_FIELD:
             f['email'] = '%'  # insert dummy so we can use the full search
         return (arm.Visit.objects
-                .filter(seat__room__organization__like=secure_organization)
+                .filter(seat__room__organization__ilike=secure_organization)
                 .filter(seat__room__department__like=f['department'])
                 .filter(seat__room__building__like=f['building'])
                 .filter(seat__room__room__like=f['room'])
-                .filter(givenname__like=f['givenname'])
-                .filter(familyname__like=f['familyname'])
+                .filter(givenname__ilike=f['givenname'])
+                .filter(familyname__ilike=f['familyname'])
                 .filter(phone__like=f['phone'])
                 .filter(email__like=f['email'])
                 .filter(present_to_dt__gt=fdt(f['from_date']))  # left after from
@@ -279,6 +309,7 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same vie
         self.form = self.get_form(data=request.POST)
         context = self.get_context_data(is_post=True)
         self._log_post(context)
+        self.log_search(context)
         if context['display_switch'] == 'xlsx':
             return self.excel_download_response(context['visits'])
         else:
@@ -293,6 +324,13 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):  # same vie
         if 'form' in logcontext:
             logcontext['form'] = logcontext['form'].data
         logging.info(f"SearchView({logcontext}")
+
+    def log_search(self, context):
+        user = context['user']
+        search_type = context['display_switch']
+        search_protocol = arm.SearchProtocol(
+            user=user, search_type=search_type)
+        search_protocol.save()
 
     def excel_download_response(self, visits: tg.List[tg.Optional[arm.Visit]]) -> djh.HttpResponse:
         # https://stackoverflow.com/questions/4212861

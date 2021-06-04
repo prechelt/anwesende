@@ -21,3 +21,8 @@ class SeatAdmin(djca.ModelAdmin):
 @djca.register(arm.Visit)
 class VisitAdmin(djca.ModelAdmin):
     pass
+
+
+@djca.register(arm.SearchProtocol)
+class SearchProtocolAdmin(djca.ModelAdmin):
+    pass

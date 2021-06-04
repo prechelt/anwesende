@@ -35,7 +35,7 @@ def create_seats_from_excel(filename: str, user: aum.User) -> arm.Importstep:
 
 
 def _validate_room_declarations(columndict: aue.Columnsdict):
-    if getattr(columndict, 'has_been_validated', False): 
+    if getattr(columndict, 'has_been_validated', False):
         return
     _validate_columnlist(columndict)
     _validate_single_department(columndict)
@@ -100,8 +100,8 @@ def _find_or_create_rooms(
     result = []
     newN = existingN = 0
     for idx in range(len(columnsdict['room'])):
-        def col(name): 
-            return columnsdict[name][idx] 
+        def col(name):
+            return columnsdict[name][idx]
         room, created = arm.Room.objects.get_or_create(
             organization=col('organization'),
             department=col('department'),
@@ -252,12 +252,12 @@ def _as_vgrouprows(visits) -> tg.List[tg.Optional[VGroupRow]]:
         else:
             row = VGroupRow(
                 v.familyname, v.givenname, v.email, v.phone,
-                v.street_and_number, v.zipcode, v.town, 
+                v.street_and_number, v.zipcode, v.town,
                 v.cookie, "%5.1fm" % v.distance,  # type: ignore
-                aud.dtstring(v.submission_dt, time=True), 
+                aud.dtstring(v.submission_dt, time=False),
                 aud.dtstring(v.present_from_dt, date=False, time=True),
                 aud.dtstring(v.present_to_dt, date=False, time=True),
-                v.seat.room.organization, v.seat.room.department, 
+                v.seat.room.organization, v.seat.room.department,
                 v.seat.room.building, v.seat.room.room,
                 v.seat.seatname)
         vgrouprows.append(row)
