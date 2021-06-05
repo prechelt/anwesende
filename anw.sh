@@ -225,6 +225,7 @@ make_docker_compose_yml()  # internal
   announce $FUNCNAME internal
   cat >$DOCKER_COMPOSE_YML <<ENDOFFILE1
 version: '2.1'
+# created by anw.sh; do not modify
 # https://docs.docker.com/compose/compose-file/
 
 services:
@@ -307,6 +308,7 @@ make_docker_compose_yml_development()  # internal
   cat >$DOCKER_COMPOSE_YML <<ENDOFFILE
 version: '2.1'
 # https://docs.docker.com/compose/compose-file/
+# created by anw.sh; do not modify
 
 services:
   postgres:
@@ -340,6 +342,7 @@ make_traefik_yml()  # internal
   announce $FUNCNAME internal
   cat >$TRAEFIK_YML <<ENDOFentrypoints
 # https://doc.traefik.io/traefik/v2.0/providers/file/
+# created by anw.sh; do not modify
 # Quote: "Go Templating only works with dedicated dynamic configuration files.
 #         Templating does not work in the Traefik main static configuration file."
 log:

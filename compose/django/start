@@ -9,7 +9,7 @@ python /app/manage.py migrate
 python /app/manage.py make_base_data
 
 /usr/local/bin/gunicorn config.wsgi \
-    --workers 5 \
-    --threads 4 \
+    --workers $GUNICORN_WORKERS \
+    --threads $GUNICORN_THREADS \
     --bind 0.0.0.0:5000 \
     --chdir=/app
