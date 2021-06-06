@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-05-21
+Lutz Prechelt, 2021-06-06
 
 https://github.com/prechelt/anwesende
 
@@ -591,8 +591,18 @@ provide maximal transparency.
   - Page `/qrcodes/x` now formats vertically on smartphones.
 - 2021-05-21, Version 3.1:
   - now properly converted times from UTC to localtime in the Excel output.
+- 2021-06-06, Version 3.2:
+  - added show_rooms
+  - introduced `GUNICORN_WORKERS` and `GUNICORN_THREADS` settings.
+    These settings increase performance, in particular for servers with
+    multiple CPUs.
+    Existing installations must add this in their `.envs/myenv.env` file; 
+    see `config/envs/myenv-template.env` for how this will look like.
+  - The search dialog now ignores case (valuable for email!).  
+  - fixed failure when retrieving contact groups for empty search results
 - next version:
-  - ...    
+  - ...
+    
 
 TODO:
-  - ?
+  - ...
