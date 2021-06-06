@@ -71,7 +71,14 @@
         <a href="/faq#sitzplaetze">FAQ 3.2</a>.
       </li>
       <li>
-        Alle Zellen der Datei haben das Zellenformat <i>Text</i>.
+        Wichtig: Alle Zellen der Datei haben das Zellenformat <i>Text</i>.
+      </li>
+      <li>
+        Es darf keine leeren Zeilen am Ende (oder leeren Spalten
+        rechts) geben. Das ist etwas unangenehm:
+        Solche Zeilen kann man nicht sehen, aber man kann
+        sie markieren und mit Entf löschen. (Ganze Zeilen markieren, nicht
+        nur Zellen darin!)
       </li>  
       </ul>
     </li>
@@ -123,9 +130,14 @@
     (z.B. Adobe PDF) in eine PDF-Datei (also nicht auf einen Drucker)
     und schicken Sie diese Datei an die einreichende Person zurück.
   </p>
+  <p>
+    Achtung: Für sehr große Anforderungen (z.B. 1000 QR-Codes auf einmal)
+    kann es mehrere Minuten dauern, bis der Browser alle Codes dargestellt hat.
+  </p>
 
 
   {% crispy form %}
+  
   <hr>
   <p>Importe der letzten 8 Tage:</p>
   {% if imports|length > 0 %}
