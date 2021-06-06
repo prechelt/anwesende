@@ -22,6 +22,7 @@
           <td>{{ dpt.organization }}</td>
           <td>{{ dpt.department }}</td>
           <td><a href="{% url 'room:show-rooms-department' organization=dpt.organization|escape_slash department=dpt.department|escape_slash %}"
+                 class="show-rooms-department"
               >{{ dpt.buildings }} Gebäude</a></td>
         </tr>
       {% endfor %}
@@ -46,8 +47,10 @@
         <tr>
           <td>{{ bldg.building }}</td>
           <td><a href="{% url 'room:show-rooms-building' organization=view.organization|escape_slash department=view.department|escape_slash building=bldg.building|escape_slash %}"
+                 class="show-rooms-building"
               >{{ bldg.rooms }} Räume</a></td>
           <td><a href="{% url 'room:qrcodes-byorgdepbld' organization=view.organization|escape_slash department=view.department|escape_slash building=bldg.building|escape_slash %}"
+                 class="qrcodes-building"
               >((alle))</a></td>
         </tr>
       {% endfor %}
@@ -70,6 +73,7 @@
       {% for room in rooms %}
         <tr>
           <td><a href="{% url 'room:qrcodes-byorgdepbldrm' organization=view.organization|escape_slash department=view.department|escape_slash building=view.building|escape_slash room=room.room|escape_slash %}"
+                 class="qrcodes-room"
               >{{ room.room }}</a></td>
           <td>{{ room.seat_last }}</td>
         </tr>

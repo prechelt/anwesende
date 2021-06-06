@@ -29,7 +29,7 @@
     {% for seat in seats %}
       <div class="row align-items-center">
         <div>
-          <img class="qrcode" src="{% url 'room:qrcode' seat.hash %}" aria-roledescription="QR Code">
+          <img class="qrcode" src="{% url 'room:qrcode' seat.hash %}" alt="QR Code" aria-roledescription="QR Code">
         </div>
         <div style="padding-left: 1pc;" aria-roledescription="QR Code Information">
           <span class="qrb-item">Please scan QR code and register your presence.</span>
@@ -56,5 +56,4 @@
         </div>
       </div>
     {% endfor %}
-  </table>
 {% endblock content %}

@@ -19,17 +19,19 @@ import anwesende.utils.excel as aue
 
 @pytest.mark.django_db
 def test_workflow_happy_path(django_app: wt.TestApp):
+    """Use every important page once and check they play together properly."""
     # https://docs.pylonsproject.org/projects/webtest/en/latest/api.html
     xlsx_file = 'anwesende/room/tests/data/rooms1.xlsx'
     beacon_from_xlsx = "MathInf"
     datenverwalter = artm.make_datenverwalter_user("datenverwalter", "1234")  # noqa
     _log_in(django_app, "datenverwalter", "1234")
     seathash, current_html = _test_excel_import(django_app, xlsx_file, beacon_from_xlsx)
+    _browse_qrcodes(django_app)
     _log_out(django_app, current_html)
     _make_visits(django_app, seathash)
     resp = _log_in(django_app, "datenverwalter", "1234")
-    resp = django_app.get("/")
-    _search_and_download(django_app, resp.text)
+    _browse_usage_statistic(django_app)
+    _search_and_download(django_app)
 
 def freeze_at(daytime_string: str):
     return freeze_time(aud.make_dt('now', daytime_string))
@@ -64,6 +66,31 @@ def _test_excel_import(django_app, xlsx_file: str, beacon: str) -> tg.Tuple[str,
     qrcode_response = django_app.get(url)
     assert qrcode_response.headers['Content-Type'] == 'image/svg+xml'
     return (seathash, qrcodes_page.text)
+
+
+def _browse_qrcodes(django_app):
+    # most assertions are implicit: django_app.get could fail
+    print("## 1. overview page:")
+    resp1 = django_app.get('/').click(href=reverse('room:show-rooms'))
+    link1rooms = resp1.html.find(name='a', class_='show-rooms-department')
+
+    print("## 2. department-level page:")
+    print("link1rooms:", link1rooms['href'])
+    resp2 = django_app.get(link1rooms['href'])
+    link2rooms = resp2.html.find(name='a', class_='show-rooms-building')
+    link2codes = resp2.html.find(name='a', class_='qrcodes-building')
+
+    print("## 3. building-level browse page:")
+    resp3 = django_app.get(link2rooms['href'])
+    link3codes = resp3.html.find(name='a', class_='qrcodes-room')
+
+    print("## 4. building-level qrcodes page:")
+    resp4 = django_app.get(link2codes['href'])
+    assert len(resp4.html.find_all(name='img', class_='qrcode')) == 2*7 + 2*3
+
+    print("## 5. room-level qrcodes page:")
+    resp5 = django_app.get(link3codes['href'])
+    assert len(resp5.html.find_all(name='img', class_='qrcode')) == 2*7
 
 
 def _log_out(django_app: wt.TestApp, html: str) -> wt.TestResponse:
@@ -133,10 +160,17 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
     resp = visit_page3.form.submit().follow()
 
 
-def _search_and_download(django_app: wt.TestApp, current_html: str):
+def _browse_usage_statistic(django_app):
+    resp = django_app.get('/').click(href=reverse('room:stats'))
+    # the following checks are very minimal only:
+    assert "<td>20</td>" in resp.text  # seats
+    assert "<td>2</td>" in resp.text  # visits
+
+def _search_and_download(django_app: wt.TestApp):
     # base.html: <a href="/import">QR-Codes erzeugen</a>
     # and        <a href="/search">Nach Personen suchen</a>
-    search_url = _check_menu(current_html)
+    resp = django_app.get("/")
+    search_url = _check_menu(resp.text)
     search1 = django_app.get(search_url)
     # the following is hardcoded against data values in _make_visits:
     # --- search:
@@ -209,3 +243,7 @@ def _check_against(form: wt.Form, data: dict):
 def _find(html: str, **kwargs):
     soup = bs4.BeautifulSoup(html, "html.parser")
     return "".join((str(tag) for tag in soup.find(**kwargs).contents))
+
+def _findtag(html: str, **kwargs):
+    soup = bs4.BeautifulSoup(html, "html.parser")
+    return soup.find(**kwargs)
