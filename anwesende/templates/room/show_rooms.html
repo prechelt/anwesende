@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load anwesende_tags %}
 
 {% block content %}
   <h1>QR-Codes für vorhandene Räume</h1>
@@ -20,7 +21,7 @@
         <tr>
           <td>{{ dpt.organization }}</td>
           <td>{{ dpt.department }}</td>
-          <td><a href="{% url 'room:show-rooms-department' organization=dpt.organization department=dpt.department %}"
+          <td><a href="{% url 'room:show-rooms-department' organization=dpt.organization|escape_slash department=dpt.department|escape_slash %}"
               >{{ dpt.buildings }} Gebäude</a></td>
         </tr>
       {% endfor %}
@@ -44,9 +45,9 @@
       {% for bldg in buildings %}
         <tr>
           <td>{{ bldg.building }}</td>
-          <td><a href="{% url 'room:show-rooms-building' organization=view.organization department=view.department building=bldg.building %}"
+          <td><a href="{% url 'room:show-rooms-building' organization=view.organization|escape_slash department=view.department|escape_slash building=bldg.building|escape_slash %}"
               >{{ bldg.rooms }} Räume</a></td>
-          <td><a href="{% url 'room:qrcodes-byorgdepbld' organization=view.organization department=view.department building=bldg.building %}"
+          <td><a href="{% url 'room:qrcodes-byorgdepbld' organization=view.organization|escape_slash department=view.department|escape_slash building=bldg.building|escape_slash %}"
               >((alle))</a></td>
         </tr>
       {% endfor %}
@@ -68,14 +69,14 @@
       <tbody>
       {% for room in rooms %}
         <tr>
-          <td><a href="{% url 'room:qrcodes-byorgdepbldrm' organization=view.organization department=view.department building=view.building room=room.room %}"
+          <td><a href="{% url 'room:qrcodes-byorgdepbldrm' organization=view.organization|escape_slash department=view.department|escape_slash building=view.building|escape_slash room=room.room|escape_slash %}"
               >{{ room.room }}</a></td>
           <td>{{ room.seat_last }}</td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
-    <p><a href="{% url 'room:show-rooms-department' organization=view.organization department=view.department %}">Zurück</a></p>
+    <p><a href="{% url 'room:show-rooms-department' organization=view.organization|escape_slash department=view.department|escape_slash %}">Zurück</a></p>
     
   {% else %}
     

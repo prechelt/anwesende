@@ -14,6 +14,7 @@ from django.conf import settings
 import anwesende.room.excel as are
 import anwesende.room.forms as arf
 import anwesende.room.models as arm
+import anwesende.room.utils as aru
 import anwesende.utils.date as aud
 import anwesende.utils.lookup as aul  # noqa,  registers lookup
 import anwesende.utils.qrcode as auq
@@ -125,10 +126,7 @@ class QRcodesByRoomsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
         return context
 
     def get(self, request, *args, **kwargs):
-        self.organization = self.kwargs.pop('organization')
-        self.department = self.kwargs.pop('department')
-        self.building = self.kwargs.pop('building')
-        self.room = self.kwargs.pop('room', "")
+        pop_org_dept_bldg_room(self)
         return super().get(request, *args, **kwargs)
         
     def get_queryset(self):
@@ -140,6 +138,15 @@ class QRcodesByRoomsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
             return qs.filter(room__room=self.room)
         else:
             return qs
+
+def pop_org_dept_bldg_room(view):
+    """
+    Get certain URL params (if present) which come in slash-escaped in original form.
+    See aru.escape_slash for rationale.
+    """
+    for arg in ('organization', 'department', 'building', 'room'):
+        val = view.kwargs.pop(arg, "")
+        setattr(view, f"{arg}", aru.unescape_slash(val))  # the real value
 
 
 class QRcodeView(IsDatenverwalterMixin, SettingsMixin, vv.View):
@@ -159,9 +166,7 @@ class ShowRoomsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
     template_name = "room/show_rooms.html"
 
     def get(self, request, *args, **kwargs):
-        self.organization = self.kwargs.pop('organization', "")
-        self.department = self.kwargs.pop('department', "")
-        self.building = self.kwargs.pop('building', "")
+        pop_org_dept_bldg_room(self)
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self):
