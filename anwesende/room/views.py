@@ -331,14 +331,14 @@ class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):
         if not settings.USE_EMAIL_FIELD:
             f['email'] = '%'  # insert dummy so we can use the full search
         return (arm.Visit.objects
-                .filter(seat__room__organization__like=secure_organization)
-                .filter(seat__room__department__like=f['department'])
-                .filter(seat__room__building__like=f['building'])
-                .filter(seat__room__room__like=f['room'])
-                .filter(givenname__like=f['givenname'])
-                .filter(familyname__like=f['familyname'])
-                .filter(phone__like=f['phone'])
-                .filter(email__like=f['email'])
+                .filter(seat__room__organization__ilike=secure_organization)
+                .filter(seat__room__department__ilike=f['department'])
+                .filter(seat__room__building__ilike=f['building'])
+                .filter(seat__room__room__ilike=f['room'])
+                .filter(givenname__ilike=f['givenname'])
+                .filter(familyname__ilike=f['familyname'])
+                .filter(phone__ilike=f['phone'])
+                .filter(email__ilike=f['email'])
                 .filter(present_to_dt__gt=fdt(f['from_date']))  # left after from
                 .filter(present_from_dt__lt=fdt(f['to_date']))  # came before to
                 )
