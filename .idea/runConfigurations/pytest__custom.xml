@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="pytest: ." type="tests" factoryName="py.test" singleton="true">
+  <configuration default="false" name="pytest: custom" type="tests" factoryName="py.test" singleton="true">
     <module name="anwesende" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -49,7 +49,7 @@
     <option name="_new_keywords" value="&quot;&quot;" />
     <option name="_new_parameters" value="&quot;&quot;" />
     <option name="_new_additionalArguments" value="&quot;&quot;" />
-    <option name="_new_target" value="&quot;.&quot;" />
+    <option name="_new_target" value="&quot;./anwesende/room/tests/test_urls.py&quot;" />
     <option name="_new_targetType" value="&quot;PATH&quot;" />
     <method v="2" />
   </configuration>
