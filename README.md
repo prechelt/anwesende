@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-06-06
+Lutz Prechelt, 2021-06-15
 
 https://github.com/prechelt/anwesende
 
@@ -600,6 +600,11 @@ provide maximal transparency.
     see `config/envs/myenv-template.env` for how this will look like.
   - The search dialog now ignores case (valuable for email!).  
   - fixed failure when retrieving contact groups for empty search results
+- 2021-06-15, Version 3.3:
+  - made access control stricter 
+    (the usage statistics and show-QR-codes pages now require a login
+    in order to reduce the confusion when a Datenverwalter's session expires,
+    which would previously result in crippled output)
 - next version:
   - ...
     
