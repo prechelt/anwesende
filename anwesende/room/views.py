@@ -4,6 +4,7 @@ import logging
 import os
 import typing as tg
 
+import django.contrib.auth.mixins as djcam
 from django.db.models import Count
 import django.http as djh
 import django.urls as dju
@@ -22,7 +23,7 @@ import anwesende.utils.qrcode as auq
 COOKIENAME = 'anwesende'
 
 
-class IsDatenverwalterMixin:
+class AddIsDatenverwalter:
     """
     Sets user and is_datenverwalter flag in self and in context.
     """
@@ -39,19 +40,19 @@ class IsDatenverwalterMixin:
         return context
 
 
-class SettingsMixin:
-    """base.html requires 'settings' in context"""
+class AddSettings:
+    """Put 'settings' in context: base.html requires it."""
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)  # type: ignore
         context['settings'] = settings
         return context
 
 
-class FAQView(SettingsMixin, vv.TemplateView):
+class FAQView(AddSettings, vv.TemplateView):
     template_name = "room/faq.html"
 
 
-class HomeView(SettingsMixin, vv.TemplateView):
+class HomeView(AddSettings, vv.TemplateView):
     template_name = "room/home.html"
 
     def get_context_data(self, **kwargs):
@@ -60,7 +61,7 @@ class HomeView(SettingsMixin, vv.TemplateView):
         return context
 
 
-class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
+class ImportView(AddIsDatenverwalter, AddSettings, vv.FormView):
     """Import-Excel-for-QR-code-creation dialog."""
     form_class = arf.UploadFileForm
     template_name = "room/import.html"
@@ -95,7 +96,7 @@ class ImportView(IsDatenverwalterMixin, SettingsMixin, vv.FormView):
         return dju.reverse('room:qrcodes-byimport', kwargs=dict(pk=self.importstep.pk))
 
 
-class QRcodesByImportView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
+class QRcodesByImportView(AddIsDatenverwalter, AddSettings, vv.DetailView):
     """Show printable QR codes created in one Importstep."""
     model = arm.Importstep
     template_name = "room/qrcodes.html"
@@ -115,7 +116,8 @@ class QRcodesByImportView(IsDatenverwalterMixin, SettingsMixin, vv.DetailView):
             raise djh.Http404
 
 
-class QRcodesByRoomsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
+class QRcodesByRoomsView(djcam.LoginRequiredMixin, 
+                         AddIsDatenverwalter, AddSettings, vv.TemplateView):
     """Show printable QR codes for one room or one building."""
     template_name = "room/qrcodes.html"
 
@@ -149,7 +151,7 @@ def pop_org_dept_bldg_room(view):
         setattr(view, f"{arg}", aru.unescape_slash(val))  # the real value
 
 
-class QRcodeView(IsDatenverwalterMixin, SettingsMixin, vv.View):
+class QRcodeView(AddIsDatenverwalter, AddSettings, vv.View):
     """Render one QR code as SVG."""
     def get(self, request, *args, **kwargs):
         if not self.is_datenverwalter \
@@ -161,7 +163,8 @@ class QRcodeView(IsDatenverwalterMixin, SettingsMixin, vv.View):
         return djh.HttpResponse(qrcode_bytes, content_type="image/svg+xml")
 
 
-class ShowRoomsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
+class ShowRoomsView(djcam.LoginRequiredMixin,
+                    AddIsDatenverwalter, AddSettings, vv.TemplateView):
     """Browse list of departments, buildings, rooms; navigate to QR codes."""
     template_name = "room/show_rooms.html"
 
@@ -194,7 +197,7 @@ class ShowRoomsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
         return context
 
 
-class VisitView(SettingsMixin, vv.CreateView):
+class VisitView(AddSettings, vv.CreateView):
     """Centerpiece: The registration dialog for room visitors."""
     model = arm.Visit
     form_class = arf.VisitForm
@@ -256,11 +259,12 @@ class VisitView(SettingsMixin, vv.CreateView):
         return cookiejson
 
 
-class ThankyouView(SettingsMixin, vv.TemplateView):
+class ThankyouView(AddSettings, vv.TemplateView):
     template_name = "room/thankyou.html"
 
 
-class UsageStatisticsView(IsDatenverwalterMixin, SettingsMixin, vv.TemplateView):
+class UsageStatisticsView(djcam.LoginRequiredMixin,
+                          AddIsDatenverwalter, AddSettings, vv.TemplateView):
     """Show table of #rooms and #visits per department."""
     template_name = "room/stats.html"
 
@@ -281,7 +285,7 @@ class UncookieView(vv.GenericView):
         return response
 
 
-class SearchView(IsDatenverwalterMixin, SettingsMixin, vv.ListView):
+class SearchView(AddIsDatenverwalter, AddSettings, vv.ListView):
     """
     Dialog by which Datenverwalters retrieve contact group data.
     Kludge: Uses the same view for a valid form (instead of redirecting). 
