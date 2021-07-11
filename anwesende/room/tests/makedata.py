@@ -59,6 +59,7 @@ def _make_seats(importstep: arm.Importstep, roomname: str,
     seats = []
     room = arm.Room(organization=f"org{random.randint(1000,9999)}",
                     department="dep", building="bldg",
+                    row_dist=1.2, seat_dist=0.7,
                     room=roomname, seat_last=seat_last,
                     importstep=importstep)
     room.save()

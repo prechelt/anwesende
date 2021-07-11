@@ -107,7 +107,8 @@ def _find_or_create_rooms(
             department=col('department'),
             building=col('building'),
             room=col('room'),
-            defaults=dict(seat_last=col('seat_last'),
+            defaults=dict(row_dist=1.4, seat_dist=1.4,  # TODO: add Excel columns
+                          seat_last=col('seat_last'),
                           importstep=importstep)
         )
         if created:

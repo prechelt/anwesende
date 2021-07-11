@@ -124,10 +124,10 @@ def test_collect_visitgroups():
     for vr in vrows:
         vrowstr = f"{vr.familyname}: {vr.room}.{vr.seat}{vr.distance}"  # type: ignore
         result.add(vrowstr)
-    should = set([
+    should = set([  # see artm for row_dist/seat_dist
         "Visitor0: room1.r1s1  0.0m",
-        "Visitor1: room1.r1s2  1.4m",
-        "Visitor2: room1.r2s1  1.4m",
-        "Visitor3: room1.r2s2  2.0m",
+        "Visitor1: room1.r1s2  0.7m",
+        "Visitor2: room1.r2s1  1.2m",
+        "Visitor3: room1.r2s2  1.4m",
     ])
     assert result == should

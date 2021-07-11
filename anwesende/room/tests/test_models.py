@@ -36,6 +36,7 @@ def make_seats(importstep: arm.Importstep, roomname: str,
     room = arm.Room(organization=organization, department=department, 
                     building="bldg",
                     room=roomname,
+                    row_dist=1.3, seat_dist=0.8,
                     seat_last=arm.Seat.form_seatname(1, numseats),
                     importstep=importstep)
     room.save()
@@ -187,6 +188,8 @@ def test_distance_in_m():
     other = copy.copy(dummy)
     other.rownumber = 2
     other.seatnumber = 3
+    r_dist = ((other.rownumber-1) * dummy.room.row_dist)
+    s_dist = ((other.seatnumber-1) * dummy.room.seat_dist)
     dist_is = dummy.distance_in_m(other)
-    dist_should = math.sqrt(5) * arm.Seat.SEATDISTANCE_in_m
+    dist_should = math.sqrt(s_dist**2 + r_dist**2)
     assert abs(dist_is - dist_should) < 0.0001

@@ -53,6 +53,7 @@ class Room(djdm.Model):
     One room (that has seats) in one building of one department 
     of one organization.
     """
+    DEFAULT_SEATDISTANCE_in_m = 1.4  # how far seats are assumed to be spaced apart
     # ----- Options:
     class Meta:
         constraints = [djdm.UniqueConstraint(
@@ -81,6 +82,11 @@ class Room(djdm.Model):
     )
     seat_last = djdm.CharField(blank=False, null=False, max_length=FIELDLENGTH,
             help_text="e.g. 'r2s7' for row 2, seat 7 (14 seats total in the room)")
+    row_dist = djdm.FloatField(blank=False, null=False, 
+            help_text="smallest distance between people in two adjacent rows in meters")
+    seat_dist = djdm.FloatField(blank=False, null=False, 
+            help_text="smallest distance between people in two adjacent seats in meters")
+
     # ----- References:
     importstep = djdm.ForeignKey(   # set on create or overwrite
         to=Importstep,
@@ -106,7 +112,6 @@ class Seat(djdm.Model):
     """
     One seat in a Room. Each QR code refers to one Seat.
     """
-    SEATDISTANCE_in_m = 1.4  # how far seats are assumed to be spaced apart
     # ----- Fields:
     seatnumber = djdm.IntegerField(null=False)
     rownumber = djdm.IntegerField(null=False)
@@ -130,7 +135,9 @@ class Seat(djdm.Model):
         # which is a slightly optimistic assumption.
         rowdiff = self.rownumber - otherseat.rownumber
         seatdiff = self.seatnumber - otherseat.seatnumber
-        return math.sqrt(rowdiff**2 + seatdiff**2) * self.SEATDISTANCE_in_m
+        rowdist_m = rowdiff * self.room.row_dist
+        seatdist_m = seatdiff * self.room.seat_dist
+        return math.sqrt(rowdist_m**2 + seatdist_m**2)
 
     @classmethod
     def get_dummy_seat(cls) -> 'Seat':
@@ -143,6 +150,8 @@ class Seat(djdm.Model):
     @classmethod
     def _make_dummyseat(cls, dummyorg: str) -> 'Seat':
         DUMMYSEAT_NAME = cls.form_seatname(1, 1)  # "r1s1"
+        DUMMYSEAT_ROW_DIST = 1.1
+        DUMMYSEAT_SEAT_DIST = 0.6
         rownumber, seatnumber = cls.split_seatname(DUMMYSEAT_NAME)
         user = aum.User.objects.create(name="dummy", username="dummy", 
                                        first_name="D.", last_name="dummy", email="",
@@ -153,6 +162,8 @@ class Seat(djdm.Model):
         room = Room.objects.create(organization=dummyorg, department="dummydept", 
                                    building="dummybldg", 
                                    room="dummyroom",
+                                   row_dist=DUMMYSEAT_ROW_DIST, 
+                                   seat_dist=DUMMYSEAT_SEAT_DIST,
                                    seat_last=cls.form_seatname(1, 1),
                                    importstep=step)
         dummyseat = cls.objects.create(room=room, 
