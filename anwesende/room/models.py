@@ -99,6 +99,10 @@ class Room(djdm.Model):
         return self.__str__()
     
     @classmethod
+    def as_float(cls, dist_string: str) -> float:
+        return float(dist_string.replace(',', '.'))  # ensure decimal point
+
+    @classmethod
     def usage_statistics(cls) -> tg.List[tg.Mapping[str,str]]:
         return list(cls.objects.order_by('organization', 'department')
                 .values('organization', 'department')

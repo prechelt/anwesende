@@ -15,7 +15,7 @@
       Sie schicken eine Excel-Datei mit Rauminformationen zu den
       Datenverwalter_innen und bekommen eine PDF-Datei mit QR-Codes zurück. <br>
       Machen Sie am besten eine Excel-Datei pro Gebäude, dann lassen 
-      sich die QR-Code-Dateien am besten handhaben.
+      sich die QR-Code-Dateien gut handhaben.
     </li>
     <li>
       <b>Format:</b> Die <b>Excel-Datei</b> wird nicht von einem Menschen,
@@ -37,17 +37,17 @@
       </li>
       <li>
         <var>department</var>: Intern gebräuchlicher Kurzname der Hochschuleinheit, z.B.
-       <var>MathInf</var> für den Fachbereich Mathematik und Informatik.  
-       Auch dieser Wert ist in aller Regel in allen Zeilen der Datei gleich.
+        <var>MathInf</var> für den Fachbereich Mathematik und Informatik.  
+        Auch dieser Wert ist in aller Regel in allen Zeilen der Datei gleich.
       </li>
       <li>
         <var>building</var>: Gebäudebezeichnung, meist Straße und Hausnummer, z.B.
-       <var>Takustr. 9</var> für das Informatik-Hauptgebäude in der Takustraße 9.  
-       Dieser Wert sollte (genau wie alle anderen) nicht zu lang sein,
-       da er auf dem QR-Code-Schild mit ausgedruckt wird und dort
-       die verfügbare Breite nicht überschreiten sollte.  
-       Der Name muss nicht unbedingt exakt zum Straßenschild passen;
-       evtl. verkürzte Straßennamen oder weithin bekannte Gebäudenamen bevorzugen.
+        <var>Takustr. 9</var> für das Informatik-Hauptgebäude in der Takustraße 9.  
+        Dieser Wert sollte (genau wie alle anderen) nicht zu lang sein,
+        da er auf dem QR-Code-Schild mit ausgedruckt wird und dort
+        die verfügbare Breite nicht überschreiten sollte.  
+        Der Name muss nicht unbedingt exakt zum Straßenschild passen;
+        evtl. verkürzte Straßennamen oder weithin bekannte Gebäudenamen bevorzugen.
       </li>
       <li>
         <var>room</var>: Raumbezeichnung. 
@@ -60,6 +60,18 @@
         also meist einen Flur, Trakt, Flügel oder eine Etage.
         Hier sind also sinnvolle frei gewählte Bezeichnungen zu vergeben,
         nicht Raumnummern.
+      </li>
+      <li>
+        <var>row_dist</var>: Abstand der Sitzreihen (in Metern), z.B.
+        <var>1,5</var> für den normalen Sicherheits-Abstand oder vielleicht
+        <var>0,9</var> für einen voll benutzten Hörsaal.
+        Anzugeben ist der geringste solche Abstand im Raum.
+      </li>
+      <li>
+        <var>seat_dist</var>: Horizontaler Abstand der Sitze (in Metern), z.B.
+        <var>1,5</var> für den normalen Sicherheits-Abstand oder vielleicht
+        <var>0,75</var> für einen voll benutzten Hörsaal.
+        Anzugeben ist der geringste solche Abstand im Raum.
       </li>
       <li>
         <var>seat_last</var>: 
@@ -77,7 +89,7 @@
         Es darf keine leeren Zeilen am Ende (oder leeren Spalten
         rechts) geben. Das ist etwas unangenehm:
         Solche Zeilen kann man nicht sehen, aber man kann
-        sie markieren und mit Entf löschen. (Ganze Zeilen markieren, nicht
+        sie markieren und mit Entf löschen. (Ganze Zeilen oder Spalten markieren, nicht
         nur Zellen darin!)
       </li>  
       </ul>
@@ -118,7 +130,9 @@
       Benutzen <var>organization</var> und <var>department</var>
       die richtigen Schreibweisen?
     </li>
-    <li>Gibt es absurde Sitzanzahlen?</li>
+    <li>
+      Gibt es womöglich für jeden Sitz eine eigene Zeile? 
+      Oder absurde Sitzanzahlen?</li>
     <li>
       Einlesen lassen sich nur Excel-Dateien im korrekten Format,
       siehe oben.
@@ -133,6 +147,7 @@
   <p>
     Achtung: Für sehr große Anforderungen (z.B. 1000 QR-Codes auf einmal)
     kann es mehrere Minuten dauern, bis der Browser alle Codes dargestellt hat.
+    Erst dann sollte man die PDF-Erzeugung starten.
   </p>
 
 

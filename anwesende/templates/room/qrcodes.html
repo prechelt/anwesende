@@ -23,7 +23,9 @@
     <code>organization</code>: {{ view.organization }}; 
     <code>department</code>: {{ view.department }};
     <code>building</code>: {{ view.building }};
-    <code>room</code>: {{ view.room }}
+    <code>room</code>: {{ view.room }};
+    <code>row_dist</code>: {{ seats.0.room.row_dist }};
+    <code>seat_dist</code>: {{ seats.0.room.seat_dist }};
   {% endif %}
   <hr>
     {% for seat in seats %}

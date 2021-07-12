@@ -1,5 +1,6 @@
 import collections
 import os
+import re
 import tempfile
 import typing as tg
 
@@ -39,12 +40,15 @@ def _validate_room_declarations(columndict: aue.Columnsdict):
         return
     _validate_columnlist(columndict)
     _validate_single_department(columndict)
+    _validate_dist(columndict, 'row_dist')
+    _validate_dist(columndict, 'seat_dist')
     _validate_seatrange(columndict)
     columndict.has_been_validated = True  # type: ignore
 
 
 def _validate_columnlist(columndict: aue.Columnsdict):
-    expected = ('organization', 'department', 'building', 'room', 'seat_last')
+    expected = ('organization', 'department', 'building', 'room', 
+                'row_dist', 'seat_dist', 'seat_last')
     found = columndict.keys()
     missing = set(expected) - set(found)
     if missing:
@@ -67,6 +71,31 @@ def _validate_single_department(columndict: aue.Columnsdict):
         _excelerror(column='department',
                     expected="all values are the same",
                     found=f"multiple different values: {departments}")
+
+
+def _validate_dist(columndict: aue.Columnsdict, colname: str) -> None:
+    assert colname in ['row_dist', 'seat_dist']
+    my_dists = columndict[colname]
+    my_dist_format = r"\d[\.,]\d\d?"
+    for index, my_dist in enumerate(my_dists):
+        excel_row_number = index + 2
+        try:
+            if not re.fullmatch(my_dist_format, my_dist):
+                format_msg = "distance value must look like '1.2' or '1,25'"
+                _excelerror(row=excel_row_number, column=colname,
+                            found=f"'{my_dist}': {format_msg}")
+            else:
+                my_dist = arm.Room.as_float(my_dist)
+                if my_dist < 0.3 or my_dist > 4.0:
+                    distance_msg = "distance must be in range 0.3 to 4.0 meters"
+                    _excelerror(row=excel_row_number, column=colname,
+                                found=f"'{my_dist}': {distance_msg}")
+        except Exception as ex:
+            if isinstance(ex, InvalidExcelError):
+                raise ex
+            else:
+                _excelerror(row=excel_row_number, column='seat_last',
+                            found=str(ex))
 
 
 def _validate_seatrange(columndict: aue.Columnsdict):
@@ -107,7 +136,8 @@ def _find_or_create_rooms(
             department=col('department'),
             building=col('building'),
             room=col('room'),
-            defaults=dict(row_dist=1.4, seat_dist=1.4,  # TODO: add Excel columns
+            defaults=dict(row_dist=arm.Room.as_float(col('row_dist')), 
+                          seat_dist=arm.Room.as_float(col('seat_dist')),
                           seat_last=col('seat_last'),
                           importstep=importstep)
         )
@@ -116,6 +146,9 @@ def _find_or_create_rooms(
         else:
             existingN += 1
             room.importstep = importstep
+            #--- some fields can be modified by re-imports:
+            room.row_dist = arm.Room.as_float(col('row_dist'))
+            room.seat_dist = arm.Room.as_float(col('seat_dist'))
             room.seat_last = col('seat_last')
             room.save()
         result.append(room)

@@ -52,6 +52,8 @@ def test_displayable_importsteps():
     for i, seat in enumerate(seats):
         print(i, seat)
     assert importstep2.num_new_seats == 2
+    updated_seat = arm.Seat.objects.get(room__room='K40', seatnumber=1, rownumber=1)
+    assert abs(updated_seat.room.row_dist - 1.2) < 0.0001  # no longer 1.1
     # ----- check displayable importstep1 again:
     steps2 = arm.Importstep.displayable_importsteps(dt.timedelta(days=1))
     assert len(steps2) == 2

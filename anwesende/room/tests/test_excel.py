@@ -12,7 +12,6 @@ import anwesende.utils.excel
 # #### scaffolding:
 
 excel_rooms1_filename = "anwesende/room/tests/data/rooms1.xlsx"
-excel_rooms2_filename = "anwesende/room/tests/data/rooms2.xlsx"
 
 
 def excel_example_columnsdict():
@@ -52,15 +51,42 @@ def test_validate_rooms_with_additional_column():
 
 
 def test_validate_rooms_with_mixed_organizations():
-    
+
     def patcher(example):
         example['organization'][1] = "uni-flensburg.de"
     check_error_w_patched_example(patcher, 
             ("multiple", "berlin", "flensburg"))
 
 
+def test_validate_rooms_with_wrong_distances():
+
+    def patcher1(example):
+        example['row_dist'][1] = "1,4m"
+
+    check_error_w_patched_example(patcher1, 
+            ("row_dist", "1,4m", "must look like"))
+
+    def patcher2(example):
+        example['row_dist'][1] = "4,1"
+
+    check_error_w_patched_example(patcher2, 
+            ("row_dist", "4.1", "must be in range"))
+
+    def patcher3(example):
+        example['row_dist'][1] = "1"
+
+    check_error_w_patched_example(patcher3, 
+            ("row_dist", "1", "must look like"))
+
+    def patcher4(example):
+        example['seat_dist'][1] = ""
+
+    check_error_w_patched_example(patcher4, 
+            ("seat_dist", "", "must look like"))
+
+
 def test_validate_rooms_with_wrong_seats():
-    
+
     def patcher1(example):
         example['seat_last'][1] = "Z1S3"
 

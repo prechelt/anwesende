@@ -287,7 +287,11 @@
     a.nwesen.de gibt zu jeder Kontaktperson einen ungefähren Abstand 
     von der infizierten Person an.<br>
     Dieser basiert auf der Annahme, dass die Sitzplätze in einem Raster
-    von 1,4m angeordnet sind (Sitz 'r1s2' steht z.B. für Reihe 1, Sitz 2). 
+    von <var>row_dist</var> Höhe (Reihenabstand) mal <var>seat_dist</var> Breite (seitlicher
+    Sitzabstand) angeordnet sind 
+    (Sitz 'r1s2' steht z.B. für Reihe 1, Sitz 2; <var>row_dist</var> und <var>seat_dist</var>
+    können für jeden Raum separat festgelegt werden und wären für normalen
+    Corona-Sicherheitsabstand beide 1,5m). 
     Dies muss eine vorsichtige Annahme sein,
     d.h. tatsächlich müssen die Sitzplätze <i>mindestens</i> so weit 
     auseinander liegen.<br>
@@ -309,6 +313,82 @@
   </p>
 
 
+  <h3 id="abstandsupdate">
+    3.3 Wir haben QR-Codes für 1,5m Abstand geklebt, aber jetzt wollen wir doch alle Plätze nutzen!
+  </h3>
+  <p>
+    Es gibt drei Möglichkeiten (Szenarios), damit umzugehen: 
+  </p>
+  <ol>
+    <li>
+      <strong>Vorhandene QR-Codes mehrfach nutzen:</strong><br>
+      <em>Grundidee: </em>
+      Mehrere Besucher_innen, die nah beieinander sitzen, nutzen den selben QR-Code
+      und haben in den Daten dann scheinbar den Abstand Null. 
+      <br>
+      <em>Beispiel: </em>
+      Ein Seminarraum ist in Corona-Manier für 12 Personen bestuhlt
+      (4 Reihen zu je 3 Tischen; 1 Person pro Tisch) 
+      und soll jetzt mit voller Kapazität für 40 Personen bestuhlt werden
+      (5 Reihen zu je 4 Tischen; 2 Personen pro Tisch).<br>
+      Man erzeugt die QR-Codes neu mit <var>seat_last</var> als <var>r5s4</var> (statt <var>r4s3</var>)
+      und klebt auf die neu wieder hinzugeholten Tische nur je 1 Code
+      auf wie auf die bisherigen auch: <var>r1s4</var> bis <var>r4s4</var> für die neuen Tische
+      ganz rechts und <var>r5s1</var> bis <var>r5s4</var> für die neue letzte Reihe.  
+      Die bisherigen Tische werden nach links und vorne zusammengerückt.<br>
+      Die beiden Besucher_innen, die zusammen am selben Tisch sitzen,
+      scannen beide den selben Code.
+    </li>
+    <li>
+      <strong>Gleiche QR-Codes mehrfach aufkleben:</strong><br>
+      <em>Grundidee: </em>
+      Mehrere Besucher_innen, die nah beieinander sitzen, nutzen den gleichen QR-Code,
+      der dafür auf jedem Platz identisch ein weiteres Mal aufgeklebt ist.
+      Auch diese Besucher_innen haben in den Daten dann scheinbar den Abstand Null. 
+      <br>
+      <em>Beispiel: </em>
+      In einem Hörsaal funktioniert das Verfahren 1 nicht gut, da man
+      die Bestuhlung nicht zusammenschieben kann.
+      Wenn aber z.B. zwischen benachbarten Codes je zwei Plätze und eine
+      ganze Reihe frei bleiben, kann man aber den gleichen Code von Platz <var>r1s1</var>
+      auf diese fünf bislang leer gebliebenen Plätze zusätzlich aufkleben,
+      so dass jede_r Besucher_in einen eigenen (wenn auch nicht einmaligen)
+      Code vor sich hat und das Gedränge ausbleibt, das sich andernfalls
+      beim Versuch des sechsfachen Scannens einstellen würde.
+    </li>
+    <li>
+      <strong>QR-Codes ganz neu vergeben:</strong><br>
+      <em>Grundidee: </em>
+      Vorhandene QR-Codes werden entfernt und komplett neue statt dessen
+      aufgebracht.
+      <br>
+      <em>Beispiel: </em>
+      Während der zweifach genutzte Code im Seminarraum (Szenario 1) noch
+      ganz vernünftig anmutet, 
+      bedeutet ein sechsfach (oder gar neunfach) genutzter Code im Hörsaal
+      (Szenario 2) eine starke Vergröberung der Daten.
+      Für den Fall ist es vorzuziehen, die vorhandenen Codes zu
+      entfernen und eine ganz neue Serie von QR-Codes zu verkleben, bei
+      denen jeder Platz einen einmaligen Code erhält.
+      Da der zusätzliche Klebeaufwand auch bei bloßem Nachkleben schon 
+      erheblich ist, lässt sich die Mehrarbeit verschmerzen.
+    </li>
+  </ol>
+  <p>
+    <strong>Alle drei Verfahren haben gemeinsam</strong>, 
+    dass man die Excel-Datei für die
+    Erzeugung der QR-Codes dieses Raumes ein weiteres Mal einliest und zwar
+    mit exakt identischen Werten für
+    <var>organization</var>, <var>department</var>, <var>building</var> und 
+    <var>room</var>, denn schon bei
+    der kleinsten Abweichung entsteht aus Sicht der Software ein separater
+    Raum und wenn man solche Codes mit alten Codes mischt, gehören die
+    Besucher_innen anschließend verschiedenen Kontaktgruppen an!).<br>
+    Aber die Werte von <var>row_dist</var> und <var>seat_dist</var> werden 
+    passend zugefügt
+    (im Szenario 2 mit ca. 1,5m, bei 1 und 3 mit kleineren Werten), 
+    der Wert von <var>seat_last</var> wird angepasst. 
+  </p>
   <hr>
   <h2 id="datenverwalter">4. Für Datenverwalter_innen / For Datenverwalters (German only)</h2>
   
