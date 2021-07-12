@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-06-15
+Lutz Prechelt, 2021-07-12
 
 https://github.com/prechelt/anwesende
 
@@ -124,6 +124,8 @@ Datenverwalter/in.
    - `room`: Raumbezeichnung, in der Regel eine Raumnummer, z.B.
      `055` für den Seminarraum 055 im Erdgeschoss.  
      Dies sollte zur Beschriftung an der Eingangstür des Raums passen.
+   - `row_dist`: minimaler Abstand der Sitzreihen in Metern.
+   - `seat_dist`: minimaler Abstand zweiter benachbarter Sitze (links/rechts) in Metern.
    - `seat_last`: Letzter Sitz, z.B. `r2s7` für Reihe 2, Sitz 7 in einem
      Raum mit 14 Sitzen in zwei Reihen. Der erste Sitz ist immer `r1s1`.  
      Diese Sitznamen werden auf den QR-Code-Schildern
@@ -605,9 +607,19 @@ provide maximal transparency.
     (the usage statistics and show-QR-codes pages now require a login
     in order to reduce the confusion when a Datenverwalter's session expires,
     which would previously result in crippled output)
+- 2021-07-12, Version 4.0:
+  - added columns `row_dist` and `seat_dist` for the distance (in meters)
+    between rows (front-to-back direction) and seats (left-to-right direction), 
+    respectively, so that different rooms can have seating arrangements
+    of different density and still the distances computed are reasonably
+    accurate.
+    For existing rooms, 1.4m is assumed for both values.  
+    The new columns can be added to the database by reading an updated version
+    of previous Excel files with identical values of
+    `organization`, `department`, `building`, and `room`.
+    See FAQ 3.3 for a discussion.    
 - next version:
   - ...
     
-
 TODO:
   - ...
