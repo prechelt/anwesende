@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-07-12
+Lutz Prechelt, 2021-08-17
 
 https://github.com/prechelt/anwesende
 
@@ -618,8 +618,11 @@ provide maximal transparency.
     of previous Excel files with identical values of
     `organization`, `department`, `building`, and `room`.
     See FAQ 3.3 for a discussion.    
+- 2021-08-17, Version 4.1:
+  - corrected wrong columname in some file import "Excel error" messages
+  - improved logging
+  - `/show_rooms` now displays `row_dist` and `seat_dist`  
 - next version:
-  - ...
     
 TODO:
   - ...
