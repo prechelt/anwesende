@@ -94,7 +94,7 @@ def _validate_dist(columndict: aue.Columnsdict, colname: str) -> None:
             if isinstance(ex, InvalidExcelError):
                 raise ex
             else:
-                _excelerror(row=excel_row_number, column='seat_last',
+                _excelerror(row=excel_row_number, column=colname,
                             found=str(ex))
 
 
