@@ -82,7 +82,7 @@ class ImportView(AddIsDatenverwalter, AddSettings, vv.FormView):
         return context
 
     def form_invalid(self, form: arf.UploadFileForm):
-        logging.warning(f"ImportView invalid: {form.errors}")
+        logging.getLogger('error').error(f"ImportView invalid: {form.errors}")
         return super().form_invalid(form)
 
     def form_valid(self, form: arf.UploadFileForm):
@@ -376,7 +376,7 @@ class SearchView(AddIsDatenverwalter, AddSettings, vv.ListView):
             del logcontext['environ']
         if 'form' in logcontext:
             logcontext['form'] = logcontext['form'].data
-        logging.info(f"SearchView({logcontext}")
+        logging.getLogger('search').info(f"SearchView({logcontext}")
 
     def excel_download_response(self, visits: tg.List[tg.Optional[arm.Visit]]) -> djh.HttpResponse:
         # https://stackoverflow.com/questions/4212861

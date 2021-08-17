@@ -112,27 +112,22 @@ LOGGING = {
             "filename": '/djangolog/django-errors.log',
             "formatter": "verbose",
         },
-        "file_request": {
-            "level": "DEBUG",
+        "file_search": {
+            "level": "INFO",
             "class": "logging.FileHandler",
             "filename": '/djangolog/django-requests.log',
             "formatter": "verbose",
         },
     },
     "loggers": {
-        "django": {
-            "handlers": ["console", "file"],
+        "error": {
+            "handlers": ["console", "file_error"],
             "level": "INFO",
             "propagate": True,
         },
-        "django.request": {
-            "handlers": ["file_request"],
+        "search": {
+            "handlers": ["file_search"],
             "level": "INFO",
-            "propagate": False,
-        },
-        "django.security": {
-            "level": "ERROR",
-            "handlers": ["console", "file_error"],
             "propagate": True,
         },
     },

@@ -1,4 +1,5 @@
 import datetime as dt
+import logging
 import os
 import re
 import tempfile
@@ -38,6 +39,7 @@ class UploadFileForm(djf.Form):
         self.helper.add_input(cfl.Submit('submit', 'Hochladen'))
         
     def clean(self):
+        logger = logging.getLogger('error')
         self.cleaned_data = super().clean()
         try:
             uploadedfile = self.cleaned_data['file']
@@ -46,13 +48,18 @@ class UploadFileForm(djf.Form):
         try:
             excelfile = self._store_excelfile(uploadedfile)
         except Exception:
-            raise djce.ValidationError(f"Kann die Datei {{uploadedfile}} nicht öffnen")
+            msg = f"Kann die Datei {{uploadedfile}} nicht öffnen"
+            logger.warning(msg)
+            raise djce.ValidationError(msg)
         try:
             are.validate_excel_importfile(excelfile)  # stores models iff valid
         except are.InvalidExcelError as err:
+            logger.error("InvalidExcelError({uploadedfile})", exc_info=err)
             raise djce.ValidationError(err)
-        except Exception:
-            raise djce.ValidationError("Das ist keine gültige XLSX-Datei, oder?")
+        except Exception as err:
+            msg = f"{uploadedfile} ist keine gültige XLSX-Datei, oder?"
+            logger.error(f"UploadFileForm({uploadedfile})", exc_info=err)
+            raise djce.ValidationError(msg)
         self.cleaned_data['excelfile'] = excelfile
         
     def _store_excelfile(self, uploadedfile):
