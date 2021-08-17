@@ -66,6 +66,8 @@
       <thead class="thead-light">
         <tr>
           <th scope="col">Room</th>
+          <th scope="col">row_dist</th>
+          <th scope="col">seat_dist</th>
           <th scope="col">seat_last</th>
         </tr>
       </thead>
@@ -75,6 +77,8 @@
           <td><a href="{% url 'room:qrcodes-byorgdepbldrm' organization=view.organization|escape_slash department=view.department|escape_slash building=view.building|escape_slash room=room.room|escape_slash %}"
                  class="qrcodes-room"
               >{{ room.room }}</a></td>
+          <td>{{ room.row_dist }}</td>
+          <td>{{ room.seat_dist }}</td>
           <td>{{ room.seat_last }}</td>
         </tr>
       {% endfor %}
