@@ -8,8 +8,9 @@ Columnsdict = tg.Mapping[str, tg.List]
 
 def read_excel_as_columnsdict(filename: str) -> Columnsdict:
     """
-    Return raw data from Excel's active sheet, except strings
-    will be stripped of leading/trailing whitespace.
+    Return raw data from Excel's active sheet:
+    strings will be stripped of leading/trailing whitespace;
+    everything else will be converted to string.
     First row is treated as column headers; column order is kept.
     """
     workbook = openpyxl.load_workbook(filename)
@@ -26,8 +27,8 @@ def _cleansed(cell):
     if isinstance(cell, str): 
         return cell.strip()
     else: 
-        return cell  # None or int or what-have-you
-    
+        return str(cell or "")  # None or int or what-have-you
+
 
 RowsListsType = tg.Mapping[str, tg.List[tg.Optional[tg.NamedTuple]]]  # sheetname -> sheetcontents
 
