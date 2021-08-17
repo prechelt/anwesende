@@ -13,12 +13,10 @@ def test_read_excel_as_columnsdict():
     cd = aue.read_excel_as_columnsdict(the_3by3_file)
     assert set(cd.keys()) == set(["A-str", "B-int", "C-str"])
     assert cd['A-str'] == ["string1", "string2"]
-    assert cd['B-int'] == [1, 4711]
-    assert cd['C-str'] == [None, 4711]  # Ouch!:
-    # the C-str column has cell format "Text", so it should return
-    # "4711", not 4711.
-    # We better prepare to receive either int or str, which also
-    # means we need to rely less on authors not to change the xlsx template
+    assert cd['B-int'] == ['1', '4711']  # not [1, 4711], forced result
+    assert cd['C-str'] == ['', '4711']  # not [None, 4711], forced result
+    # openpyxl may return numbers even if the cell format is text.
+    # The excel module forces the results to be str, and None to be "".
     
 
 def test_write_excel_from_rowslists():
