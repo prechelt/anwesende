@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-08-17
+Lutz Prechelt, 2021-09-09
 
 https://github.com/prechelt/anwesende
 
@@ -77,7 +77,7 @@ Rollen:
 1. Ich komme in einen offenen Raum der teilnehmenden Hochschule.
    An meinem Sitzplatz klebt ein QR-Code. Ich scanne ihn mit meinem
    Smartphone und lande in meinem Webbrowser auf einer Seite mit
-   ungefähr so einem Namen: `https://a.nwesen.de/1234567890`.
+   ungefähr so einem Namen: `http://a.nwesen.de/1234567890`.
 2. Der Dienst zeigt mir Datenschutzhinweise.
 3. Ich gebe meine Daten ein (Vorname, Name, Mobilfunknummer, Email,
    Straße/Hausnummer, PLZ, Ort)
@@ -626,4 +626,6 @@ provide maximal transparency.
 - next version:
     
 TODO:
+  - improve docker restart configuration
+  - add a hang-on-the-wall information sheet PDF  
   - ...
