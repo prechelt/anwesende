@@ -1,3 +1,8 @@
+"""
+Excel import (for creating QR codes) and Excel export (for attenance lists).
+Import also validates the proper file format.
+Export also controls which groups of visitors to include.
+"""
 import collections
 import os
 import re
@@ -105,12 +110,9 @@ def _validate_seatrange(columndict: aue.Columnsdict):
         try:
             entry = last_seats[index]
             maxrow, maxseat = arm.Seat.split_seatname(entry)
-            if maxrow not in range(1, 100):
-                _excelerror(row=excel_row_number, column='seat_last',
-                            found=f"{entry}: row r must be in range 1 to 99")
-            if maxseat not in range(1, 100):
-                _excelerror(row=excel_row_number, column='seat_last',
-                            found=f"{entry}: seat s must be in range 1 to 99")
+            if maxrow*maxseat not in range(1, 2000):
+                msg = f"{entry}: rooms must have 1 to 2000 seats, not {maxrow*maxseat}"
+                _excelerror(row=excel_row_number, column='seat_last', found=msg)
         except ValueError as ex:
             _excelerror(row=excel_row_number, column='seat_last',
                         found=str(ex))

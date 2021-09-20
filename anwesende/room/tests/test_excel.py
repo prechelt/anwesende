@@ -97,19 +97,19 @@ def test_validate_rooms_with_wrong_seats():
         example['seat_last'][1] = "r0s1"
 
     check_error_w_patched_example(patcher2,
-                                  ("seat_last", "row r must", "r0s1"))
+                                  ("seat_last", "rooms must have 1 to 2000 seats", "r0s1"))
 
     def patcher3(example):
-        example['seat_last'][1] = "r100s1"
+        example['seat_last'][1] = "r50s41"
 
     check_error_w_patched_example(patcher3,
-                                  ("seat_last", "row r must", "r100s1"))
+                                  ("seat_last", "rooms must have 1 to 2000 seats", "r50s41"))
 
     def patcher4(example):
         example['seat_last'][1] = "r2s0"
 
     check_error_w_patched_example(patcher4,
-                                  ("seat_last", "seat s must", "r2s0"))
+                                  ("seat_last", "rooms must have 1 to 2000 seats", "r2s0"))
 
 
 @pytest.mark.django_db
