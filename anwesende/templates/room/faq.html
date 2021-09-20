@@ -325,6 +325,23 @@
     einfach weggelassen (d.h. diese QR-Codes wurden weggeworfen statt aufgeklebt).
   </p>
   <p>
+    Wenn man unregelmäßige Anordnungen von Sitzen hat, funktiniert die Idee
+    "näherungsweise ein Raster drüberlegen" immer noch, aber man lässt eventuell
+    viele der entstehenden Codes fallen (die werden also nicht aufgeklebt),
+    weil nirgends in der Nähe ein Sitz ist.
+    Ein häufiger solcher Fall sind U-förmige Anordnungen wie hier:
+  </p>
+  <p><img src="{% static 'images/seatname-example-u.png' %}" style="width: 25rem"></p>
+  <p>
+    Der Versuchung, so etwas als eine einzige lange Reihe zu betrachten, sollte
+    man widerstehen: Die resultierende Angabe <var>seat_last: r1s13</var>
+    würde behaupten, dass zwischen dem ersten Tisch <var>r1s1</var> 
+    (in der Skizze <var>r1s3</var>)
+    und dem letzten Tisch <var>r1s13</var> 
+    (in der Skizze <var>r2s6</var>) ein riesiger Abstand wäre,
+    obwohl des den in Wirklichkeit gar nicht gibt.
+  </p>
+  <p>
     Zu der Frage, wie man mit den daraus errechneten Abstandsangaben weiter verfährt,
     verhält sich die Software neutral; das muss jede Hochschule
     selbst entscheiden.
