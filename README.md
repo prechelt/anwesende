@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-09-09
+Lutz Prechelt, 2021-09-20
 
 https://github.com/prechelt/anwesende
 
@@ -622,7 +622,11 @@ provide maximal transparency.
   - corrected wrong columname in some file import "Excel error" messages
   - improved logging
   - `/show_rooms` now displays `row_dist` and `seat_dist`
-  - made Excel import robust against non-text cell contents  
+  - made Excel import robust against non-text cell contents
+- 2021-09-20, Version 4.2:
+  - Limit of 99 seats and rows replaced by 2000 seats total.
+  - faq.html now discusses U-shaped seating arrangements (a common hurdle
+    for the understanding of room admins).
 - next version:
     
 TODO:
