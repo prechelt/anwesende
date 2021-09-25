@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-09-20
+Lutz Prechelt, 2021-09-25
 
 https://github.com/prechelt/anwesende
 
@@ -530,6 +530,10 @@ To use it,
 - turn the database server on and off as needed by
   `./anw.sh development server_up` and `./anw.sh development server_down`,
   respectively,
+- with the database server turned on, run the following two commands once:  
+  `python manage.py make_base_data`  
+  `python manage.py createsuperuser`  
+  and proceed to create a user as described under "initiating operation" above.
 - run tests by `pytest` (with arguments as needed), and
 - run the development webserver by `python manage.py runserver`.
 
@@ -627,9 +631,14 @@ provide maximal transparency.
   - Limit of 99 seats and rows replaced by 2000 seats total.
   - faq.html now discusses U-shaped seating arrangements (a common hurdle
     for the understanding of room admins).
+- 2021-09-25, Version 5.0:
+  - introduce `status_3g` vaccination status field and 
+    `USE_STATUS_3G_FIELD` feature toggle to use it (default: `True`)
+  - added FAQ 3.4 "Wie informiere ich meine Besucher_innen?" including
+    a proposed hang-on-the-wall information.
 - next version:
     
+
 TODO:
   - improve docker restart configuration
-  - add a hang-on-the-wall information sheet PDF  
-  - ...
+  - POST /import without login should produce a nice error message
