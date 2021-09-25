@@ -89,7 +89,7 @@ class VisitForm(djf.ModelForm):
         fields = (
             'givenname', 'familyname', 
             'street_and_number', 'zipcode', 'town',
-            'phone', 'email',
+            'phone', 'email', 'status_3g',
             'present_from_dt', 'present_to_dt', 'cookie',
         )
         widgets = {
@@ -100,7 +100,7 @@ class VisitForm(djf.ModelForm):
             'present_from_dt': mytxt(6), 'present_to_dt': mytxt(6),
             'cookie': djfw.HiddenInput()
         }
-    
+
     present_from_dt = TimeOnlyDateTimeField(
         label="Anwesenheit von / Present from",
         help_text="Uhrzeit im Format hh:mm, z.B. 16:15 / time of day, e.g. 14:45",
@@ -116,6 +116,10 @@ class VisitForm(djf.ModelForm):
             self.fields['email'].required = True
         else:
             del self.fields['email']
+        if settings.USE_STATUS_3G_FIELD:
+            self.fields['status_3g'].choices = arm.Visit.status_3g_formchoices
+        else:
+            del self.fields['status_3g']
         self.helper = cfh.FormHelper()
         self.helper.form_id = 'VisitForm'
         self.helper.form_method = 'post'

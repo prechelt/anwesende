@@ -2,6 +2,7 @@ import datetime as dt
 import random
 import typing as tg
 
+from django.conf import settings
 import django.utils.timezone as djut
 
 import anwesende.room.models as arm
@@ -79,6 +80,7 @@ def _make_visit(seat: arm.Seat, tfrom: dt.datetime, tto: dt.datetime, visitorI: 
     v = arm.Visit(givenname="V.", familyname=f"Visitor{visitorI}",
                   street_and_number="st", zipcode="12345", town="twn",
                   phone="ph", email=f"visitor{visitorI}@fn.de",
+                  status_3g=arm.G_IMPFT if settings.USE_STATUS_3G_FIELD else arm.G_UNKNOWN,
                   submission_dt=tfrom + dt.timedelta(seconds=45),
                   present_from_dt=tfrom, present_to_dt=tto,
                   seat=seat)

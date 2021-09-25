@@ -201,6 +201,7 @@ def _excelerror(row: int = None, column: str = None,
 
 VGroupRow = collections.namedtuple('VGroupRow',  # noqa
     'familyname givenname email phone street_and_nr zipcode town '
+    'status_3g '
     'cookie '
     'distance '
     'when from_time to_time '
@@ -290,6 +291,7 @@ def _as_vgrouprows(visits) -> tg.List[tg.Optional[VGroupRow]]:
             row = VGroupRow(
                 v.familyname, v.givenname, v.email, v.phone,
                 v.street_and_number, v.zipcode, v.town, 
+                v.status_3g_txt,
                 v.cookie, "%5.1fm" % v.distance,  # type: ignore
                 aud.dtstring(v.submission_dt, time=True), 
                 aud.dtstring(v.present_from_dt, date=False, time=True),

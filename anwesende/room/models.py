@@ -206,6 +206,13 @@ class Seat(djdm.Model):
     def __repr__(self):
         return self.__str__()
 
+# Status according to §2 SchAusnahmV
+# https://www.gesetze-im-internet.de/schausnahmv/
+G_IMPFT = 22
+G_NESEN = 24
+G_TESTET = 26
+G_OTHER = 87
+G_UNKNOWN = 88
 
 class Visit(djdm.Model):
     """
@@ -274,6 +281,27 @@ class Visit(djdm.Model):
         verbose_name="Emailadresse / Email address",
         help_text="Bitte immer die gleiche benutzen! / Please use the same one each time",
     )
+    status_3g_basechoices = [
+        (G_IMPFT, "vollständig geimpft / fully vaccinated"),
+        (G_NESEN, "genesen / recovered"),
+        (G_TESTET, "getestet / tested"),
+        (G_OTHER, "weder noch / none of the above"),
+    ]
+    status_3g_modelchoices = status_3g_basechoices + [(G_UNKNOWN, "unbekannt")]
+    status_3g_formchoices = [(None, "---")] + status_3g_basechoices
+    status_3g_gesundheitsamt = [  # for status_3g_txt
+        (G_IMPFT, "vollständig geimpft"),
+        (G_NESEN, "genesen"),
+        (G_TESTET, "getestet"),
+        (G_OTHER, "weder noch"),
+        (G_UNKNOWN, "unbekannt"),
+    ]
+    status_3g = djdm.IntegerField(default=G_UNKNOWN,
+        blank=False, null=False,
+        choices = status_3g_modelchoices,
+        verbose_name="3G-Status gemäß §2 SchAusnahmV",
+        help_text="Siehe <a href='https://www.gesetze-im-internet.de/schausnahmv/__2.html'>die Verordnung</a> / (see regulation, in german only)",
+    )
     present_from_dt = djdm.DateTimeField(
         blank=False, null=False,
         max_length=FIELDLENGTH,
@@ -313,6 +341,13 @@ class Visit(djdm.Model):
     @classmethod
     def current_unique_visitorsN(cls, room: Room) -> int:
         return cls._current_unique_visitors_qs(room).count()
+
+    @property
+    def status_3g_txt(self) -> str:
+        for key, val in self.status_3g_gesundheitsamt:
+            if self.status_3g == key:
+                return val
+        return "???"
 
     def get_overlapping_visits(self) -> djdmq.QuerySet:
         """

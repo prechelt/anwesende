@@ -1,6 +1,7 @@
 import re
 import typing as tg
 
+from django.conf import settings
 import pytest
 
 import anwesende.room.excel as are
@@ -146,6 +147,8 @@ def test_collect_visitgroups():
     artm.make_user_rooms_seats_visits("r2s2", visitsN=4)
     targetvisit = arm.Visit.objects.filter(pk=arm.Visit.objects.first().pk)  # type: ignore
     vrows = are._as_vgrouprows(are.collect_visitgroups(targetvisit))
+    assert ("geimpft" in vrows[0].status_3g if settings.USE_STATUS_3G_FIELD 
+            else "unbekannt" in vrows[0].status_3g)
     result = set()
     for vr in vrows:
         vrowstr = f"{vr.familyname}: {vr.room}.{vr.seat}{vr.distance}"  # type: ignore

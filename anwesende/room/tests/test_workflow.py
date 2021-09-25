@@ -113,6 +113,7 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
                 street_and_number="Str.1", zipcode="12345", town="Town",
                 phone="+49 1234 1", 
                 email="a@fam.de",
+                status_3g=str(arm.G_IMPFT),
                 present_from_dt="11:00", present_to_dt="12:00")
     # --- fill visit form once:
     with freeze_at("11:01"):

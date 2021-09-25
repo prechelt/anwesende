@@ -56,6 +56,7 @@ def make_visit(seat: arm.Seat, person: str, tfrom="03:00", tto="04:00") -> arm.V
     v = arm.Visit(givenname=person, familyname="fn",
                   street_and_number="sn", zipcode="12345", town="t",
                   phone=person, email=f"{person}@fn.de",
+                  status_3g=arm.G_IMPFT,
                   submission_dt=now,
                   present_from_dt=present_from, present_to_dt=present_to,
                   seat=seat)
