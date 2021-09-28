@@ -5,6 +5,7 @@ import os
 import typing as tg
 
 import django.contrib.auth.mixins as djcam
+import django.contrib.auth.views as djcav
 from django.db.models import Count
 import django.http as djh
 import django.urls as dju
@@ -95,6 +96,12 @@ class ImportView(AddIsDatenverwalter, AddSettings, vv.FormView):
     def get_success_url(self):
         return dju.reverse('room:qrcodes-byimport', kwargs=dict(pk=self.importstep.pk))
 
+    def post(self, request, *args, **kwargs):
+        if not self.is_datenverwalter:
+            next = self.request.get_full_path()
+            login_url = dju.reverse('account_login')
+            return djcav.redirect_to_login(next, login_url, 'next')
+        return super().post(request, *args, **kwargs)
 
 class QRcodesByImportView(AddIsDatenverwalter, AddSettings, vv.DetailView):
     """Show printable QR codes created in one Importstep."""
