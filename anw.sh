@@ -247,6 +247,7 @@ services:
       - ${VOLUME_SERVERDIR_DJANGO_LOG}:/djangolog:Z
     depends_on:
       - postgres
+    restart: unless-stopped
 ENDOFFILE1
   if [ $DEPLOYMODE == GUNICORN ]; then
     cat >>$DOCKER_COMPOSE_YML <<ENDOFFILE2
@@ -267,6 +268,7 @@ ENDOFFILE2
     volumes:
       - ${VOLUME_SERVERDIR_POSTGRES_DATA}:/var/lib/postgresql/data:Z
       - ${VOLUME_SERVERDIR_POSTGRES_BACKUP}:/backups:z
+    restart: unless-stopped
 
 ENDOFFILE3
   if [ $DEPLOYMODE != GUNICORN ]; then
@@ -280,6 +282,7 @@ ENDOFFILE3
     container_name: c_anw_${ENV_SHORTNAME}_traefik
     depends_on:
       - django
+    restart: unless-stopped
     volumes:
 ENDOFFILE4
    fi
