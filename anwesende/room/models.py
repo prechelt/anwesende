@@ -299,7 +299,7 @@ class Visit(djdm.Model):
     status_3g = djdm.IntegerField(default=G_UNKNOWN,
         blank=False, null=False,
         choices = status_3g_modelchoices,
-        verbose_name="3G-Status gemäß §2 SchAusnahmV",
+        verbose_name="3G-Status gemäß §2 SchAusnahmV / vaccination status",
         help_text="Siehe <a href='https://www.gesetze-im-internet.de/schausnahmv/__2.html'>die Verordnung</a> / (see regulation, in german only)",
     )
     present_from_dt = djdm.DateTimeField(
