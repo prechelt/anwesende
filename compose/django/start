@@ -12,7 +12,7 @@ python /app/manage.py make_base_data
     --worker-class gthread \
     --workers $GUNICORN_WORKERS \
     --threads $GUNICORN_THREADS \
-    --max-requests 1000 \
+    --max-requests 4000 \
     --max-requests-jitter 111 \
     --bind 0.0.0.0:5000 \
     --chdir=/app
