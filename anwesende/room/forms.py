@@ -114,6 +114,7 @@ class VisitForm(djf.ModelForm):
         #--- do not reuse a G_TESTET value from the cookie:
         if (settings.USE_STATUS_3G_FIELD and 
                 'initial' in kwargs and
+                'status_3g' in kwargs['initial'] and
                 kwargs['initial']['status_3g'] == str(arm.G_TESTET)):
             kwargs['initial']['status_3g'] = None
         #--- init():
