@@ -111,7 +111,14 @@ class VisitForm(djf.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
+        #--- do not reuse a G_TESTET value from the cookie:
+        if (settings.USE_STATUS_3G_FIELD and 
+                'initial' in kwargs and
+                kwargs['initial']['status_3g'] == str(arm.G_TESTET)):
+            kwargs['initial']['status_3g'] = None
+        #--- init():
         super().__init__(*args, **kwargs)
+        #--- handle conditional fields:
         if settings.USE_EMAIL_FIELD:
             self.fields['email'].required = True
         else:
@@ -120,6 +127,7 @@ class VisitForm(djf.ModelForm):
             self.fields['status_3g'].choices = arm.Visit.status_3g_formchoices
         else:
             del self.fields['status_3g']
+        #--- set up helper:
         self.helper = cfh.FormHelper()
         self.helper.form_id = 'VisitForm'
         self.helper.form_method = 'post'
