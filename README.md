@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-09-25
+Lutz Prechelt, 2021-09-27
 
 https://github.com/prechelt/anwesende
 
@@ -636,9 +636,13 @@ provide maximal transparency.
     `USE_STATUS_3G_FIELD` feature toggle to use it (default: `True`)
   - added FAQ 3.4 "Wie informiere ich meine Besucher_innen?" including
     a proposed hang-on-the-wall information.
+- 2021-09-28, Version 5.1:
+  - greatly improved `loadtest.py`
+  - server setup hardened: Gunicorn: add `--max-requests 4000`;
+    the generated `docker-compose.yml` will now specify `restart: unless-stopped`
+  - when not logged in, properly redirect upon `/import` upload (instead of just failing)  
 - next version:
+  - ...
     
-
 TODO:
-  - improve docker restart configuration
-  - POST /import without login should produce a nice error message
+  - ...
