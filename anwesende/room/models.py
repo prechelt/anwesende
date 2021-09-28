@@ -288,7 +288,7 @@ class Visit(djdm.Model):
         (G_OTHER, "weder noch / none of the above"),
     ]
     status_3g_modelchoices = status_3g_basechoices + [(G_UNKNOWN, "unbekannt")]
-    status_3g_formchoices = [(None, "---")] + status_3g_basechoices
+    status_3g_formchoices = [(None, "---")] + status_3g_basechoices    # type: ignore
     status_3g_gesundheitsamt = [  # for status_3g_txt
         (G_IMPFT, "vollständig geimpft"),
         (G_NESEN, "genesen"),

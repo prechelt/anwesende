@@ -68,7 +68,7 @@ def do_loadtest(base_url: str, nproc: int, numrequests_total: int):
     with mp.Pool(nproc) as pool:
         args = [(base_url, firstname, dummyseat_url, GRANULARITY) for idx in range(nproc)]
         while requestsN < numrequests_total:
-            statuscount = collections.Counter()
+            statuscount: dict = collections.Counter()
             pairs = pool.starmap(subloadtest, args)  # seconds per granularity
             s_per_G = [p['duration'] for p in pairs]
             for p in pairs:
@@ -87,16 +87,17 @@ def do_loadtest(base_url: str, nproc: int, numrequests_total: int):
 
 
 def subloadtest(base_url: str, firstname: str, seat_url: str, 
-                num_requests: int) -> float:
+                num_requests: int) -> tg.Mapping:
     time.sleep(random.random() * 0.1)  # avoid exact process tandems
     app = setup_app(base_url)
     starttime = dt.datetime.utcnow()
-    results = collections.Counter()
+    results: dict = collections.Counter()
     for i in range(num_requests):
         try:
             status = make_1_visit(app, seat_url, firstname, i)
         except wt.app.AppError as ex:
             mm = re.match(r"^\D+(\d\d\d)", str(ex))  # find first status code
+            assert mm, str(ex)
             status = int(mm.group(1))
         results[status] += 1  # count status
     endtime = dt.datetime.utcnow()
