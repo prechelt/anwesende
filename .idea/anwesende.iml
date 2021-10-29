@@ -16,6 +16,8 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.mypy_cache" />
       <excludeFolder url="file://$MODULE_DIR$/.pytest_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/zz_builddir" />
+      <excludeFolder url="file://$MODULE_DIR$/.zz_builddir" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (anwesende)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

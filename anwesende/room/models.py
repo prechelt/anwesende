@@ -43,7 +43,7 @@ class Importstep(djdm.Model):
             .annotate(num_qrcodes=Count('room__seat')) \
             .order_by('when'))
         for step in steps:
-            step.num_qrcodes_moved = (step.num_new_seats + 
+            step.num_qrcodes_moved = (step.num_new_seats +   # type: ignore
                                       step.num_existing_seats - 
                                       step.num_qrcodes)
         return steps
