@@ -15,7 +15,7 @@ django-model-utils  # https://github.com/jazzband/django-model-utils
 django-stubs  # https://github.com/typeddjango/django-stubs
 django-vanilla-views
 django-webtest  # https://github.com/django-webtest/django-webtest
-django==3.0.10  # pyup: < 3.1  # https://www.djangoproject.com/
+django<3.3  # https://www.djangoproject.com/
 factory-boy<3.1  # https://github.com/FactoryBoy/factory_boy  ##Faker.generate() was removed
 flake8-isort  # https://github.com/gforcada/flake8-isort
 flake8  # https://github.com/PyCQA/flake8
