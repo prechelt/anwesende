@@ -86,6 +86,7 @@ build_images()   # args:
   export BUILD_WHEN=`date --iso=seconds`
   export BUILD_WHO=$(echo `whoami`@`hostname`)
   create_files_on_the_fly
+  populate_zz_builddir
   docker-compose build
   announce $FUNCNAME end
 }
@@ -153,7 +154,7 @@ server_up()   # args:
   if [ ${ONSERVER:-0} = 0 ]; then
     create_files_on_the_fly
   fi
-  docker-compose up -d
+  docker-compose up --no-build -d
   announce $FUNCNAME end
 }
 
@@ -219,6 +220,15 @@ create_files_on_the_fly()   # internal
   files_are_created=1
 }
 
+populate_zz_builddir()   # internal
+{
+  cmd="cp --update"
+  target=.zz_builddir
+  $cmd CONTRIBUTORS LICENSE README.md RELEASES.md  $target
+  $cmd manage.py pytest.ini requirements.txt setup.cfg  $target
+  $cmd -R anwesende compose config  $target
+
+}
 make_docker_compose_yml()  # internal
 {
   # ugly function due to inline documents violating the indentation
@@ -232,7 +242,7 @@ services:
   django:
     env_file: $DOCKERENV_ENV
     build:
-      context: .
+      context: ./.zz_builddir
       dockerfile: ./compose/django/Dockerfile
       args:
         - "DJANGO_UID=${DJANGO_UID}"

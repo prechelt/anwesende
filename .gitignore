@@ -119,3 +119,4 @@ anwesende/static/pdf/Datenschutzinformationen-a.nwesen.de.pdf
 compose/traefik/traefik.yml
 docker-compose.yml
 Makefile
+.zz_builddir/
