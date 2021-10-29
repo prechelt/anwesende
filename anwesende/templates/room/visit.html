@@ -2,7 +2,9 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  {% include "room/privacy.html" %}
+  {% if not form.errors %}
+    {% include "room/privacy.html" %}
+  {% endif %}
   {% crispy form %}
   <div style="height: 50vh;" comment="space for smartphone keyboard"></div>
 {% endblock content %}

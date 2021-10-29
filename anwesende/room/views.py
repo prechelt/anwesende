@@ -6,6 +6,7 @@ import typing as tg
 
 import django.contrib.auth.mixins as djcam
 import django.contrib.auth.views as djcav
+import django.contrib.messages as djcm
 from django.db.models import Count
 import django.http as djh
 import django.urls as dju
@@ -243,6 +244,11 @@ class VisitView(AddSettings, vv.CreateView):
         initial['present_from_dt'] = aud.nowstring(date=False, time=True)
         return arf.VisitForm(initial=initial)
         
+    def form_invalid(self, form: arf.VisitForm):
+        msg = "Bitte Eingaben überprüfen / Please check your inputs"
+        djcm.add_message(self.request, djcm.ERROR, msg)
+        return super().form_invalid(form)
+
     def form_valid(self, form: arf.VisitForm):
         self.object = form.save(commit=False)
         self.object.seat = arm.Seat.by_hash(self.kwargs['hash'])
@@ -253,6 +259,8 @@ class VisitView(AddSettings, vv.CreateView):
         response.set_cookie(key=COOKIENAME, value=self.get_cookiejson(form), 
                             max_age=3600 * 24 * 90)
         return response
+    
+    
 
     def get_cookiejson(self, form):
         cookiedict = {k: v for k, v, in
