@@ -22,9 +22,8 @@ RUN addgroup --gid $DJANGO_GID django \
     && adduser --system --uid $DJANGO_UID --ingroup django django
 
 # Requirements are installed here to ensure they will be cached.
-COPY ./requirements /requirements
-RUN pip install --no-cache-dir -r /requirements/requirements.txt \
-    && rm -rf /requirements
+COPY ./requirements.txt /requirements.txt
+RUN pip --no-cache-dir install -r /requirements.txt
 
 COPY --chown=django:django ./compose/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint  &&  chmod +x /entrypoint
