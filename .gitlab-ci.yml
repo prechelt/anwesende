@@ -15,7 +15,7 @@ pytest:
   stage: test
   image: python:3.9
   before_script:
-    - pip install -r requirements/local.txt
+    - pip install -r requirements/requirements.txt
   script:
     - mypy anwesende
     - pytest
