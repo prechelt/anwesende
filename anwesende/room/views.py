@@ -2,6 +2,7 @@ import datetime as dt
 import json
 import logging
 import os
+import traceback
 import typing as tg
 
 import django.contrib.auth.mixins as djcam
@@ -237,7 +238,14 @@ class VisitView(AddSettings, vv.CreateView):
             return arf.VisitForm(data=data, files=files, **kwargs)
         # else GET:
         if COOKIENAME in self.request.COOKIES:
-            initial = json.loads(self.request.COOKIES[COOKIENAME])
+            try:
+                thecookie = self.request.COOKIES[COOKIENAME]
+                initial = json.loads(thecookie)
+            except json.JSONDecodeError as err:
+                tb = traceback.format_exc(limit=12, chain=True)
+                logging.warning(f"VisitView: broken cookie >>>>{thecookie}<<<<\n{tb}")
+                initial = dict(cookie=arm.Visit.make_cookie())
+                logging.info(f"VisitView: ersatz {initial}")
         else:
             initial = dict(cookie=arm.Visit.make_cookie())
             logging.info(f"VisitView: new {initial}")
@@ -259,8 +267,6 @@ class VisitView(AddSettings, vv.CreateView):
         response.set_cookie(key=COOKIENAME, value=self.get_cookiejson(form), 
                             max_age=3600 * 24 * 90)
         return response
-    
-    
 
     def get_cookiejson(self, form):
         cookiedict = {k: v for k, v, in
