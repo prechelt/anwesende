@@ -121,17 +121,21 @@ Release dates, version numbers, and contents:
   - server setup hardened: Gunicorn: add `--max-requests 4000`;
     the generated `docker-compose.yml` will now specify `restart: unless-stopped`
   - when not logged in, properly redirect upon `/import` upload (instead of just failing)  
-
-
-## Future
-
-- already done for the next version:
+- 2021-10-29, Version 5.2:
   - visit form retrieves vaccinated&recovered states from cookie, 
     but tested state not
   - show visit form errors very prominently
   - search "Besuche finden" shows date and time
   - updated django Docker base image to python:3.9-slim-bullseye
   - catch exception for invalid cookies
+  - made docker build process a lot leaner and faster
+  - 
+
+## Future
+
+- already done for the next version:
+  - ...
+
 
 - TODO:
   - ...
