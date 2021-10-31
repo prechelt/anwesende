@@ -17,5 +17,4 @@ pytest:
   before_script:
     - pip install -r requirements.txt
   script:
-    - # mypy anwesende  # the mypy tool currently crashes 
     - pytest
