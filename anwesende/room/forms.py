@@ -72,11 +72,13 @@ class UploadFileForm(djf.Form):
 
 
 class TimeOnlyDateTimeField(djf.CharField):
-    def to_python(self, value) -> dt.datetime:
-        time_regex = r"^([01][0-9]|2[0-3]):[0-5][0-9]$"
+    def to_python(self, value: str) -> dt.datetime:
+        time_regex = r"^([01][0-9]|2[0-3]):?[0-5][0-9]$"  # with or without colon
         error_msg = "Falsches Uhrzeitformat / Wrong time-of-day format"
         if not re.match(time_regex, value or ""):
             raise djce.ValidationError(error_msg)
+        if ':' not in value:
+            value = value[:-2] + ':' + value[-2:]  # insert colon
         dt_string = djut.localtime().strftime(f"%Y-%m-%d {value}")
         dt_tuple = time.strptime(dt_string, "%Y-%m-%d %H:%M")[0:5]
         dt_obj = djut.make_aware(dt.datetime(*dt_tuple))
@@ -103,11 +105,11 @@ class VisitForm(djf.ModelForm):
 
     present_from_dt = TimeOnlyDateTimeField(
         label="Anwesenheit von / Present from",
-        help_text="Uhrzeit im Format hh:mm, z.B. 16:15 / time of day, e.g. 14:45",
+        help_text="Uhrzeit im Format hh:mm oder hhmm, z.B. 16:15 oder 1615 / time of day, e.g. 09:45 or 0945",
     )
     present_to_dt = TimeOnlyDateTimeField(
         label="Anwesenheit geplant bis / Intend to be present until",
-        help_text="Uhrzeit im Format hh:mm, z.B. 17:45 / time of day, e.g. 15:15",
+        help_text="Uhrzeit im Format hh:mm oder hhmm, z.B. 17:45 oder 1745 / time of day, e.g. 15:15 or 1515",
     )
 
     def __init__(self, *args, **kwargs):
