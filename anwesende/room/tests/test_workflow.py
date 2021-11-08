@@ -125,7 +125,8 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
         resp = resp.follow()
         who = arm.Visit.objects.all()
         print([str(v) for v in who])
-    assert resp.request.path == reverse('room:thankyou', kwargs=dict(hash=seathash))
+        assert resp.request.path == reverse('room:thankyou', kwargs=dict(hash=seathash))
+        resp = resp.click(linkid='seatslink')
     assert "1</b> verschiedene" in resp.text  # visitors_presentN
 
     # --- check DB contents:
@@ -146,7 +147,8 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
     _fill_with(visit_page_with_cookie.form, changed_data)
     with freeze_at("11:21"):
         resp = visit_page_with_cookie.form.submit().follow()
-    assert resp.request.path == reverse('room:thankyou', kwargs=dict(hash=seathash))
+        assert resp.request.path == reverse('room:thankyou', kwargs=dict(hash=seathash))
+        resp = resp.click(linkid='seatslink')
     assert "2</b> verschiedene" in resp.text  # visitors_presentN
 
     # --- fill visit form again (same device, later time):

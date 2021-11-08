@@ -3,21 +3,21 @@
 {% block content %}
   <h1>Danke für's Anmelden! / Thank you for registering!</h1>
   
-  <p>
-    <span class="languagemark">DE:</span> 
-    In diesem Raum, <b>{{ room.room }}</b>, ist/sind aktuell 
-    <b>{{ visitors_presentN }}</b> verschiedene Person(en) angemeldet.
-  </p>
-  <p>
-    <span class="languagemark">EN:</span> 
-    Right now, <b>{{ visitors_presentN }}</b>
-    different people is/are registered in this room <b>{{ room.room }}</b>.
-  </p>
-  <p>
-    <span class="languagemark">DE</span> / 
-    <span class="languagemark">EN:</span> 
+  {% if with_seats %}
+    <p>
+      <span class="languagemark">DE:</span> 
+      In diesem Raum, <b>{{ room.room }}</b>, ist/sind aktuell 
+      <b>{{ visitors_presentN }}</b> verschiedene Person(en) angemeldet.
+    </p>
+    <p>
+      <span class="languagemark">EN:</span> 
+      Right now, <b>{{ visitors_presentN }}</b>
+      different people is/are registered in this room <b>{{ room.room }}</b>.
+    </p>
+    <p>
+      <span class="languagemark">DE</span> / 
+      <span class="languagemark">EN:</span> 
 
-    {% if with_seats %}
       Diese Plätze sind registriert / The following seats have a registration:<br>
       {% for s in seatlist %}
         {{ s }}
@@ -25,8 +25,11 @@
           , 
         {% endif %}
       {% endfor %}
-    {% else %}
-      <a href="{% url 'room:thankyouseats' hash=hash %}">Show occupied seats</a>
-    {% endif %}
-  </p>
+    </p>
+  {% else %}
+    <p>
+      <a href="{% url 'room:thankyouseats' hash=hash %}" id="seatslink"
+      >Show occupied seats</a>
+    </p>
+  {% endif %}
 {% endblock content %}

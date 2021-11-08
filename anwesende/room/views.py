@@ -12,6 +12,7 @@ from django.db.models import Count
 import django.http as djh
 import django.urls as dju
 import django.utils.timezone as djut
+import django.views.generic.base as djvgb
 import vanilla as vv  # Django vanilla views
 from django.conf import settings
 
@@ -292,21 +293,19 @@ class ThankyouView(AddSettings, vv.TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         hashvalue = self.kwargs['hash']
+        ctx['hash'] = hashvalue
+        if not self.with_seats:
+            return ctx
         if not arm.Seat.exists(hashvalue):
             raise djh.Http404()
         seat = ctx['seat'] = arm.Seat.by_hash(hashvalue)
         room = ctx['room'] = seat.room
         ctx['with_seats'] = self.with_seats
-        ctx['hash'] = hashvalue
-        if self.with_seats:
-            seats = (room.current_unique_visitors_qs()
-                .values_list('seat__rownumber', 'seat__seatnumber'))
-            seatlist = [f"r{s[0]}s{s[1]}" for s in sorted(seats)]
-            ctx['seatlist'] = seatlist
-            ctx['visitors_presentN'] = len(seatlist)
-
-        else:
-            ctx['visitors_presentN'] = seat.room.current_unique_visitorsN()
+        seats = (room.current_unique_visitors_qs()
+            .values_list('seat__rownumber', 'seat__seatnumber'))
+        seatlist = [f"r{s[0]}s{s[1]}" for s in sorted(seats)]
+        ctx['seatlist'] = seatlist
+        ctx['visitors_presentN'] = len(seatlist)
         return ctx
 
 
