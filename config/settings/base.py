@@ -42,6 +42,8 @@ USE_I18N = False
 USE_L10N = False
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
+# https://django.readthedocs.io/en/stable/ref/settings.html#default-auto-field
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
 # DATABASES
