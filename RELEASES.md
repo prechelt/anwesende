@@ -129,13 +129,23 @@ Release dates, version numbers, and contents:
   - updated django Docker base image to python:3.9-slim-bullseye
   - catch exception for invalid cookies
   - made docker build process a lot leaner and faster
-  - 
+- 2021-11-08, Version 5.3:
+  - times of day can also be entered as hhmm, not only as hh:mm
+  - define setting `DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'`
+    to get rid of warnings from Django 3.2.
+  - introduced setting `DATA_RETENTION_DAYS_STATUS_3G`
+    and extended the `delete_outdated_data` management command
+    to cleanse `status_3g` field values after that many days.  
+    Just set this to the same value as `DATA_RETENTION_DAYS`
+    if you do not need it.
+  - new ThankYouView that is refreshable and can list registered seats
+    (Note this is resource-hungrier.)
+
 
 ## Future
 
 - already done for the next version:
   - ...
-
 
 - TODO:
   - ...
