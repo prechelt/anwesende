@@ -310,6 +310,11 @@ class ThankyouView(AddSettings, vv.TemplateView):
         return ctx
 
 
+class LegacyThankyouView(djvgb.RedirectView):
+    def get(self, *args, **kwargs):
+        return djh.HttpResponsePermanentRedirect(dju.reverse_lazy('room:home'))
+
+
 class UsageStatisticsView(djcam.LoginRequiredMixin,
                           AddIsDatenverwalter, AddSettings, vv.TemplateView):
     """Show table of #rooms and #visits per department."""

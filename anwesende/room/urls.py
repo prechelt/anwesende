@@ -36,6 +36,8 @@ urlpatterns = [
          view=arv.ThankyouView.as_view(), name="thankyou"),
     path("thankyou/S<hash>/seats",
          view=arv.ThankyouView.as_view(with_seats=True), name="thankyouseats"),
+    path("thankyou/visitors_presentN=<visitors_presentN>",
+         view=arv.LegacyThankyouView.as_view(), name="legacy_thankyou"),
     path("uncookie",
          view=arv.UncookieView.as_view(), name="uncookie"),
     path('favicon.ico', RedirectView.as_view(
