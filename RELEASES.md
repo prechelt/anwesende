@@ -138,8 +138,15 @@ Release dates, version numbers, and contents:
     to cleanse `status_3g` field values after that many days.  
     Just set this to the same value as `DATA_RETENTION_DAYS`
     if you do not need it.
-  - new ThankYouView that is refreshable and can list registered seats
+  - new `ThankYouView` that is refreshable and can list registered seats
     (Note this is resource-hungrier.)
+- 2021-11-08, Version 5.4:
+  - fix `Room.current_unique_visitors_qs` to use `phone` (which always exists),
+    not `email`, which may not exist.
+  - `LegacyThankYouView` redirects old `ThankYouView` URLs to homepage to avoid 
+    'broken link' emails from the automatic refreshing of old tabs on iPhones. 
+  - `ThankYouView` shows number of people _only_ in the seat list case
+    in order to reduce the server load from those tab refreshings.
 
 
 ## Future
