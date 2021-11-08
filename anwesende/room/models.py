@@ -115,8 +115,8 @@ class Room(djdm.Model):
         now = djut.localtime()
         allvisits = Visit.objects.filter(seat__room=self,
             present_from_dt__lte=now, present_to_dt__gte=now)
-        return allvisits.order_by('email', '-submission_dt') \
-            .distinct('email')
+        return allvisits.order_by('phone', '-submission_dt') \
+            .distinct('phone')  # beware of not USE_EMAIL_FIELD
 
     def current_unique_visitorsN(self) -> int:
         return self.current_unique_visitors_qs().count()
