@@ -111,6 +111,16 @@ class Room(djdm.Model):
                 .annotate(visits=Count("seat__visit", distinct=True))
                )
 
+    def current_unique_visitors_qs(self) -> djdmq.QuerySet:
+        now = djut.localtime()
+        allvisits = Visit.objects.filter(seat__room=self,
+            present_from_dt__lte=now, present_to_dt__gte=now)
+        return allvisits.order_by('email', '-submission_dt') \
+            .distinct('email')
+
+    def current_unique_visitorsN(self) -> int:
+        return self.current_unique_visitors_qs().count()
+
 
 class Seat(djdm.Model):
     """
@@ -133,7 +143,11 @@ class Seat(djdm.Model):
     @classmethod
     def by_hash(cls, hash: str):
         return cls.objects.select_related('room').get(hash=hash)
-    
+
+    @classmethod
+    def exists(cls, hashvalue):
+        return cls.objects.filter(hash=hashvalue).exists()
+
     def distance_in_m(self, otherseat: 'Seat') -> float:
         # Seats are assumed to be on an exact cartesian grid, 
         # which is a slightly optimistic assumption.
@@ -328,19 +342,6 @@ class Visit(djdm.Model):
 
     def __repr__(self):
         return self.__str__()
-
-    @classmethod
-    def _current_unique_visitors_qs(cls, room: Room) -> djdmq.QuerySet:
-        now = djut.localtime()
-        return cls.objects.filter(
-            seat__room=room,
-            present_from_dt__lte=now,
-            present_to_dt__gte=now
-        ).order_by('phone').distinct('phone')
-
-    @classmethod
-    def current_unique_visitorsN(cls, room: Room) -> int:
-        return cls._current_unique_visitors_qs(room).count()
 
     @property
     def status_3g_txt(self) -> str:

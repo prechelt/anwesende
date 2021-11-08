@@ -213,15 +213,13 @@ class VisitView(AddSettings, vv.CreateView):
     template_name = "room/visit.html"
 
     def get_success_url(self):
-        room = self.object.seat.room
-        visitors_presentN = arm.Visit.current_unique_visitorsN(room)
         return dju.reverse('room:thankyou', 
-                           kwargs=dict(visitors_presentN=visitors_presentN))
+                           kwargs=dict(hash=self.object.seat.hash))
     
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         hashvalue = self.kwargs['hash']
-        if self._no_such_seat(hashvalue):
+        if not arm.Seat.exists(hashvalue):
             raise djh.Http404()
         seat = arm.Seat.by_hash(hashvalue)
         ctx['seat'] = seat
@@ -238,8 +236,6 @@ class VisitView(AddSettings, vv.CreateView):
             ctx['status_3g_stmt_de'] = ctx['status_3g_stmt_en'] = ""
         return ctx
 
-    def _no_such_seat(self, hashvalue):
-        return arm.Seat.objects.filter(hash=hashvalue).count() == 0
     
     def get_form(self, data=None, files=None, **kwargs):
         if data:  # POST
@@ -291,6 +287,27 @@ class VisitView(AddSettings, vv.CreateView):
 
 class ThankyouView(AddSettings, vv.TemplateView):
     template_name = "room/thankyou.html"
+    with_seats = False  # initkwarg
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        hashvalue = self.kwargs['hash']
+        if not arm.Seat.exists(hashvalue):
+            raise djh.Http404()
+        seat = ctx['seat'] = arm.Seat.by_hash(hashvalue)
+        room = ctx['room'] = seat.room
+        ctx['with_seats'] = self.with_seats
+        ctx['hash'] = hashvalue
+        if self.with_seats:
+            seats = (room.current_unique_visitors_qs()
+                .values_list('seat__rownumber', 'seat__seatnumber'))
+            seatlist = [f"r{s[0]}s{s[1]}" for s in sorted(seats)]
+            ctx['seatlist'] = seatlist
+            ctx['visitors_presentN'] = len(seatlist)
+
+        else:
+            ctx['visitors_presentN'] = seat.room.current_unique_visitorsN()
+        return ctx
 
 
 class UsageStatisticsView(djcam.LoginRequiredMixin,

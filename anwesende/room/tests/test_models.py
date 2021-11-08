@@ -133,7 +133,7 @@ def test_current_unique_visitorsN():
     importstep = arm.Importstep(user=user)
     importstep.save()
     def show_them(room):
-        them = arm.Visit._current_unique_visitors_qs(room)
+        them = room.current_unique_visitors_qs()
         print ([v.email for v in them])
     rm1s1, rm1s2, rm1s3 = make_seats(importstep, "room1", 3)
     rm2s1, = make_seats(importstep, "room2", 1)
@@ -148,22 +148,22 @@ def test_current_unique_visitorsN():
         return freeze_time(aud.make_dt('now', ts))
     with freeze_at("02:50"):
         show_them(room)
-        assert arm.Visit.current_unique_visitorsN(room) == 0
+        assert room.current_unique_visitorsN() == 0
     with freeze_at("02:59"):
         show_them(room)
-        assert arm.Visit.current_unique_visitorsN(room) == 1
+        assert room.current_unique_visitorsN() == 1
     with freeze_at("03:01"):
         show_them(room)
-        assert arm.Visit.current_unique_visitorsN(room) == 2
+        assert room.current_unique_visitorsN() == 2
     with freeze_at("03:06"):
         show_them(room)
-        assert arm.Visit.current_unique_visitorsN(room) == 3
+        assert room.current_unique_visitorsN() == 3
     with freeze_at("03:33"):
         show_them(room)
-        assert arm.Visit.current_unique_visitorsN(room) == 3
+        assert room.current_unique_visitorsN() == 3
     with freeze_at("05:00"):
         show_them(room)
-        assert arm.Visit.current_unique_visitorsN(room) == 0
+        assert room.current_unique_visitorsN() == 0
 
 
 @pytest.mark.django_db

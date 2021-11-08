@@ -125,8 +125,9 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
         resp = resp.follow()
         who = arm.Visit.objects.all()
         print([str(v) for v in who])
-    assert resp.request.path == reverse('room:thankyou', 
-                                        kwargs=dict(visitors_presentN='1'))
+    assert resp.request.path == reverse('room:thankyou', kwargs=dict(hash=seathash))
+    assert "1</b> verschiedene" in resp.text  # visitors_presentN
+
     # --- check DB contents:
     visit = arm.Visit.objects.last()
     if settings.USE_EMAIL_FIELD:
@@ -145,8 +146,8 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
     _fill_with(visit_page_with_cookie.form, changed_data)
     with freeze_at("11:21"):
         resp = visit_page_with_cookie.form.submit().follow()
-    assert resp.request.path == reverse('room:thankyou', 
-                                        kwargs=dict(visitors_presentN='2'))
+    assert resp.request.path == reverse('room:thankyou', kwargs=dict(hash=seathash))
+    assert "2</b> verschiedene" in resp.text  # visitors_presentN
 
     # --- fill visit form again (same device, later time):
     visit_page3 = django_app.get(visit_url)
