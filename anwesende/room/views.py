@@ -227,6 +227,15 @@ class VisitView(AddSettings, vv.CreateView):
         ctx['seat'] = seat
         ctx['room'] = seat.room
         ctx['settings'] = settings
+        retention_3g = settings.DATA_RETENTION_DAYS_STATUS_3G
+        if settings.USE_STATUS_3G_FIELD and \
+           retention_3g <= settings.DATA_RETENTION_DAYS:
+            ctx['status_3g_stmt_de'] = ("Der 3G-Status wird bereits nach %d Tagen gelöscht." %
+                                       retention_3g)
+            ctx['status_3g_stmt_en'] = ("The vaccination status will be deleted after %d days." %
+                                       retention_3g)
+        else:
+            ctx['status_3g_stmt_de'] = ctx['status_3g_stmt_en'] = ""
         return ctx
 
     def _no_such_seat(self, hashvalue):
