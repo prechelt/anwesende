@@ -64,6 +64,20 @@ def make_visit(seat: arm.Seat, person: str, tfrom="03:00", tto="04:00") -> arm.V
     return v
 
 
+@pytest.mark.current
+@pytest.mark.django_db
+def test_room_descriptor():
+    user = aum.User.objects.create(name="x")
+    importstep = arm.Importstep(user=user)
+    importstep.save()
+    rm1s1, = make_seats(importstep, "myroom", 1)
+    rm2s1, = make_seats(importstep, "otherroom", 1)
+    v1 = make_visit(rm1s1, "p1", "02:00", "04:00")  # noqa
+    v2 = make_visit(rm2s1, "p2", "02:00", "04:00")  # noqa
+    myroom = arm.Room.objects.get(room="myroom")
+    assert myroom.descriptor == "org;dep;bldg;myroom"
+
+
 @pytest.mark.django_db
 def test_usage_statistics():
    descr = dict(org1=

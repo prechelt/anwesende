@@ -80,6 +80,9 @@ class Room(djdm.Model):
         max_length=FIELDLENGTH,
         db_index=True,
     )
+    descriptor = djdm.CharField(null=False, max_length=4*FIELDLENGTH,
+        help_text= "a materialization: 'organization;department;building;room' for search",
+    )
     seat_last = djdm.CharField(blank=False, null=False, max_length=FIELDLENGTH,
             help_text="e.g. 'r2s7' for row 2, seat 7 (14 seats total in the room)")
     row_dist = djdm.FloatField(blank=False, null=False, 
@@ -120,6 +123,12 @@ class Room(djdm.Model):
 
     def current_unique_visitorsN(self) -> int:
         return self.current_unique_visitors_qs().count()
+
+    def save(self, *args, **kwargs):
+        """Add 'descriptor' materialization behavior."""
+        self.descriptor = "%s;%s;%s;%s" % (
+            self.organization, self.department, self.building, self.room)
+        super().save(*args, **kwargs)
 
 
 class Seat(djdm.Model):
