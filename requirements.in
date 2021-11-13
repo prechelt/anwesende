@@ -13,6 +13,7 @@ django-environ  # https://github.com/joke2k/django-environ
 django-extensions  # https://github.com/django-extensions/django-extensions
 django-model-utils  # https://github.com/jazzband/django-model-utils
 django-stubs  # https://github.com/typeddjango/django-stubs
+django-test-migrations  # https://github.com/wemake-services/django-test-migrations
 django-vanilla-views
 django-webtest  # https://github.com/django-webtest/django-webtest
 django<3.3  # https://www.djangoproject.com/
