@@ -13,25 +13,27 @@ import anwesende.utils.date as aud
 
 
 def make_organizations(descr) -> None:
+    """descr is a nested dict describing orgs, deps, rooms, #seats, like an xlsx."""
     persons = ("p1", "p2", "p3", "p4")
     personindex = 0
-    user = aum.User.objects.create(name="x")
-    importstep = arm.Importstep(user=user)
-    importstep.save()
     for orgname, orgdescr in descr.items():
         for depname, depdescr in orgdescr.items():
             for roomname, roomdescr in depdescr.items():
                 numseats, numvisits = roomdescr
-                seats = make_seats(importstep, roomname, numseats,
-                                   organization=orgname, department=depname)
+                seats = make_seats(roomname, numseats, organization=orgname,
+                                   department=depname)
                 for i in range(numvisits):
                     make_visit(seats[i % len(seats)], 
                                persons[personindex % len(persons)])
                     personindex += 1
     
-def make_seats(importstep: arm.Importstep, roomname: str,
-               numseats: int,
-               organization="org", department="dep") -> tg.Tuple[arm.Seat, ...]:
+def make_seats(roomname: str, numseats: int, organization="org",
+               department="dep") -> tg.Tuple[arm.Seat, ...]:
+    importstep = arm.Importstep.objects.first()  # reuse existing, if any
+    if not importstep:
+        user = aum.User.objects.first() or aum.User.objects.create(name="x")
+        importstep = arm.Importstep(user=user)
+        importstep.save()
     results = []
     room = arm.Room(organization=organization, department=department, 
                     building="bldg",
@@ -67,11 +69,8 @@ def make_visit(seat: arm.Seat, person: str, tfrom="03:00", tto="04:00") -> arm.V
 @pytest.mark.current
 @pytest.mark.django_db
 def test_room_descriptor():
-    user = aum.User.objects.create(name="x")
-    importstep = arm.Importstep(user=user)
-    importstep.save()
-    rm1s1, = make_seats(importstep, "myroom", 1)
-    rm2s1, = make_seats(importstep, "otherroom", 1)
+    rm1s1, = make_seats("myroom", 1)
+    rm2s1, = make_seats("otherroom", 1)
     v1 = make_visit(rm1s1, "p1", "02:00", "04:00")  # noqa
     v2 = make_visit(rm2s1, "p2", "02:00", "04:00")  # noqa
     myroom = arm.Room.objects.get(room="myroom")
@@ -109,11 +108,8 @@ def test_usage_statistics():
 @pytest.mark.django_db
 def test_get_overlapping_visits():
     # test can fail if run very shortly before midnight, just run it again
-    user = aum.User.objects.create(name="x")
-    importstep = arm.Importstep(user=user)
-    importstep.save()
-    rm1s1, rm1s2 = make_seats(importstep, "room1", 2)
-    rm2s1, = make_seats(importstep, "room2", 1)
+    rm1s1, rm1s2 = make_seats("room1", 2)
+    rm2s1, = make_seats("room2", 1)
     targetvisit = make_visit(rm1s1, "p1", "03:00", "04:00")
     shorttargetvisit = make_visit(rm1s1, "p1", "03:00", "03:01")
     # --- the following other visits have _y if they are to be found, _n if not:
@@ -143,14 +139,11 @@ def test_get_overlapping_visits():
 @pytest.mark.django_db
 def test_current_unique_visitorsN():
     # test can fail if run very shortly before midnight, just run it again
-    user = aum.User.objects.create(name="x")
-    importstep = arm.Importstep(user=user)
-    importstep.save()
     def show_them(room):
         them = room.current_unique_visitors_qs()
         print ([v.email for v in them])
-    rm1s1, rm1s2, rm1s3 = make_seats(importstep, "room1", 3)
-    rm2s1, = make_seats(importstep, "room2", 1)
+    rm1s1, rm1s2, rm1s3 = make_seats("room1", 3)
+    rm2s1, = make_seats("room2", 1)
     room = rm1s1.room
     person1_early = make_visit(rm1s1, "p1", "02:58", "04:00")  # noqa
     person2_ontime = make_visit(rm1s2, "p2", "03:00", "04:00")  # noqa
