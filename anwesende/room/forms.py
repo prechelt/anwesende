@@ -4,6 +4,7 @@ import os
 import re
 import tempfile
 import time
+import typing as tg
 
 import crispy_forms.helper as cfh
 import crispy_forms.layout as cfl
@@ -20,6 +21,43 @@ import anwesende.utils.date as aud
 
 def mytxt(width: int) -> djfw.TextInput:
     return djfw.TextInput(attrs={'size': str(width)})
+
+
+class TimeOnlyDateTimeField(djf.CharField):
+    def to_python(self, value: str) -> dt.datetime:
+        time_regex = r"^([01][0-9]|2[0-3]):?[0-5][0-9]$"  # with or without colon
+        error_msg = "Falsches Uhrzeitformat / Wrong time-of-day format"
+        if not re.match(time_regex, value or ""):
+            raise djce.ValidationError(error_msg)
+        if ':' not in value:
+            value = value[:-2] + ':' + value[-2:]  # insert colon
+        dt_string = djut.localtime().strftime(f"%Y-%m-%d {value}")
+        dt_tuple = time.strptime(dt_string, "%Y-%m-%d %H:%M")[0:5]
+        dt_obj = djut.make_aware(dt.datetime(*dt_tuple))
+        return dt_obj
+
+
+class TimeRangeField(djf.CharField):
+    @staticmethod
+    def _make_dt(datestr, timestr) -> dt.datetime:
+        mydt = dt.datetime.strptime(f"{datestr} {timestr}", "%Y-%m-%d %H:%M")
+        return djut.make_aware(mydt)
+
+    def to_python(self, value: str) -> tg.Tuple[dt.datetime, dt.datetime]:
+        date_regex = r"(\d\d\d\d-\d\d-\d\d)"
+        time_regex = r"(\d\d:\d\d)"
+        error_msg = "Falsches Zeitraumformat"
+        try:
+            regex = f"{date_regex} {time_regex}-{time_regex}"
+            mm = re.match(regex, value)
+            assert mm  # catch many wrong inputs early, others fail strptime
+            from_dt = self._make_dt(mm.group(1), mm.group(2))
+            to_dt = self._make_dt(mm.group(1), mm.group(3))
+            assert from_dt < to_dt, "Anfang muss vor Ende liegen"
+            return (from_dt, to_dt)
+        except Exception as exc:  # whatever goes wrong: it will be due to the input string
+            raise djce.ValidationError(f"{error_msg} ({str(exc)})")
+
 
 
 class UploadFileForm(djf.Form):
@@ -69,20 +107,6 @@ class UploadFileForm(djf.Form):
             fd.write(chunk)
         fd.close()
         return filename
-
-
-class TimeOnlyDateTimeField(djf.CharField):
-    def to_python(self, value: str) -> dt.datetime:
-        time_regex = r"^([01][0-9]|2[0-3]):?[0-5][0-9]$"  # with or without colon
-        error_msg = "Falsches Uhrzeitformat / Wrong time-of-day format"
-        if not re.match(time_regex, value or ""):
-            raise djce.ValidationError(error_msg)
-        if ':' not in value:
-            value = value[:-2] + ':' + value[-2:]  # insert colon
-        dt_string = djut.localtime().strftime(f"%Y-%m-%d {value}")
-        dt_tuple = time.strptime(dt_string, "%Y-%m-%d %H:%M")[0:5]
-        dt_obj = djut.make_aware(dt.datetime(*dt_tuple))
-        return dt_obj
 
 
 class VisitForm(djf.ModelForm):
