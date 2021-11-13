@@ -66,7 +66,6 @@ def make_visit(seat: arm.Seat, person: str, tfrom="03:00", tto="04:00") -> arm.V
     return v
 
 
-@pytest.mark.current
 @pytest.mark.django_db
 def test_room_descriptor():
     rm1s1, = make_seats("myroom", 1)

@@ -10,6 +10,7 @@ import crispy_forms.helper as cfh
 import crispy_forms.layout as cfl
 from django.conf import settings
 import django.core.exceptions as djce
+from django.db.models import F, Q
 import django.forms as djf
 import django.forms.widgets as djfw
 import django.utils.timezone as djut
@@ -24,6 +25,7 @@ def mytxt(width: int) -> djfw.TextInput:
 
 
 class TimeOnlyDateTimeField(djf.CharField):
+    """A time of day, input as 13:41 or 1341"""
     def to_python(self, value: str) -> dt.datetime:
         time_regex = r"^([01][0-9]|2[0-3]):?[0-5][0-9]$"  # with or without colon
         error_msg = "Falsches Uhrzeitformat / Wrong time-of-day format"
@@ -38,6 +40,10 @@ class TimeOnlyDateTimeField(djf.CharField):
 
 
 class TimeRangeField(djf.CharField):
+    """
+    A pair of datetimes, input as 2021-11-13 11:40-13:40 etc.
+    An empty input will result in an empty timerange from now to now.
+    """
     @staticmethod
     def _make_dt(datestr, timestr) -> dt.datetime:
         mydt = dt.datetime.strptime(f"{datestr} {timestr}", "%Y-%m-%d %H:%M")
@@ -47,6 +53,9 @@ class TimeRangeField(djf.CharField):
         date_regex = r"(\d\d\d\d-\d\d-\d\d)"
         time_regex = r"(\d\d:\d\d)"
         error_msg = "Falsches Zeitraumformat"
+        if value == "":
+            now = djut.localtime()
+            return (now, now)
         try:
             regex = f"{date_regex} {time_regex}-{time_regex}"
             mm = re.match(regex, value)
@@ -219,3 +228,38 @@ class SearchForm(djf.Form):
         if 'to_date' in cd:
             cd['to_date'] += dt.timedelta(hours=24)  # is time 0:00, should be 24:00
         return cd
+
+
+class SearchByRoomForm(djf.Form):
+    """
+    Cleaned data will contain 
+    a Room QuerySet rooms_qs derived from roomdescriptor and
+    a Visit QuerySet visits_qs derived from rooms_qs and timerange.
+    The form is valid only if either it is empty or 
+    rooms_qs matches exactly one room.
+    The rooms_qs is inefficient: it uses icontains on the entire descriptor column.
+    Since that table is usually less than 10.000 rows, this is bearable.
+    """
+    roomdescriptor = djf.CharField(label="organization;department;building;room")
+    timerange = TimeRangeField(label="Zeitraum (jjjj-mm-tt hh:mm-hh:mm)")
+
+    def clean_roomdescriptor(self):
+        descr = self.cleaned_data['roomdescriptor']
+        if descr == "":
+            rooms_qs = arm.Room.objects.none()
+        else:
+            rooms_qs = arm.Room.objects.filter(descriptor__icontains=descr)
+        self.cleaned_data['rooms_qs'] = rooms_qs
+        return descr
+
+    def clean_timerange(self):
+        descr = self.cleaned_data['roomdescriptor']
+        range_from, range_to = self.cleaned_data['timerange']
+        range_is_empty = range_to - range_from < dt.timedelta(seconds=1)
+        if range_is_empty:
+            visits_qs = arm.Visit.objects.none()
+        else:
+            visits_qs = arm.Visit.visits_in_timerange_qs(range_from, range_to)
+            visits_qs = visits_qs.filter(seat__room__descriptor__icontains=descr)
+        self.cleaned_data['visits_qs'] = visits_qs
+        return (range_from, range_to)

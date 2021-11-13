@@ -365,33 +365,47 @@ class Visit(djdm.Model):
         A visit overlaps itself if it is long enough;
         result is empty otherwise.
         """
+        base_qs = self.__class__.objects.filter(seat__room=self.seat.room)
+        from_, to_ = (self.present_from_dt, self.present_to_dt)
+        return self._overlapping_visits_qs(base_qs, from_, to_)
+
+    @classmethod
+    def visits_in_timerange_qs(cls, from_: dt.datetime, to_: dt.datetime
+                              ) -> djdm.QuerySet:
+        return cls._overlapping_visits_qs(cls.objects.all(), from_, to_)
+
+    @classmethod
+    def _overlapping_visits_qs(cls, base_qs: djdm.QuerySet, 
+                               from_: dt.datetime, to_: dt.datetime) -> djdm.QuerySet:
+        """
+        All visits that overlap the timerange by at least MIN_OVERLAP_MINUTES.
+        """
         delta = dt.timedelta(minutes=settings.MIN_OVERLAP_MINUTES)
         # There are four non-disjoint cases:
-        # 1) other visit is long enough and included in self
-        # 2) other includes self that is long enough 
-        # 3) other extends enough into self from before self
-        # 4) other begins early enough within self (and continues after self)
-        # We return other visits that belong to either of these cases.
+        # 1) other visit is long enough and included in range
+        # 2) other includes range that is long enough 
+        # 3) other extends enough into range from before range
+        # 4) other begins early enough within range (and continues after range)
+        # We return visits that belong to either of these cases.
         # The filter param (not arg value!) represents the other visit.
-        self_long_enough = (self.present_to_dt - self.present_from_dt) >= delta
-        if not self_long_enough:
-            return self.__class__.objects.none()  # overlapping-enough visits impossible
+        range_is_long_enough = (to_ - from_) >= delta
+        if not range_is_long_enough:
+            return cls.objects.none()  # overlapping-enough visits impossible
         # we now rely on self being long enough:
-        base_qs = self.__class__.objects.filter(seat__room=self.seat.room)
         other_included_in_self = (base_qs
                 .filter(present_to_dt__gte=F('present_from_dt') + delta)
-                .filter(present_from_dt__gte=self.present_from_dt)
-                .filter(present_to_dt__lte=self.present_to_dt))
+                .filter(present_from_dt__gte=from_)
+                .filter(present_to_dt__lte=to_))
         other_includes_self = (base_qs
-                .filter(present_from_dt__lte=self.present_from_dt)
-                .filter(present_to_dt__gte=self.present_to_dt))
+                .filter(present_from_dt__lte=from_)
+                .filter(present_to_dt__gte=to_))
         other_extends_into_self = (base_qs
-                .filter(present_from_dt__lte=self.present_from_dt)
-                .filter(present_to_dt__gte=self.present_from_dt + delta))
+                .filter(present_from_dt__lte=from_)
+                .filter(present_to_dt__gte=from_ + delta))
         other_begins_within_self = (base_qs
-                .filter(present_from_dt__gte=self.present_from_dt)
-                .filter(present_from_dt__lte=self.present_to_dt - delta)
-                .filter(present_to_dt__gte=self.present_to_dt))
+                .filter(present_from_dt__gte=from_)
+                .filter(present_from_dt__lte=to_ - delta)
+                .filter(present_to_dt__gte=to_))
         all4cases = (other_included_in_self | other_includes_self
                      | other_extends_into_self | other_begins_within_self)
         return all4cases.distinct().order_by('submission_dt')
