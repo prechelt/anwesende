@@ -442,15 +442,14 @@ class SearchView(AnySearchView):
         def fdt(d: dt.date):
             return djut.make_aware(dt.datetime(d.year, d.month, d.day))
         f = self.form.cleaned_data
-        secure_organization = f['organization'] if self.is_datenverwalter \
-            else settings.DUMMY_ORG
+        org_is_secure = (self.is_datenverwalter or
+                         f['roomdescriptor'].startswith(settings.DUMMY_ORG))
+        secure_roomdescriptor = f['roomdescriptor'] if org_is_secure \
+            else f"{settings.DUMMY_ORG};%{f['roomdescriptor']}"
         if not settings.USE_EMAIL_FIELD:
             f['email'] = '%'  # insert dummy so we can use the full search
         return (arm.Visit.objects
-                .filter(seat__room__organization__ilike=secure_organization)
-                .filter(seat__room__department__ilike=f['department'])
-                .filter(seat__room__building__ilike=f['building'])
-                .filter(seat__room__room__ilike=f['room'])
+                .filter(seat__room__descriptor__ilike=secure_roomdescriptor)
                 .filter(givenname__ilike=f['givenname'])
                 .filter(familyname__ilike=f['familyname'])
                 .filter(phone__ilike=f['phone'])
@@ -459,7 +458,7 @@ class SearchView(AnySearchView):
                 .filter(present_from_dt__lt=fdt(f['to_date']))  # came before to
                 )
 
-    def get_visitgroups(self) -> djdm.QuerySet:
+    def get_visitgroups(self) -> are.Visits:
         return are.collect_visitgroups(self.get_queryset())
 
 

@@ -183,20 +183,14 @@ class VisitForm(djf.ModelForm):
 class SearchForm(djf.Form):
     emailwarning = ("ABGESCHALTET. Die Daten enthalten keine Emailadressen. "
                     "Sie können also per Emailadresse nichts finden!")
-    organization = djf.CharField(label="Organization",
-            initial="%", required=True, )
-    department = djf.CharField(label="Department",
-            initial="%", required=True, )
-    building = djf.CharField(label="Building",
-            initial="%", required=True, )
-    room = djf.CharField(label="Room",
+    roomdescriptor = djf.CharField(label="Raumbeschreibung (organization;department;building;room)",
             initial="%", required=True, )
     givenname = djf.CharField(label="Vorname / Given name",
             initial="%", required=True, )
     familyname = djf.CharField(label="Nachname / Family name",
             initial="%", required=True, )
     phone = djf.CharField(label="Telefonnummer",
-            initial="+49%1%", required=True, 
+            initial="+%", required=True, 
             help_text="Mögliche Leerzeichen durch '%' tolerierbar machen!")
     email = djf.CharField(label="Emailadresse",
             initial="%@%" if settings.USE_EMAIL_FIELD else "%", 
