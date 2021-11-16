@@ -248,9 +248,14 @@ def collect_visitgroups(primary_visits: djdmq.QuerySet
     result = []
     visit_pks_seen = set()  # all contacts of primary visits
     primary_visit_pks_seen = set()  # only primary visits
+    primary_visits = list(primary_visits)  # retrieve them only once
+    primary_visit_pks_all = { pvisit.pk for pvisit in primary_visits }
     for pvisit in primary_visits:
         pvisit.distance = pvisit.seat.distance_in_m(pvisit.seat)  # add attr
-        primary_visit_pks_seen.add(pvisit.pk)
+        if pvisit.pk not in primary_visit_pks_seen:
+            primary_visit_pks_seen.add(pvisit.pk)
+        else:
+            continue  # pvisit was already mentioned in a previous group
         visit_pks_seen.add(pvisit.pk)
         group = pvisit.get_overlapping_visits()
         for visit in group:
@@ -259,6 +264,8 @@ def collect_visitgroups(primary_visits: djdmq.QuerySet
             is_new = visit.pk not in visit_pks_seen
             if is_new or must_not_be_suppressed:
                 result.append(visit)
+            if visit.pk in primary_visit_pks_all:  # make no separate group for visit.pk
+                primary_visit_pks_seen.add(visit.pk)  
         result.append(None)  # empty row as separator
     if len(result) > 0:
         del result[-1]  # remove trailing empty row

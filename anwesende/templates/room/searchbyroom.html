@@ -30,7 +30,7 @@
       Please use more specific search criteria.
     </p>
   {% elif display_switch == 'submit_room' %}
-    <p>{{ rooms.count }} Treffer</p>
+    <p>{{ NUMRESULTS }} Treffer</p>
     <ol id="roomhits-list">
       {% for r in rooms %}
         {% if r is None %}
