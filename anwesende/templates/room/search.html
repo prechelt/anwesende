@@ -34,27 +34,14 @@
         Will show at most {{ LIMIT }} results. 
         Please use more specific search criteria.
       </p>
-  {% elif display_switch == 'visit' or display_switch == 'visitgroup' %}
-      <p>{{ visits.count }} Treffer</p>
-      <ol class="searchhits">
-        {% for v in visits %}
-          {% if v is None %}
-            <li>-- next group: --</li>      
-          {% else %}
-            <li>
-              <b>{{ v.familyname }}, {{ v.givenname }}</b>,
-              {{ v.phone }}/{{ v.email }} 
-                ({{ v.zipcode }} {{ v.town }})<br>
-              {{ v.present_from_dt|date:"Y-m-d" }}
-                {{ v.present_from_dt|date:"H:i" }}&ndash;{{ v.present_to_dt|date:"H:i" }} @
-                {{ v.seat.room.room }}, {{ v.seat.room.building }}, 
-                {{ v.seat.room.department }}, {{ v.seat.room.organization }}
-                
-            </li>  
-          {% endif %}
-        {% endfor %}
-      </ol>
+  {% elif display_switch == 'submit_visit' or display_switch == 'submit_visitgroup' %}
+    {% include "room/_searchhits.html" %}
   {% else %}
     <p>Something is wrong! (display_switch {{ display_switch }})</p>
   {% endif %}
+  
+  <p>
+    <a id=searchroom-link" href="{% url 'room:searchroom' %}"
+    >Suche per Raum (statt per Person)</a>
+  </p>
 {% endblock content %}

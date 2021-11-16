@@ -18,6 +18,7 @@ import django.utils.timezone as djut
 import anwesende.room.excel as are
 import anwesende.room.models as arm
 import anwesende.utils.date as aud
+import anwesende.utils.lookup  # noqa,  registers lookup
 
 
 def mytxt(width: int) -> djfw.TextInput:
@@ -211,11 +212,11 @@ class SearchForm(djf.Form):
         self.helper = cfh.FormHelper()
         self.helper.form_id = 'SearchForm'
         self.helper.form_method = 'post'
-        self.helper.add_input(cfl.Submit('visit', 
+        self.helper.add_input(cfl.Submit('submit_visit', 
                                          '1. Besuche finden'))
-        self.helper.add_input(cfl.Submit('visitgroup', 
+        self.helper.add_input(cfl.Submit('submit_visitgroup', 
                                          '2. Kontaktgruppen finden'))
-        self.helper.add_input(cfl.Submit('xlsx', 
+        self.helper.add_input(cfl.Submit('submit_xlsx', 
                                          '3. Kontaktgruppen-Excel herunterladen'))
 
     def clean(self):
@@ -240,26 +241,42 @@ class SearchByRoomForm(djf.Form):
     The rooms_qs is inefficient: it uses icontains on the entire descriptor column.
     Since that table is usually less than 10.000 rows, this is bearable.
     """
-    roomdescriptor = djf.CharField(label="organization;department;building;room")
-    timerange = TimeRangeField(label="Zeitraum (jjjj-mm-tt hh:mm-hh:mm)")
+    roomdescriptor = djf.CharField(
+            label="Raumbeschreibung (organization;department;building;room)",
+            initial="%123")
+    timerange = TimeRangeField(
+            label="Zeitraum (jjjj-mm-tt hh:mm-hh:mm)",
+            initial=lambda: f"{aud.nowstring()} ...")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = cfh.FormHelper()
+        self.helper.form_id = 'SearchByRoomForm'
+        self.helper.form_method = 'post'
+        self.helper.add_input(cfl.Submit('submit_room', 
+                                         '1. Räume finden'))
+        self.helper.add_input(cfl.Submit('submit_visitgroup', 
+                                         '2. Kontaktgruppen finden'))
+        self.helper.add_input(cfl.Submit('submit_xlsx', 
+                                         '3. Kontaktgruppen-Excel herunterladen'))
 
     def clean_roomdescriptor(self):
         descr = self.cleaned_data['roomdescriptor']
         if descr == "":
             rooms_qs = arm.Room.objects.none()
         else:
-            rooms_qs = arm.Room.objects.filter(descriptor__icontains=descr)
+            rooms_qs = arm.Room.objects.filter(descriptor__ilike=descr)
         self.cleaned_data['rooms_qs'] = rooms_qs
         return descr
 
     def clean_timerange(self):
         descr = self.cleaned_data['roomdescriptor']
         range_from, range_to = self.cleaned_data['timerange']
-        range_is_empty = range_to - range_from < dt.timedelta(seconds=1)
+        range_is_empty = range_to - range_from < dt.timedelta(seconds=2)
         if range_is_empty:
             visits_qs = arm.Visit.objects.none()
         else:
             visits_qs = arm.Visit.visits_in_timerange_qs(range_from, range_to)
-            visits_qs = visits_qs.filter(seat__room__descriptor__icontains=descr)
+            visits_qs = visits_qs.filter(seat__room__descriptor__ilike=descr)
         self.cleaned_data['visits_qs'] = visits_qs
         return (range_from, range_to)

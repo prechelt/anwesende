@@ -8,6 +8,7 @@ import typing as tg
 import django.contrib.auth.mixins as djcam
 import django.contrib.auth.views as djcav
 import django.contrib.messages as djcm
+import django.db.models as djdm
 from django.db.models import Count
 import django.http as djh
 import django.urls as dju
@@ -21,7 +22,7 @@ import anwesende.room.forms as arf
 import anwesende.room.models as arm
 import anwesende.room.utils as aru
 import anwesende.utils.date as aud
-import anwesende.utils.lookup as aul  # noqa,  registers lookup
+import anwesende.utils.lookup  # noqa,  registers lookup
 import anwesende.utils.qrcode as auq
 
 COOKIENAME = 'anwesende'
@@ -336,14 +337,11 @@ class UncookieView(vv.GenericView):
         return response
 
 
-class SearchView(AddIsDatenverwalter, AddSettings, vv.ListView):
+class AnySearchView(AddIsDatenverwalter, AddSettings, vv.ListView):
     """
     Dialog by which Datenverwalters retrieve contact group data.
     Kludge: Uses the same view for a valid form (instead of redirecting). 
     """
-    form_class = arf.SearchForm
-    template_name = "room/search.html"
-
     def get_context_data(self, **ctx):
         def _key(postdata_key):  # key or None
             return postdata_key if postdata_key in self.form.data else None
@@ -353,29 +351,92 @@ class SearchView(AddIsDatenverwalter, AddSettings, vv.ListView):
             form=self.form,
             **ctx)
         valid = ctx['valid'] = ctx['is_post'] and self.form.is_valid()
-        # print(self.form.data)
+        # print("### form.data", self.form.data)
         # if valid: 
-        #     print(self.form.cleaned_data)
-        mode = _key('visit') or _key('visitgroup') or _key('xlsx')
-        ctx['display_switch'] = mode
+        #     print("### form.cleaned_data", self.form.cleaned_data)
+        self.mode = _key('submit_visit') or _key('submit_room') or \
+                    _key('submit_visitgroup') or _key('submit_xlsx')
+        ctx['display_switch'] = self.mode
         if not valid:
             ctx['display_switch'] = 'invalid'
             return ctx
-        elif mode == 'visit':
+        elif self.mode == 'submit_visit':
             ctx['visits'] = self.get_queryset()
             ctx['LIMIT'] = 100
             ctx['NUMRESULTS'] = ctx['visits'].count()
             if ctx['NUMRESULTS'] > ctx['LIMIT']:
                 ctx['display_switch'] = 'too_many_results'
-        elif mode == 'visitgroup' or mode == 'xlsx':
-            ctx['visits'] = are.collect_visitgroups(self.get_queryset())
+        elif self.mode == 'submit_room':
+            ctx['rooms'] = self.get_queryset()
+            ctx['LIMIT'] = 100
+            ctx['NUMRESULTS'] = ctx['rooms'].count()
+            if ctx['NUMRESULTS'] > ctx['LIMIT']:
+                ctx['display_switch'] = 'too_many_results'
+        elif self.mode == 'submit_visitgroup' or self.mode == 'submit_xlsx':
+            ctx['visits'] = self.get_visitgroups()
             ctx['LIMIT'] = 10000
             ctx['NUMRESULTS'] = len(ctx['visits'])
             if ctx['NUMRESULTS'] > ctx['LIMIT']:
                 ctx['display_switch'] = 'too_many_results'
         else:
-            assert False, f"SearchView: unexpected mode '{mode}'"
+            assert False, f"{self.__class__.__name__}: unexpected mode '{self.mode}'"
         return ctx
+
+    def get(self, request, *args, **kwargs):
+        def make_secure():
+            if not self.is_datenverwalter:
+                self.form.fields['organization'].initial = settings.DUMMY_ORG
+                self.form.fields['organization'].widget.attrs['readonly'] = True
+
+        self.form = self.get_form()
+        make_secure()
+        context = self.get_context_data(is_post=False)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        # will be secure wrt not is_datenverwalter due to safe get_queryset()
+        self.form = self.get_form(data=request.POST)
+        context = self.get_context_data(is_post=True)
+        self._log_post(context)
+        if context['display_switch'] == 'submit_xlsx':
+            return self.excel_download_response(context['visits'])
+        else:
+            return self.render_to_response(context)
+
+    def _log_post(self, context):
+        logcontext = context.copy()
+        if 'visits' in logcontext:
+            del logcontext['visits']
+        if 'rooms' in logcontext:
+            del logcontext['rooms']
+        if 'environ' in logcontext:
+            del logcontext['environ']
+        if 'form' in logcontext:
+            logcontext['form'] = logcontext['form'].data
+        logging.getLogger('search').info(f"{self.__class__.__name__}({logcontext}")
+
+    def excel_download_response(self, visits: tg.List[tg.Optional[arm.Visit]]) -> djh.HttpResponse:
+        # https://stackoverflow.com/questions/4212861
+        excel_contenttype_excel = \
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        excelbytes = are.get_excel_download(visits)
+        response = djh.HttpResponse(excelbytes,
+                                    content_type=excel_contenttype_excel)
+        timestamp = aud.nowstring(date=True, time=True)
+        # make name nice for Linux (no blanks) and for Windows (no colons):
+        timestamp = timestamp.replace(' ', '_').replace(':', ".")
+        filename = f"anwesende-{timestamp}.xlsx"
+        response['Content-Disposition'] = (
+            'attachment; filename="%s"' % (filename,))
+        return response
+
+
+class SearchView(AnySearchView):
+    """
+    Search by person.
+    """
+    form_class = arf.SearchForm
+    template_name = "room/search.html"
 
     def get_queryset(self):
         def fdt(d: dt.date):
@@ -398,48 +459,30 @@ class SearchView(AddIsDatenverwalter, AddSettings, vv.ListView):
                 .filter(present_from_dt__lt=fdt(f['to_date']))  # came before to
                 )
 
-    def get(self, request, *args, **kwargs):
-        def make_secure():
+    def get_visitgroups(self) -> djdm.QuerySet:
+        return are.collect_visitgroups(self.get_queryset())
+
+
+class SearchByRoomView(AnySearchView):
+    """
+    Search by room and timerange.
+    """
+    form_class = arf.SearchByRoomForm
+    template_name = "room/searchbyroom.html"
+
+    def get_queryset(self):
+        f = self.form.cleaned_data
+        if self.mode == 'submit_room':
+            result = f['rooms_qs']
             if not self.is_datenverwalter:
-                self.form.fields['organization'].initial = settings.DUMMY_ORG
-                self.form.fields['organization'].widget.attrs['readonly'] = True
-
-        self.form = self.get_form()
-        make_secure()
-        context = self.get_context_data(is_post=False)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        # will be secure wrt not is_datenverwalter due to safe get_queryset()
-        self.form = self.get_form(data=request.POST)
-        context = self.get_context_data(is_post=True)
-        self._log_post(context)
-        if context['display_switch'] == 'xlsx':
-            return self.excel_download_response(context['visits'])
+                result = result.filter(organization=settings.DUMMY_ORG)
+        elif self.mode == 'submit_visitgroup' or self.mode == 'submit_xlsx':
+            result = f['visits_qs']
+            if not self.is_datenverwalter:
+                result = result.filter(room__organization=settings.DUMMY_ORG)
         else:
-            return self.render_to_response(context)
+            assert False, f"{self.__class__.__name__}: unexpected mode '{self.mode}'"
+        return result
 
-    def _log_post(self, context):
-        logcontext = context.copy()
-        if 'visits' in logcontext:
-            del logcontext['visits']
-        if 'environ' in logcontext:
-            del logcontext['environ']
-        if 'form' in logcontext:
-            logcontext['form'] = logcontext['form'].data
-        logging.getLogger('search').info(f"SearchView({logcontext}")
-
-    def excel_download_response(self, visits: tg.List[tg.Optional[arm.Visit]]) -> djh.HttpResponse:
-        # https://stackoverflow.com/questions/4212861
-        excel_contenttype_excel = \
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        excelbytes = are.get_excel_download(visits)
-        response = djh.HttpResponse(excelbytes,
-                                    content_type=excel_contenttype_excel)
-        timestamp = aud.nowstring(date=True, time=True)
-        # make name nice for Linux (no blanks) and for Windows (no colons):
-        timestamp = timestamp.replace(' ', '_').replace(':', ".")
-        filename = f"anwesende-{timestamp}.xlsx"
-        response['Content-Disposition'] = (
-            'attachment; filename="%s"' % (filename,))
-        return response
+    def get_visitgroups(self) -> djdm.QuerySet:
+        return self.get_queryset()

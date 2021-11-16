@@ -79,13 +79,13 @@ def test_SearchByRoomForm():
     v12 = datagen.make_visit(rm1s1, "p12", "03:00", "05:00")  # noqa
     v21 = datagen.make_visit(rm2s1, "p21", "02:00", "04:00")  # noqa
     #----- check rooms_qs:
-    assert get_rooms("myroom", "02:00-04:00") == set((rm1,))
-    assert get_rooms("org", "02:00-04:00") == set((rm1, rm2))
+    assert get_rooms("%myroom", "02:00-04:00") == set((rm1,))
+    assert get_rooms("%org%", "02:00-04:00") == set((rm1, rm2))
     assert get_rooms("---", "02:00-04:00") == set()
     #----- check visits_qs:
-    assert get_visits("myroom", "02:00-04:00") == set((v11, v12))
-    assert get_visits("myroom", "02:00-02:40") == set((v11,))
-    assert get_visits("myroom", "01:00-02:40") == set((v11,))
-    assert get_visits("myroom", "02:20-03:01") == set((v11,))  # too short for v12
-    assert get_visits("org", "01:00-05:00") == set((v11, v12, v21))
+    assert get_visits("%myroom", "02:00-04:00") == set((v11, v12))
+    assert get_visits("%myroom", "02:00-02:40") == set((v11,))
+    assert get_visits("%myroom", "01:00-02:40") == set((v11,))
+    assert get_visits("%myroom", "02:20-03:01") == set((v11,))  # too short for v12
+    assert get_visits("%org%", "01:00-05:00") == set((v11, v12, v21))
     assert get_visits("---", "01:00-05:00") == set()

@@ -24,6 +24,8 @@ urlpatterns = [
          view=arv.VisitView.as_view(), name="visit"),
     path("search",
          view=arv.SearchView.as_view(), name="search"),
+    path("search_room",
+         view=arv.SearchByRoomView.as_view(), name="searchroom"),
     path("show_rooms",
          view=arv.ShowRoomsView.as_view(), name="show-rooms"),
     path("show_rooms/<organization>/<department>",

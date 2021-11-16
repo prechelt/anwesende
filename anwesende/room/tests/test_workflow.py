@@ -1,3 +1,4 @@
+import datetime as dt
 import os
 import re
 import tempfile
@@ -32,6 +33,7 @@ def test_workflow_happy_path(django_app: wt.TestApp):
     resp = _log_in(django_app, "datenverwalter", "1234")
     _browse_usage_statistic(django_app)
     _search_and_download(django_app)
+    _search_room(django_app)
 
 def freeze_at(daytime_string: str):
     return freeze_time(aud.make_dt('now', daytime_string))
@@ -50,6 +52,7 @@ def _log_in(django_app: wt.TestApp, username: str, password: str) -> wt.TestResp
 
 
 def _test_excel_import(django_app, xlsx_file: str, beacon: str) -> tg.Tuple[str, str]:
+    # returns data of the .last() seat
     # --- get /import:
     import_url = reverse('room:import')
     import_page = django_app.get(import_url)
@@ -75,7 +78,6 @@ def _browse_qrcodes(django_app):
     link1rooms = resp1.html.find(name='a', class_='show-rooms-department')
 
     print("## 2. department-level page:")
-    print("link1rooms:", link1rooms['href'])
     resp2 = django_app.get(link1rooms['href'])
     link2rooms = resp2.html.find(name='a', class_='show-rooms-building')
     link2codes = resp2.html.find(name='a', class_='qrcodes-building')
@@ -124,7 +126,6 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
         # print("container:", _find(resp.text, name="div", class_="container"))
         resp = resp.follow()
         who = arm.Visit.objects.all()
-        print([str(v) for v in who])
         assert resp.request.path == reverse('room:thankyou', kwargs=dict(hash=seathash))
         resp = resp.click(linkid='seatslink')
     assert "1</b> verschiedene" in resp.text  # visitors_presentN
@@ -170,6 +171,7 @@ def _browse_usage_statistic(django_app):
     assert "<td>20</td>" in resp.text  # seats
     assert "<td>2</td>" in resp.text  # visits
 
+
 def _search_and_download(django_app: wt.TestApp):
     # base.html: <a href="/import">QR-Codes erzeugen</a>
     # and        <a href="/search">Nach Personen suchen</a>
@@ -181,7 +183,7 @@ def _search_and_download(django_app: wt.TestApp):
     data = dict(givenname="A.",
                 from_date=aud.nowstring(), to_date=aud.nowstring())
     _fill_with(search1.form, data)
-    search2 = search1.form.submit('visit')
+    search2 = search1.form.submit('submit_visit')
     # print("container:", _find(search2.text, name="div", class_="container"))
     if settings.USE_EMAIL_FIELD:
         assert "a@fam.de" in search2.text
@@ -191,8 +193,8 @@ def _search_and_download(django_app: wt.TestApp):
     assert "B." not in search2.text
     assert "C." not in search2.text
     # --- find contacts:
-    search3 = search2.form.submit('visitgroup')
-    # print("searchhits:", _find(search3.text, name="ol", class_="searchhits"))
+    search3 = search2.form.submit('submit_visitgroup')
+    # print("### searchhits:", _find(search3.text, name="ol", class_="searchhits"))
     if settings.USE_EMAIL_FIELD:
         assert "a@fam.de" in search3.text
         assert "b@fam.de" in search3.text
@@ -201,7 +203,7 @@ def _search_and_download(django_app: wt.TestApp):
     assert "B." in search3.text
     assert "C." not in search3.text
     # --- download Excelfile:
-    search4 = search3.form.submit('xlsx')
+    search4 = search3.form.submit('submit_xlsx')
     excelbytes = search4.body
     _validate_excel(excelbytes)
 
@@ -227,6 +229,34 @@ def _validate_excel(excelbytes: bytes) -> None:
         assert coldict['givenname'] == ["A.", "B."]
 
 
+def _search_room(django_app: wt.TestApp):
+    #----- go to searchroom page:
+    resp = django_app.get("/")
+    search_url = _check_menu(resp.text)
+    search1 = django_app.get(search_url)
+    searchroom1 = search1.click(linkid='searchroom-link')  # go to searchroom
+    search2 = searchroom1.click(linkid='search-link')  # check backlink
+    #----- check room search:
+    roomname = arm.Seat.objects.last().room.room
+    timerange = f"{aud.nowstring()} 11:00-12:00"
+    data = dict(roomdescriptor=f"%{roomname}",
+                timerange=timerange)
+    _fill_with(searchroom1.form, data)
+    searchroom2 = searchroom1.form.submit('submit_room')
+    resultlist2 = searchroom2.html.find(id='roomhits-list')
+    # print("### resultlist2", resultlist2)
+    assert len(resultlist2.find_all(name='li')) == 1  # only roomname was visited
+    assert f" {roomname}" in resultlist2.text
+    #----- check contact group:
+    searchroom3 = searchroom2.form.submit('submit_visitgroup')
+    # print("### searchroom3.text", searchroom3.text)
+    resultlist3 = searchroom3.html.find(id='searchhits-list')
+    # print("### resultlist3.text", resultlist3.text)
+    assert len(resultlist3.find_all(name='li')) == 2
+    #----- retrieve xlsx:
+    xlsxfile = searchroom2.form.submit('submit_xlsx')  # just see it not crash
+
+
 # ========== helpers:
 
 
@@ -247,6 +277,7 @@ def _check_against(form: wt.Form, data: dict):
 def _find(html: str, **kwargs):
     soup = bs4.BeautifulSoup(html, "html.parser")
     return "".join((str(tag) for tag in soup.find(**kwargs).contents))
+
 
 def _findtag(html: str, **kwargs):
     soup = bs4.BeautifulSoup(html, "html.parser")

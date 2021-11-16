@@ -288,11 +288,13 @@ def _as_vgrouprows(visits) -> tg.List[tg.Optional[VGroupRow]]:
         if v is None:
             row = None
         else:
+            distance = getattr(v, 'distance', None)
+            distance = "%5.1fm" % v.distance if distance is not None else "?"
             row = VGroupRow(
                 v.familyname, v.givenname, v.email, v.phone,
                 v.street_and_number, v.zipcode, v.town, 
                 v.status_3g_txt,
-                v.cookie, "%5.1fm" % v.distance,  # type: ignore
+                v.cookie, distance,  # type: ignore
                 aud.dtstring(v.submission_dt, time=True), 
                 aud.dtstring(v.present_from_dt, date=False, time=True),
                 aud.dtstring(v.present_to_dt, date=False, time=True),

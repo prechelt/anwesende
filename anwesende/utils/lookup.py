@@ -1,8 +1,8 @@
 from django.db.models import Lookup
-from django.db.models.fields import Field
+import django.db.models as djdm
 
 
-@Field.register_lookup
+@djdm.CharField.register_lookup
 class ILike(Lookup):
     lookup_name = 'ilike'
 

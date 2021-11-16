@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <h1>Suche nach Besuchen in Räumen</h1>
+  <ol>
+    <li>
+      Beschreiben Sie den gewünschten Raum mit der Suchzeile unten und
+      geben Sie einen passenden Zeitraum an.
+    </li>
+    <li>
+      Prüfen Sie das Suchergebnis. Mehr als ein Treffer?
+      Dann schärfere Kriterien benutzen.
+    </li>
+    <li>
+      Wenn die Trefferliste passend aussieht, mit Knopf Nummer 2
+      die Liste der Kontakte ansehen und auf Plausibilität prüfen. <br>
+      Wenn die auch in Ordnung ist, mit Knopf 3 die Liste als Excel herunterladen.
+    </li>
+  </ol>
+
+  {% crispy form %}
+  
+  {% if display_switch == 'invalid' %}
+    <!-- form is invalid, no results to be shown -->
+  {% elif display_switch == 'too_many_results' %}
+    <h2>{{ NUMRESULTS }} results</h2>
+    <p>
+      Will show at most {{ LIMIT }} results. 
+      Please use more specific search criteria.
+    </p>
+  {% elif display_switch == 'submit_room' %}
+    <p>{{ rooms.count }} Treffer</p>
+    <ol id="roomhits-list">
+      {% for r in rooms %}
+        {% if r is None %}
+          <li>-- next group: --</li>      
+        {% else %}
+          <li>
+            {{ r.organization }};
+            {{ r.department }};
+            {{ r.building }}; 
+            {{ r.room }}  
+          </li>  
+        {% endif %}
+      {% endfor %}
+    </ol>
+  {% elif display_switch == 'submit_visitgroup' %}
+    {% include "room/_searchhits.html" %}
+  {% else %}
+    <p>Something is wrong! (display_switch {{ display_switch }})</p>
+  {% endif %}
+  
+  <p>
+    <a id=search-link" href="{% url 'room:search' %}"
+    >Suche per Person (statt per Raum)</a>
+  </p>
+
+{% endblock content %}
