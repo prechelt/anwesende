@@ -383,13 +383,7 @@ class AnySearchView(AddIsDatenverwalter, AddSettings, vv.ListView):
         return ctx
 
     def get(self, request, *args, **kwargs):
-        def make_secure():
-            if not self.is_datenverwalter:
-                self.form.fields['organization'].initial = settings.DUMMY_ORG
-                self.form.fields['organization'].widget.attrs['readonly'] = True
-
         self.form = self.get_form()
-        make_secure()
         context = self.get_context_data(is_post=False)
         return self.render_to_response(context)
 
@@ -442,14 +436,10 @@ class SearchView(AnySearchView):
         def fdt(d: dt.date):
             return djut.make_aware(dt.datetime(d.year, d.month, d.day))
         f = self.form.cleaned_data
-        org_is_secure = (self.is_datenverwalter or
-                         f['roomdescriptor'].startswith(settings.DUMMY_ORG))
-        secure_roomdescriptor = f['roomdescriptor'] if org_is_secure \
-            else f"{settings.DUMMY_ORG};%{f['roomdescriptor']}"
         if not settings.USE_EMAIL_FIELD:
             f['email'] = '%'  # insert dummy so we can use the full search
-        return (arm.Visit.objects
-                .filter(seat__room__descriptor__ilike=secure_roomdescriptor)
+        result =  (arm.Visit.objects
+                .filter(seat__room__descriptor__ilike=f['roomdescriptor'])
                 .filter(givenname__ilike=f['givenname'])
                 .filter(familyname__ilike=f['familyname'])
                 .filter(phone__ilike=f['phone'])
@@ -457,6 +447,9 @@ class SearchView(AnySearchView):
                 .filter(present_to_dt__gt=fdt(f['from_date']))  # left after from
                 .filter(present_from_dt__lt=fdt(f['to_date']))  # came before to
                 )
+        if not self.is_datenverwalter:  # make secure:
+            result = result.filter(seat__room__descriptor__ilike=f"{settings.DUMMY_ORG}%")
+        return result
 
     def get_visitgroups(self) -> are.Visits:
         return are.collect_visitgroups(self.get_queryset())
@@ -473,12 +466,12 @@ class SearchByRoomView(AnySearchView):
         f = self.form.cleaned_data
         if self.mode == 'submit_room':
             result = f['rooms_qs']
-            if not self.is_datenverwalter:
+            if not self.is_datenverwalter:  # make secure:
                 result = result.filter(organization=settings.DUMMY_ORG)
         elif self.mode == 'submit_visitgroup' or self.mode == 'submit_xlsx':
             result = f['visits_qs']
-            if not self.is_datenverwalter:
-                result = result.filter(room__organization=settings.DUMMY_ORG)
+            if not self.is_datenverwalter:  # make secure:
+                result = result.filter(seat__room__organization=settings.DUMMY_ORG)
         else:
             assert False, f"{self.__class__.__name__}: unexpected mode '{self.mode}'"
         return result
