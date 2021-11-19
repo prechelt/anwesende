@@ -1,6 +1,6 @@
 # a.nwesen.de: Ein Dienst für Anwesenheitslisten für Hochschulen
 
-Lutz Prechelt, 2021-10-29
+Lutz Prechelt, 2021-11-19
 
 https://github.com/prechelt/anwesende
 
@@ -317,6 +317,10 @@ and deployed onto a remote server via a docker registry
 (`REMOTE=1`, resulting in another three styles of the same three DEPLOYMODEs).
 In any case, there are only few manual steps; most work is done by a 
 few calls to a script called `anw.sh`.
+
+(If you want to deploy without docker, see
+[GitHub Issue 10](https://github.com/prechelt/anwesende/issues/10)
+for hints.)
 
 
 ## 4.3 Deployment procedure
