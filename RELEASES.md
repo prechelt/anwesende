@@ -147,12 +147,18 @@ Release dates, version numbers, and contents:
     'broken link' emails from the automatic refreshing of old tabs on iPhones. 
   - `ThankYouView` shows number of people _only_ in the seat list case
     in order to reduce the server load from those tab refreshings.
+- 2021-11-19, Version 5.5:
+  - `SearchByRoomView` for easily retrieving contact groups when 
+    the infected person is not registered, but time and room are known
+  - simplified `SearchForm` form: collapsed org/dep/building/room into
+    the single field room descriptor
+  - suppressed redundant contact groups in case of double registrations
+    of infected person
 
 
 ## Future
 
 - already done for the next version:
-  - ...
 
 - TODO:
   - ...
