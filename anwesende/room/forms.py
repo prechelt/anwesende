@@ -225,7 +225,23 @@ class SearchForm(djf.Form):
         return cd
 
 
-class SearchByRoomForm(djf.Form):
+class RoomdescriptorForm(djf.Form):
+    """
+    Minimal form with a single text field, for tabulation.
+    """
+    roomdescriptor = djf.CharField(
+            label="Raumbeschreibung (organization;department;building;room)",
+            initial="%")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = cfh.FormHelper()
+        self.helper.form_id = 'RoomdescriptorForm'
+        self.helper.form_method = 'get'
+        self.helper.add_input(cfl.Submit('submit', 'Tabulate'))
+
+
+class SearchByRoomForm(RoomdescriptorForm):
     """
     Cleaned data will contain 
     a Room QuerySet rooms_qs derived from roomdescriptor and
@@ -235,9 +251,6 @@ class SearchByRoomForm(djf.Form):
     The rooms_qs is inefficient: it uses icontains on the entire descriptor column.
     Since that table is usually less than 10.000 rows, this is bearable.
     """
-    roomdescriptor = djf.CharField(
-            label="Raumbeschreibung (organization;department;building;room)",
-            initial="%123")
     timerange = TimeRangeField(
             label="Zeitraum (jjjj-mm-tt hh:mm-hh:mm)",
             initial=lambda: f"{aud.nowstring()} ...")

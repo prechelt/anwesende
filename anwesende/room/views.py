@@ -333,13 +333,22 @@ class VisitsByDepartmentView(djcam.LoginRequiredMixin,
 class VisitorsByWeekView(djcam.LoginRequiredMixin,
                          AddIsDatenverwalter, AddSettings, vv.TemplateView):
     """Show filtered table of #visits and #visitors (and #rooms etc.) per week."""
+    form_class = arf.RoomdescriptorForm
     template_name = "room/visitorsbyweek.html"
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(*args, **kwargs)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.is_datenverwalter:
-            context['stats'] = []
+        context['form'] = self.form_class(initial=self.request.GET)
+        context['id_attribute'] = "Emailadressen" if settings.USE_EMAIL_FIELD else "Telefonnummern"
+        if self.is_datenverwalter and "roomdescriptor" in self.request.GET:
+            context['descriptor'] = descriptor = self.request.GET['roomdescriptor']
+            context['stats'] = arr.visitors_by_week_report(descriptor)
         else:
+            context['descriptor'] = ""
             context['stats'] = []
         return context
 

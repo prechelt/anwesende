@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block content %}
   <h1>Bericht: Besucher_innen nach Woche</h1>
   <p>
-    Zeigt für eine durch den Suchbegriff bestimmte Teilmenge der Besuchsdaten,
+    Zeigt für eine Teilmenge der Räume (gemäß Suchbegriff),
     wie viele verschiedene Personen pro Woche anwwesend waren
     und auf wie viele Bereiche sich das verteilt hat.
   </p>
@@ -13,12 +14,61 @@
     {{ settings.DATA_RETENTION_DAYS }} Tagen.
   </p>
   
+  {% crispy form %}
+
+  
   {% if stats %}
 
-    <h2>Ergebnis für '{{ roomdescriptor }}'</h2>
+    <h2>Ergebnis für '{{ descriptor }}'</h2>
     
-    <p>(noch nicht implementiert)</p>
+    <table class="table table-sm table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">week from</th>
+          <th scope="col">#orgs</th>
+          <th scope="col">#deps</th>
+          <th scope="col">#bldgs</th>
+          <th scope="col">#rooms</th>
+          <th scope="col">#visits</th>
+          <th scope="col">#people</th>
+          <th scope="col">v/p</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for stat in stats %}
+        <tr>
+          <td>{{ stat.week_from|date:"Y-m-d H:i" }}</td>
+          <td>{{ stat.organizationsN }}</td>
+          <td>{{ stat.departmentsN }}</td>
+          <td>{{ stat.buildingsN }}</td>
+          <td>{{ stat.roomsN }}</td>
+          <td>{{ stat.visitsN }}</td>
+          <td>{{ stat.visitorsN }}</td>
+          <td>{{ stat.visits_per_visitor|floatformat:1 }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
     
+    <ul>
+      <li>
+        <b>#orgs, #deps, #bldgs, #rooms</b>: 
+        Anzahl verschiedener organizations, departments, buildings, rooms, 
+        auf die die Besuche entfallen sind.
+      </li>
+      <li>
+        <b>#visits</b>: Anzahl von Besuchen (Registrierungen, 
+        ggf. auch die selbe Person in der selben Veranstaltung mehrfach)
+      </li>
+      <li>
+        <b>#people</b>: Anzahl verschiedener Personen (genauer: {{ id_attribute }})
+        über die Besuche hinweg
+      </li>
+      <li>
+        <b>v/p</b>: Besuche pro Person: Quotient von #visits und #people
+      </li>
+    </ul>
+
   {% endif %}
   <p><a href="/">Zurück</a></p>
 {% endblock content %}
