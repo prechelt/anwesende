@@ -393,19 +393,21 @@ http:
       entryPoints:
         - web
       middlewares:
-        - redirect_root
-        - redirect_a
-        - redirect_fu
         - redirect_to_https
       service: django
 
     web-secure-router:
       # https://doc.traefik.io/traefik/routing/routers/#rule
 ENDOFrouters1
-  echo "      rule: \"Host(\`$SERVERNAME\`) && PathPrefix(\`/\`)\""  >>$TRAEFIK_YML
+  # echo "      rule: \"Host(\`$SERVERNAME\`) && PathPrefix(\`/\`)\""  >>$TRAEFIK_YML
+  echo "      rule: \"Host(\`$SERVERNAME\`) || Host(\`a.nwesen.de\`)\""  >>$TRAEFIK_YML
   cat >>$TRAEFIK_YML <<ENDOFrouters2
       entryPoints:
         - web-secure
+      middlewares:
+        - redirect_root
+        - redirect_a
+        - redirect_fu
       # middlewares:
       #   - csrf
       service: django
@@ -425,18 +427,18 @@ ENDOFtlsbare
   middlewares:
     # https://doc.traefik.io/traefik/master/middlewares/overview/
     redirect_root:
-      # https://doc.traefik.io/traefik/v2.0/middlewares/redirectregex/
+      # https://doc.traefik.io/traefik/v2.0/middlewares/redirectregex/ 
       redirectRegex:
-        regex: "^http://a.nwesen.de/?$"
-        replacement: "http://anwesende.imp.fu-berlin.de/"
+        regex: "^https://a.nwesen.de/?$"
+        replacement: "https://anwesende.imp.fu-berlin.de/"
     redirect_a:
       redirectRegex:
-        regex: "^http://a.nwesen.de/a/(.*)$"
-        replacement: "http://anwesende.imp.fu-berlin.de/${1}"
+        regex: "^https://a.nwesen.de/a/(.*)$"
+        replacement: "https://anwesende.imp.fu-berlin.de/${1}"
     redirect_fu:
       redirectRegex:
-        regex: "^http://a.nwesen.de/fu/(.*)$"
-        replacement: "http://anwesende.imp.fu-berlin.de/${1}"
+        regex: "^https://a.nwesen.de/fu/(.*)$"
+        replacement: "https://anwesende.imp.fu-berlin.de/${1}"
     redirect_to_https:
       # https://docs.traefik.io/master/middlewares/redirectscheme/
       redirectScheme:
