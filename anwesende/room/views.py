@@ -20,6 +20,7 @@ from django.conf import settings
 import anwesende.room.excel as are
 import anwesende.room.forms as arf
 import anwesende.room.models as arm
+import anwesende.room.reports as arr
 import anwesende.room.utils as aru
 import anwesende.utils.date as aud
 import anwesende.utils.lookup  # noqa,  registers lookup
@@ -315,15 +316,29 @@ class LegacyThankyouView(djvgb.RedirectView):
         return djh.HttpResponsePermanentRedirect(dju.reverse_lazy('room:home'))
 
 
-class UsageStatisticsView(djcam.LoginRequiredMixin,
-                          AddIsDatenverwalter, AddSettings, vv.TemplateView):
+class VisitsByDepartmentView(djcam.LoginRequiredMixin,
+                             AddIsDatenverwalter, AddSettings, vv.TemplateView):
     """Show table of #rooms and #visits per department."""
-    template_name = "room/stats.html"
+    template_name = "room/visitsbydepartment.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.is_datenverwalter:
-            context['stats'] = arm.Room.usage_statistics()
+            context['stats'] = arr.visits_by_department_report()
+        else:
+            context['stats'] = []
+        return context
+
+
+class VisitorsByWeekView(djcam.LoginRequiredMixin,
+                         AddIsDatenverwalter, AddSettings, vv.TemplateView):
+    """Show filtered table of #visits and #visitors (and #rooms etc.) per week."""
+    template_name = "room/visitorsbyweek.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.is_datenverwalter:
+            context['stats'] = []
         else:
             context['stats'] = []
         return context

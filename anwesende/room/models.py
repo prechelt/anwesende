@@ -105,15 +105,6 @@ class Room(djdm.Model):
     def as_float(cls, dist_string: str) -> float:
         return float(dist_string.replace(',', '.'))  # ensure decimal point
 
-    @classmethod
-    def usage_statistics(cls) -> tg.List[tg.Mapping[str,str]]:
-        return list(cls.objects.order_by('organization', 'department')
-                .values('organization', 'department')
-                .annotate(rooms=Count("id", distinct=True))
-                .annotate(seats=Count("seat", distinct=True))
-                .annotate(visits=Count("seat__visit", distinct=True))
-               )
-
     def current_unique_visitors_qs(self) -> djdmq.QuerySet:
         now = djut.localtime()
         allvisits = Visit.objects.filter(seat__room=self,

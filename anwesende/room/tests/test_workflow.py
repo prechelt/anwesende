@@ -31,7 +31,7 @@ def test_workflow_happy_path(django_app: wt.TestApp):
     _log_out(django_app, current_html)
     _make_visits(django_app, seathash)
     resp = _log_in(django_app, "datenverwalter", "1234")
-    _browse_usage_statistic(django_app)
+    _browse_visits_by_department_report(django_app)
     _search_and_download(django_app)
     _search_room(django_app)
 
@@ -165,8 +165,8 @@ def _make_visits(django_app: wt.TestApp, seathash: str):
     resp = visit_page3.form.submit().follow()
 
 
-def _browse_usage_statistic(django_app):
-    resp = django_app.get('/').click(href=reverse('room:stats'))
+def _browse_visits_by_department_report(django_app):
+    resp = django_app.get('/').click(href=reverse('room:report_dept'))
     # the following checks are very minimal only:
     assert "<td>20</td>" in resp.text  # seats
     assert "<td>2</td>" in resp.text  # visits

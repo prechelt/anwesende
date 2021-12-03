@@ -7,7 +7,7 @@ import pytest
 
 import anwesende.room.forms as arf
 import anwesende.room.models as arm
-import anwesende.room.tests.test_models as datagen
+import anwesende.room.tests.makedata as artmd
 import anwesende.utils.date as aud
 
 
@@ -72,12 +72,12 @@ def test_SearchByRoomForm():
         f.full_clean()
         return set(f.cleaned_data['visits_qs'])
     #----- create data:
-    rm1s1, = datagen.make_seats("myroom", 1)
-    rm2s1, = datagen.make_seats("otherroom", 1)
+    rm1s1, = artmd.make_seats("myroom", 1)
+    rm2s1, = artmd.make_seats("otherroom", 1)
     rm1, rm2 = (rm1s1.room, rm2s1.room)
-    v11 = datagen.make_visit(rm1s1, "p11", "02:00", "04:00")  # noqa
-    v12 = datagen.make_visit(rm1s1, "p12", "03:00", "05:00")  # noqa
-    v21 = datagen.make_visit(rm2s1, "p21", "02:00", "04:00")  # noqa
+    v11 = artmd.make_visit(rm1s1, "p11", "02:00", "04:00")  # noqa
+    v12 = artmd.make_visit(rm1s1, "p12", "03:00", "05:00")  # noqa
+    v21 = artmd.make_visit(rm2s1, "p21", "02:00", "04:00")  # noqa
     #----- check rooms_qs:
     assert get_rooms("%myroom", "02:00-04:00") == set((rm1,))
     assert get_rooms("%org%", "02:00-04:00") == set((rm1, rm2))

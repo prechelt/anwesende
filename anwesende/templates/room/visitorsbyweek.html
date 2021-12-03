@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Bericht: Besucher_innen nach Woche</h1>
+  <p>
+    Zeigt für eine durch den Suchbegriff bestimmte Teilmenge der Besuchsdaten,
+    wie viele verschiedene Personen pro Woche anwwesend waren
+    und auf wie viele Bereiche sich das verteilt hat.
+  </p>
+  <p>
+    Die Zahl der Wochen ergibt sich aus dem gesetzlich vorgeschriebenen 
+    Zeithorizont der Datenbank von
+    {{ settings.DATA_RETENTION_DAYS }} Tagen.
+  </p>
+  
+  {% if stats %}
+
+    <h2>Ergebnis für '{{ roomdescriptor }}'</h2>
+    
+    <p>(noch nicht implementiert)</p>
+    
+  {% endif %}
+  <p><a href="/">Zurück</a></p>
+{% endblock content %}

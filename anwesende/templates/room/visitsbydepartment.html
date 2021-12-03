@@ -1,16 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Benutzungsstatistik</h1>
-  <p>Aktueller Stand der Benutzung:</p>
+  <h1>Bericht: Besuche nach Deparment</h1>
+  <p>
+    Aktueller Raumbestand (#Rooms, #Seats) und 
+    Gesamtanzahl der Besuche in der Datenbank 
+    (#Visits, Zeitraum: {{ settings.DATA_RETENTION_DAYS }} Tage) 
+  </p>
   <table class="table table-sm table-hover">
     <thead class="thead-light">
       <tr>
         <th scope="col">Organization</th>
         <th scope="col">Department</th>
-        <th scope="col">#Räume</th>
-        <th scope="col">#Sitze</th>
-        <th scope="col">#Besuche</th>
+        <th scope="col">#Rooms</th>
+        <th scope="col">#Seats</th>
+        <th scope="col">#Visits</th>
       </tr>
     </thead>
     <tbody>
