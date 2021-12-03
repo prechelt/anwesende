@@ -154,11 +154,19 @@ Release dates, version numbers, and contents:
     the single field room descriptor
   - suppressed redundant contact groups in case of double registrations
     of infected person
+- 2021-12-03, Version 5.6:
+  - traefik config: a.nwesen.de is now capable of https
+  - added `VisitorsByWeekView` at URL `/report_week` to show how many people
+    were actually present in each week.
+    Shows only weeks that are still stored in their entirety in the database.
+    These numbers allow to compute accurate incidence values if the number
+    of infection cases is known.
 
-
+ 
 ## Future
 
 - already done for the next version:
+  - .
 
 - TODO:
   - ...
