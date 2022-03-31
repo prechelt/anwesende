@@ -2,9 +2,34 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  {% if not form.errors %}
-    {% include "room/privacy.html" %}
+  {% if settings.STANDBY_MODE %}
+
+    <h2><span class="languagemark">DE</span>: Nicht in Betrieb</h2> 
+    <p>
+      Die bisherige Rechtsgrundlage für den Betrieb von a.nwesen.de
+      ({{settings.LEGAL_BASIS_DE|safe}}) 
+      ist aktuell entfallen.<br>
+      Bis eine neue Rechtsgrundlage erlassen wird,
+      ist das System deshalb nur im Bereitschaftsmodus.<br>
+      Es ist aktuell nicht möglich, die eigene Anwesenheit zu registrieren.
+    </p>
+    <h2><span class="languagemark">EN</span>: Not in Operation</h2> 
+    <p>
+      The previous legal basis for operating a.nwesen.de
+      ({{settings.LEGAL_BASIS_EN|safe}}) 
+      is no longer in force. <br>
+      Until a new legal basis is created by the lawmakers, 
+      the system therefore is in standby mode only.<br>
+      You cannot currently register your presence. 
+    </p>
+
+  {% else %}
+
+    {% if not form.errors %}
+      {% include "room/privacy.html" %}
+    {% endif %}
+    {% crispy form %}
+    <div style="height: 50vh;" comment="space for smartphone keyboard"></div>
+
   {% endif %}
-  {% crispy form %}
-  <div style="height: 50vh;" comment="space for smartphone keyboard"></div>
 {% endblock content %}

@@ -6,6 +6,7 @@ import typing as tg
 
 import bs4
 from django.conf import settings
+import django.test as djt
 import django.utils.timezone as djut
 import pytest
 import webtest as wt
@@ -18,6 +19,7 @@ import anwesende.utils.date as aud
 import anwesende.utils.excel as aue
 
 
+@djt.utils.override_settings(STANDBY_MODE=False)
 @pytest.mark.django_db
 def test_workflow_happy_path(django_app: wt.TestApp):
     """Use every important page once and check they play together properly."""
