@@ -161,7 +161,11 @@ Release dates, version numbers, and contents:
     Shows only weeks that are still stored in their entirety in the database.
     These numbers allow to compute accurate incidence values if the number
     of infection cases is known.
-
+- 2022-03-31, Version 5.7:
+  - added `STANDBY_MODE` setting for turning off the form in `VisitView`
+    (without turning off the server overall), so that the service runs in a kind
+    of standby to perhaps be reactivated later.
+    The idea is that nobody should rip off the QR codes yet.
  
 ## Future
 
